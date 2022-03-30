@@ -1,5 +1,9 @@
-import { Button } from '@mui/material';
+import Navigation from 'components/Navigation';
 
 export default function Home() {
-  return <Button variant="contained">Hello</Button>;
+  return (
+    <>
+      <Navigation />
+    </>
+  );
 }
