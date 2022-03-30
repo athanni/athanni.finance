@@ -3,13 +3,14 @@ import {
   Avatar,
   Button,
   ButtonGroup,
-  Container,
   IconButton,
   Toolbar,
 } from '@mui/material';
-import { FaBitcoin } from 'react-icons/fa';
+import { useRouter } from 'next/router';
 
 export default function Navigation() {
+  const { pathname } = useRouter();
+
   return (
     <AppBar color="transparent" elevation={0}>
       <Toolbar sx={{ justifyContent: 'space-between' }}>
@@ -17,14 +18,16 @@ export default function Navigation() {
           <Avatar>A</Avatar>
         </IconButton>
 
-        <ButtonGroup variant="contained" color="secondary">
-          <Button>Swap</Button>
-          <Button>Pool</Button>
+        <ButtonGroup variant="contained">
+          <Button color={pathname === '/' ? 'secondary' : 'inherit'}>
+            Swap
+          </Button>
+          <Button color={pathname === '/pool' ? 'secondary' : 'inherit'}>
+            Pool
+          </Button>
         </ButtonGroup>
 
-        <Button variant="contained" color="primary">
-          Connect Wallet
-        </Button>
+        <Button variant="contained">Connect Wallet</Button>
       </Toolbar>
     </AppBar>
   );
