@@ -6,6 +6,7 @@ import {
   IconButton,
   Toolbar,
 } from '@mui/material';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 
 export default function Navigation() {
@@ -19,12 +20,22 @@ export default function Navigation() {
         </IconButton>
 
         <ButtonGroup variant="contained">
-          <Button color={pathname === '/' ? 'secondary' : 'inherit'}>
-            Swap
-          </Button>
-          <Button color={pathname === '/pool' ? 'secondary' : 'inherit'}>
-            Pool
-          </Button>
+          <Link href="/" passHref>
+            <Button
+              component="a"
+              color={pathname === '/' ? 'secondary' : 'inherit'}
+            >
+              Swap
+            </Button>
+          </Link>
+          <Link href="/pool" passHref>
+            <Button
+              component="a"
+              color={pathname === '/pool' ? 'secondary' : 'inherit'}
+            >
+              Pool
+            </Button>
+          </Link>
         </ButtonGroup>
 
         <Button variant="contained">Connect Wallet</Button>
