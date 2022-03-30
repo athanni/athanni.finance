@@ -13,7 +13,7 @@ export default function Navigation() {
   const { pathname } = useRouter();
 
   return (
-    <AppBar color="transparent" elevation={0}>
+    <AppBar color="transparent" position="sticky" elevation={0}>
       <Toolbar sx={{ justifyContent: 'space-between' }}>
         <IconButton>
           <Avatar>A</Avatar>
