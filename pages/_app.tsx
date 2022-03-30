@@ -1,5 +1,16 @@
+import { CssBaseline, ThemeProvider } from '@mui/material';
+import theme from 'config/theme';
 import type { AppProps } from 'next/app';
+import Head from 'next/head';
 
 export default function MyApp({ Component, pageProps }: AppProps) {
-  return <Component {...pageProps} />;
+  return (
+    <ThemeProvider theme={theme}>
+      <Head>
+        <meta name="viewport" content="initial-scale=1, width=device-width" />
+      </Head>
+      <CssBaseline />
+      <Component {...pageProps} />
+    </ThemeProvider>
+  );
 }
