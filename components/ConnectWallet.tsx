@@ -1,5 +1,6 @@
 import {
   Button,
+  ButtonProps,
   Dialog,
   DialogContent,
   DialogTitle,
@@ -11,12 +12,16 @@ import {
 import { useBoolean } from 'react-use';
 import MetamaskIcon from './MetamaskIcon';
 
-export default function ConnectWallet() {
+type ConnectWalletProps = {
+  buttonProps?: ButtonProps;
+};
+
+export default function ConnectWallet({ buttonProps }: ConnectWalletProps) {
   const [open, toggleOpen] = useBoolean(false);
 
   return (
     <>
-      <Button variant="contained" onClick={toggleOpen}>
+      <Button variant="contained" {...buttonProps} onClick={toggleOpen}>
         Connect Wallet
       </Button>
 
