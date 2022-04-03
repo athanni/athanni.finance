@@ -10,7 +10,7 @@ import {
 } from '@mui/material';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import ChainSwitch from './ChainSwitch';
+import ConnectedChain from './ConnectedChain';
 import ConnectWallet from './ConnectWallet';
 
 export default function Navigation() {
@@ -46,8 +46,14 @@ export default function Navigation() {
           </ButtonGroup>
         </Stack>
 
-        <Stack direction="row" justifyContent="flex-end" spacing={1} flex={1}>
-          <ChainSwitch />
+        <Stack
+          direction="row"
+          justifyContent="flex-end"
+          alignItems="center"
+          spacing={1}
+          flex={1}
+        >
+          <ConnectedChain />
           <ConnectWallet />
         </Stack>
       </Toolbar>
