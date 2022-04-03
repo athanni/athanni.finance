@@ -9,14 +9,14 @@ import {
   ListItemIcon,
   ListItemText,
 } from '@mui/material';
-import { useWeb3React, UnsupportedChainIdError } from '@web3-react/core';
+import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core';
 import { InjectedConnector } from '@web3-react/injected-connector';
 import {
   THETA_MAINNET_CHAIN_ID,
   THETA_TESTNET_CHAIN_ID,
 } from 'config/constants';
 import { useCallback } from 'react';
-import { useAsync, useBoolean } from 'react-use';
+import { useBoolean } from 'react-use';
 import { shorternAddress } from 'utils/string';
 import MetamaskIcon from './MetamaskIcon';
 
@@ -37,25 +37,21 @@ export default function ConnectWallet({ buttonProps }: ConnectWalletProps) {
     toggleOpen(false);
   }, [activate, toggleOpen]);
 
-  const { value: accountIfError } = useAsync(
-    async () =>
-      error instanceof UnsupportedChainIdError
-        ? injectedWallet.getAccount()
-        : null,
-    [error]
-  );
-
+  const isUnsupported = error instanceof UnsupportedChainIdError;
   // It is connected even if wallet not on valid chain id.
-  const isConnected = active || error instanceof UnsupportedChainIdError;
+  const isConnected = active || isUnsupported;
 
   return (
     <>
-      <Button variant="contained" {...buttonProps} onClick={toggleOpen}>
+      <Button
+        variant="contained"
+        color={isUnsupported ? 'error' : 'secondary'}
+        {...buttonProps}
+        onClick={() => toggleOpen(true)}
+      >
         {active && account && shorternAddress(account)}
-        {error instanceof UnsupportedChainIdError &&
-          accountIfError &&
-          shorternAddress(accountIfError)}
-        {!account && !accountIfError && 'Connect Wallet'}
+        {isUnsupported && 'Wrong Network'}
+        {!account && !isUnsupported && 'Connect Wallet'}
       </Button>
 
       {/* Show the dialog to connect wallet if its not connected. */}
