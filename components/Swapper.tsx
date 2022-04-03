@@ -1,4 +1,4 @@
-import { Paper, TextField, Typography } from '@mui/material';
+import { Button, Paper, Stack, TextField, Typography } from '@mui/material';
 import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core';
 import ConnectWallet from './ConnectWallet';
 
@@ -8,11 +8,22 @@ export default function Swapper() {
   const isConnected = active || error instanceof UnsupportedChainIdError;
 
   return (
-    <Paper sx={{ p: 2, width: '100%', maxWidth: 500 }}>
-      <Typography variant="h6">Swap</Typography>
-      <TextField placeholder="0.0" fullWidth sx={{ mt: 1 }} />
-      <TextField placeholder="0.0" fullWidth sx={{ mt: 1, mb: 1 }} />
-      {!isConnected && (
+    <Paper
+      variant="outlined"
+      sx={{
+        px: 4,
+        py: 3,
+        width: '100%',
+        maxWidth: 500,
+      }}
+    >
+      <TextField placeholder="0.0" fullWidth sx={{ mt: 3 }} />
+      <TextField placeholder="0.0" fullWidth sx={{ mt: 3, mb: 3 }} />
+      {isConnected ? (
+        <Button variant="contained" fullWidth size="large">
+          Swap
+        </Button>
+      ) : (
         <ConnectWallet
           buttonProps={{
             size: 'large',
