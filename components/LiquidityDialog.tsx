@@ -2,7 +2,6 @@ import {
   Alert,
   Button,
   Dialog,
-  DialogActions,
   DialogContent,
   DialogTitle,
   Stack,
@@ -11,7 +10,7 @@ import {
 } from '@mui/material';
 import { Box } from '@mui/system';
 import { useBoolean } from 'react-use';
-import SwapInput from './SwapInput';
+import CurrencyInput from './CurrencyInput';
 
 export default function LiquidityDialog() {
   const [open, toggleOpen] = useBoolean(false);
@@ -46,10 +45,10 @@ export default function LiquidityDialog() {
             Deposit Amounts
           </Typography>
           <Box mt={2}>
-            <SwapInput />
+            <CurrencyInput />
           </Box>
           <Box mt={2}>
-            <SwapInput />
+            <CurrencyInput />
           </Box>
 
           <Button variant="contained" fullWidth size="large" sx={{ mt: 4 }}>

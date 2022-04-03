@@ -8,7 +8,7 @@ import {
   useTheme,
 } from '@mui/material';
 
-export default function SwapInput() {
+export default function CurrencyInput() {
   const { typography } = useTheme();
 
   return (

@@ -1,7 +1,7 @@
-import { Button, Paper, Stack, TextField, Typography } from '@mui/material';
+import { Button, Paper, Stack, Typography } from '@mui/material';
 import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core';
 import ConnectWallet from './ConnectWallet';
-import SwapInput from './SwapInput';
+import CurrencyInput from './CurrencyInput';
 
 export default function Swapper() {
   const { active, error } = useWeb3React();
@@ -20,8 +20,8 @@ export default function Swapper() {
     >
       <Typography fontWeight="medium">Swap</Typography>
       <Stack mt={3} spacing={3}>
-        <SwapInput />
-        <SwapInput />
+        <CurrencyInput />
+        <CurrencyInput />
         {isConnected ? (
           <Button variant="contained" fullWidth size="large">
             Swap
