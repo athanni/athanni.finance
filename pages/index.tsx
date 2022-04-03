@@ -7,7 +7,7 @@ export default function Home() {
     <>
       <Navigation />
       <Container>
-        <Stack alignItems="center" mt={4}>
+        <Stack alignItems="center" mt={6}>
           <Swapper />
         </Stack>
       </Container>
