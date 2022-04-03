@@ -4,11 +4,13 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
+  MenuItem,
   Stack,
   TextField,
   Typography,
 } from '@mui/material';
 import { Box } from '@mui/system';
+import supportedTokens from 'config/supportedTokens';
 import { useBoolean } from 'react-use';
 import CurrencyInput from './CurrencyInput';
 
@@ -26,8 +28,16 @@ export default function LiquidityDialog() {
         <DialogContent>
           <Typography fontWeight="medium">Select Pair</Typography>
           <Stack direction="row" spacing={2} mt={2}>
-            <TextField fullWidth />
-            <TextField fullWidth />
+            <TextField select fullWidth>
+              {supportedTokens.map((token) => (
+                <MenuItem key={token.address}>{token.ticker}</MenuItem>
+              ))}
+            </TextField>
+            <TextField select fullWidth>
+              {supportedTokens.map((token) => (
+                <MenuItem key={token.address}>{token.ticker}</MenuItem>
+              ))}
+            </TextField>
           </Stack>
           <Alert severity="info" icon={false} sx={{ mt: 2 }}>
             This is a new pool and it needs to be initialized first before
