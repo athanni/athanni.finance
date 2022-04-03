@@ -11,7 +11,7 @@ export default function ChainSwitch() {
       <Button
         color={chainId === THETA_TESTNET_CHAIN_ID ? 'secondary' : 'inherit'}
       >
-        Testnet
+        Theta Testnet
       </Button>
       {isUnsupported && <Button color="error">Unsupported</Button>}
     </ButtonGroup>
