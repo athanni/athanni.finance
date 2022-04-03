@@ -8,6 +8,7 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
+  Typography,
 } from '@mui/material';
 import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core';
 import { InjectedConnector } from '@web3-react/injected-connector';
@@ -47,7 +48,7 @@ export default function ConnectWallet({ buttonProps }: ConnectWalletProps) {
         variant="contained"
         color={isUnsupported ? 'error' : 'secondary'}
         {...buttonProps}
-        onClick={() => toggleOpen(true)}
+        onClick={!active ? toggleOpen : undefined}
       >
         {active && account && shorternAddress(account)}
         {isUnsupported && 'Wrong Network'}
@@ -71,6 +72,21 @@ export default function ConnectWallet({ buttonProps }: ConnectWalletProps) {
               <ListItemText>MetaMask</ListItemText>
             </ListItem>
           </List>
+        </DialogContent>
+      </Dialog>
+
+      {/* Show the dialog to help user connect to a valid network. */}
+      <Dialog
+        open={isUnsupported && open}
+        onClose={toggleOpen}
+        fullWidth
+        maxWidth="xs"
+      >
+        <DialogTitle>Wrong Network</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Change the network to Theta Testnet on your MetaMask wallet.
+          </Typography>
         </DialogContent>
       </Dialog>
     </>
