@@ -45,10 +45,10 @@ export default function LiquidityDialog() {
             Deposit Amounts
           </Typography>
           <Box mt={2}>
-            <CurrencyInput />
+            <CurrencyInput disableCurrencySelection />
           </Box>
           <Box mt={2}>
-            <CurrencyInput />
+            <CurrencyInput disableCurrencySelection />
           </Box>
 
           <Button variant="contained" fullWidth size="large" sx={{ mt: 4 }}>

@@ -8,7 +8,13 @@ import {
   useTheme,
 } from '@mui/material';
 
-export default function CurrencyInput() {
+type CurrencyInputProps = {
+  disableCurrencySelection?: boolean;
+};
+
+export default function CurrencyInput({
+  disableCurrencySelection,
+}: CurrencyInputProps) {
   const { typography } = useTheme();
 
   return (
@@ -33,6 +39,7 @@ export default function CurrencyInput() {
           value="ETH"
           size="small"
           disableUnderline
+          disabled={disableCurrencySelection}
           sx={{
             '& .MuiSelect-select': {
               bgcolor: 'grey.200',
