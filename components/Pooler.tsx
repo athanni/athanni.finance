@@ -1,4 +1,5 @@
 import { Button, Paper, Stack, Typography } from '@mui/material';
+import LiquidityDialog from './LiquidityDialog';
 
 export default function Pooler() {
   return (
@@ -19,7 +20,7 @@ export default function Pooler() {
           alignItems="center"
         >
           <Typography fontWeight="medium">Pool</Typography>
-          <Button variant="contained">Add Liquidity</Button>
+          <LiquidityDialog />
         </Stack>
         <Typography textAlign="center" color="textSecondary" mt={12} mb={10}>
           Your active liquidity positions will appear here.
