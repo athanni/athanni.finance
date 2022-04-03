@@ -17,6 +17,7 @@ import {
 } from 'config/constants';
 import { useCallback } from 'react';
 import { useBoolean } from 'react-use';
+import { shorternAddress } from 'utils/string';
 import MetamaskIcon from './MetamaskIcon';
 
 type ConnectWalletProps = {
@@ -29,19 +30,22 @@ const injectedWallet = new InjectedConnector({
 
 export default function ConnectWallet({ buttonProps }: ConnectWalletProps) {
   const [open, toggleOpen] = useBoolean(false);
-  const { active, activate } = useWeb3React();
+  const { active, activate, chainId, account } = useWeb3React();
 
   const onConnectMetaMask = useCallback(async () => {
     await activate(injectedWallet);
-    toggleOpen();
+    toggleOpen(false);
   }, [activate, toggleOpen]);
 
   return (
     <>
       <Button variant="contained" {...buttonProps} onClick={toggleOpen}>
-        Connect Wallet
+        {active && chainId && account
+          ? shorternAddress(account)
+          : 'Connect Wallet'}
       </Button>
 
+      {/* Show the dialog to connect wallet if its not connected. */}
       <Dialog
         open={!active && open}
         onClose={toggleOpen}
