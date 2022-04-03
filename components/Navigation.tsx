@@ -10,6 +10,8 @@ import {
 } from '@mui/material';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import ConnectedChain from './ConnectedChain';
+import ConnectWallet from './ConnectWallet';
 
 export default function Navigation() {
   const { pathname } = useRouter();
@@ -44,8 +46,15 @@ export default function Navigation() {
           </ButtonGroup>
         </Stack>
 
-        <Stack alignItems="flex-end" flex={1}>
-          <Button variant="contained">Connect Wallet</Button>
+        <Stack
+          direction="row"
+          justifyContent="flex-end"
+          alignItems="center"
+          spacing={1}
+          flex={1}
+        >
+          <ConnectedChain />
+          <ConnectWallet />
         </Stack>
       </Toolbar>
     </AppBar>

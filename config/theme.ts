@@ -9,6 +9,11 @@ export default createTheme({
     secondary: indigo,
   },
   components: {
+    MuiButtonBase: {
+      defaultProps: {
+        disableRipple: true,
+      },
+    },
     MuiButton: {
       defaultProps: {
         color: 'secondary',
