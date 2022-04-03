@@ -1,4 +1,5 @@
-import { CssBaseline, ThemeProvider } from '@mui/material';
+import { CssBaseline, GlobalStyles, ThemeProvider } from '@mui/material';
+import { grey } from '@mui/material/colors';
 import { Web3ReactProvider } from '@web3-react/core';
 import theme from 'config/theme';
 import { ethers, Wallet } from 'ethers';
@@ -25,6 +26,14 @@ export default function MyApp({ Component, pageProps }: AppProps) {
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <Component {...pageProps} />
+
+        <GlobalStyles
+          styles={`
+            body {
+              background-color: ${grey[50]};
+            }
+          `}
+        />
       </ThemeProvider>
     </Web3ReactProvider>
   );
