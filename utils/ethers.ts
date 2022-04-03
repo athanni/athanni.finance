@@ -4,6 +4,7 @@ import { ethers } from 'ethers';
 import { useMemo } from 'react';
 import { useAsync } from 'react-use';
 import factoryContractAbi from './factoryContractAbi';
+import pairContractAbi from './pairContractAbi';
 import routerContractAbi from './routerContractAbi';
 
 type RouterContract = ethers.Contract & {
@@ -54,4 +55,19 @@ export function useFactoryContract(): ethers.Contract | null {
     const signer = library.getSigner();
     return new ethers.Contract(factoryAddress, factoryContractAbi, signer);
   }, [factoryAddress, library]);
+}
+
+/**
+ * Gets the pair contract API using ethers.
+ */
+export function usePairContract(pairAddress: string): ethers.Contract | null {
+  const { library } = useWeb3React();
+  return useMemo(() => {
+    if (!library) {
+      return null;
+    }
+
+    const signer = library.getSigner();
+    return new ethers.Contract(pairAddress, pairContractAbi, signer);
+  }, [pairAddress, library]);
 }
