@@ -1,4 +1,4 @@
-import { Button, ButtonGroup } from '@mui/material';
+import { Button, ButtonGroup, Tooltip } from '@mui/material';
 import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core';
 import { THETA_TESTNET_CHAIN_ID } from 'config/constants';
 
@@ -13,7 +13,11 @@ export default function ChainSwitch() {
       >
         Theta Testnet
       </Button>
-      {isUnsupported && <Button color="error">Unsupported</Button>}
+      {isUnsupported && (
+        <Tooltip title="Switch the network to Theta testnet on MetaMask.">
+          <Button color="error">Unsupported</Button>
+        </Tooltip>
+      )}
     </ButtonGroup>
   );
 }
