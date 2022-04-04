@@ -8,6 +8,7 @@ import {
   Typography,
 } from '@mui/material';
 import { Box } from '@mui/system';
+import { usePairAddressForTokens } from 'api/pairs';
 import supportedTokens from 'config/supportedTokens';
 import { useEffect, useMemo } from 'react';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
@@ -34,24 +35,30 @@ export default function LiquidityDialog() {
 
   const token0 = useWatch({ control: form.control, name: 'token0' });
   const token1 = useWatch({ control: form.control, name: 'token1' });
-  const token0Options = useMemo(
-    () => supportedTokens.filter((it) => it.address !== token1),
-    [token1]
+
+  // Transform the token addresses to valid ones, removing '0x' references and setting
+  // null instead.
+  const tokenA = token0 !== '0x' ? token0 : undefined;
+  const tokenB = token1 !== '0x' ? token1 : undefined;
+
+  const tokenAOptions = useMemo(
+    () => supportedTokens.filter((it) => it.address !== tokenB),
+    [tokenB]
   );
-  const token1Options = useMemo(
-    () => supportedTokens.filter((it) => it.address !== token0),
-    [token0]
+  const tokenBOptions = useMemo(
+    () => supportedTokens.filter((it) => it.address !== tokenA),
+    [tokenA]
   );
 
   // Reset all other fields if the token are not selected.
   useEffect(() => {
-    if (token0 === '0x' || token1 === '0x') {
+    if (!tokenA || !tokenB) {
       // Reset all other fields.
       setValue('startingPrice', '');
       setValue('token0Deposit', '');
       setValue('token1Deposit', '');
     }
-  }, [setValue, token0, token1]);
+  }, [setValue, tokenA, tokenB]);
 
   // Reset the form itself on close.
   useEffect(() => {
@@ -60,6 +67,9 @@ export default function LiquidityDialog() {
       setValue('token1', '0x');
     }
   }, [open, setValue]);
+
+  const { data: pairAddress, isLoading: isPairAddressLoading } =
+    usePairAddressForTokens(tokenA, tokenB);
 
   return (
     <>
@@ -76,29 +86,29 @@ export default function LiquidityDialog() {
               <TokenSelect
                 name="token0"
                 placeholder="First token"
-                tokens={token0Options}
+                tokens={tokenAOptions}
               />
               <TokenSelect
                 name="token1"
                 placeholder="Second token"
-                tokens={token1Options}
+                tokens={tokenBOptions}
               />
             </Stack>
-            <Alert severity="info" icon={false} sx={{ mt: 2 }}>
-              This is a new pool and it needs to be initialized first before
-              adding liquidity to it. To initialize input the starting price for
-              the pool and the deposit amount. Gas fees will be higher than
-              usual due to initialization.
-            </Alert>
+
+            {tokenA && tokenB && !isPairAddressLoading && !pairAddress && (
+              <Alert severity="info" icon={false} sx={{ mt: 2 }}>
+                This is a new pool and it needs to be initialized first before
+                adding liquidity to it. To initialize input the starting price
+                for the pool and the deposit amount. Gas fees will be higher
+                than usual due to initialization.
+              </Alert>
+            )}
 
             <Typography fontWeight="medium" mt={4}>
               Set Starting Price
             </Typography>
             <Box mt={2}>
-              <PriceInput
-                name="startingPrice"
-                disabled={token0 === '0x' || token1 === '0x'}
-              />
+              <PriceInput name="startingPrice" disabled={!tokenA || !tokenB} />
             </Box>
 
             <Typography fontWeight="medium" mt={4}>
@@ -107,13 +117,13 @@ export default function LiquidityDialog() {
             <Box mt={2}>
               <LiquidityAmountInput
                 name="token0Deposit"
-                address={token0 !== '0x' && token1 !== '0x' ? token0 : ''}
+                address={tokenA && tokenB ? tokenA : ''}
               />
             </Box>
             <Box mt={2}>
               <LiquidityAmountInput
                 name="token1Deposit"
-                address={token0 !== '0x' && token1 !== '0x' ? token1 : ''}
+                address={tokenA && tokenB ? tokenB : ''}
               />
             </Box>
 
