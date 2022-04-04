@@ -9,6 +9,16 @@ import routerContractAbi from './routerContractAbi';
 
 type RouterContract = ethers.Contract & {
   factory(): Promise<string>;
+  addLiquidity(
+    tokenA: string,
+    tokenB: string,
+    amountADesired: ethers.BigNumber,
+    amountBDesired: ethers.BigNumber,
+    amountAMin: ethers.BigNumber,
+    amountBMin: ethers.BigNumber,
+    to: string,
+    deadline: ethers.BigNumber
+  ): Promise<[ethers.BigNumber, ethers.BigNumber, ethers.BigNumber]>;
 };
 
 /**
