@@ -1,7 +1,7 @@
 /**
  * A token metadata type.
  */
-type Token = {
+export type Token = {
   /**
    * The address where this token TNT-20 contract is deployed to.
    */
