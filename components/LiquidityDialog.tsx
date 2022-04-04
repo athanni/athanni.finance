@@ -15,6 +15,7 @@ import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { useBoolean } from 'react-use';
 import { materialRegister } from 'utils/materialForm';
 import LiquidityAmountInput from './LiquidityAmountInput';
+import PriceInput from './PriceInput';
 import TokenSelect from './TokenSelect';
 
 export default function LiquidityDialog() {
@@ -29,7 +30,6 @@ export default function LiquidityDialog() {
       token1Deposit: '',
     },
   });
-  const { register } = form;
 
   const token0 = useWatch({ control: form.control, name: 'token0' });
   const token1 = useWatch({ control: form.control, name: 'token1' });
@@ -67,11 +67,9 @@ export default function LiquidityDialog() {
             <Typography fontWeight="medium" mt={4}>
               Set Starting Price
             </Typography>
-            <TextField
-              fullWidth
-              sx={{ mt: 2 }}
-              {...materialRegister(register, 'startingPrice')}
-            />
+            <Box mt={2}>
+              <PriceInput name="startingPrice" />
+            </Box>
 
             <Typography fontWeight="medium" mt={4}>
               Deposit Amounts

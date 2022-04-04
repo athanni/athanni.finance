@@ -2,7 +2,7 @@ import { Box, Button, Input, Stack, useTheme } from '@mui/material';
 import supportedTokens from 'config/supportedTokens';
 import { useMemo } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
-import { materialRegister } from 'utils/materialForm';
+import { handleDecimalInput } from 'utils/numeric';
 
 type LiquidityAmountInputProps = {
   name: string;
@@ -43,25 +43,8 @@ export default function LiquidityAmountInput({
                 fontWeight: 'medium',
               }}
               {...field}
-              onChange={(e) => {
-                // This is to allow only floating point inputs.
-
-                const num = parseFloat(e.target.value);
-                const hasSucceedingDot = e.target.value.endsWith('.');
-                const containsDotBefore = e.target.value
-                  .substring(0, e.target.value.length - 1)
-                  .includes('.');
-
-                if (Number.isNaN(num)) {
-                  return field.onChange('0');
-                }
-
-                if (!containsDotBefore && hasSucceedingDot) {
-                  return field.onChange(`${num}.`);
-                }
-
-                return field.onChange(`${num}`);
-              }}
+              onChange={(e) => handleDecimalInput(e, field.onChange)}
+              disabled={!token}
             />
           )}
         />
