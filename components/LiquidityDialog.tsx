@@ -15,6 +15,7 @@ import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { useBoolean } from 'react-use';
 import { materialRegister } from 'utils/materialForm';
 import CurrencyInput from './CurrencyInput';
+import LiquidityAmountInput from './LiquidityAmountInput';
 import TokenSelect from './TokenSelect';
 
 export default function LiquidityDialog() {
@@ -77,10 +78,10 @@ export default function LiquidityDialog() {
               Deposit Amounts
             </Typography>
             <Box mt={2}>
-              <CurrencyInput disableCurrencySelection />
+              <LiquidityAmountInput address={token0} />
             </Box>
             <Box mt={2}>
-              <CurrencyInput disableCurrencySelection />
+              <LiquidityAmountInput address={token1} />
             </Box>
 
             <Button variant="contained" fullWidth size="large" sx={{ mt: 4 }}>
