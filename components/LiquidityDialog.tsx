@@ -30,12 +30,26 @@ export default function LiquidityDialog() {
           <Stack direction="row" spacing={2} mt={2}>
             <TextField select fullWidth>
               {supportedTokens.map((token) => (
-                <MenuItem key={token.address}>{token.ticker}</MenuItem>
+                <MenuItem key={token.address} value={token.ticker}>
+                  <Stack>
+                    <Typography variant="body2">{token.ticker}</Typography>
+                    <Typography variant="caption" color="textSecondary">
+                      {token.name}
+                    </Typography>
+                  </Stack>
+                </MenuItem>
               ))}
             </TextField>
             <TextField select fullWidth>
               {supportedTokens.map((token) => (
-                <MenuItem key={token.address}>{token.ticker}</MenuItem>
+                <MenuItem key={token.address} value={token.ticker}>
+                  <Stack>
+                    <Typography variant="body2">{token.ticker}</Typography>
+                    <Typography variant="caption" color="textSecondary">
+                      {token.name}
+                    </Typography>
+                  </Stack>
+                </MenuItem>
               ))}
             </TextField>
           </Stack>
