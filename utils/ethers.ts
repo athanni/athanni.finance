@@ -40,10 +40,14 @@ export function useRouterContract(): RouterContract | null {
   }, [library]);
 }
 
+type FactoryContract = ethers.Contract & {
+  getPair(tokenA: string, tokenB: string): Promise<string>;
+};
+
 /**
  * Gets the factory contract API using ethers.
  */
-export function useFactoryContract(): ethers.Contract | null {
+export function useFactoryContract(): FactoryContract | null {
   const { library } = useWeb3React();
   const routerContract = useRouterContract();
 
@@ -63,7 +67,11 @@ export function useFactoryContract(): ethers.Contract | null {
     }
 
     const signer = library.getSigner();
-    return new ethers.Contract(factoryAddress, factoryContractAbi, signer);
+    return new ethers.Contract(
+      factoryAddress,
+      factoryContractAbi,
+      signer
+    ) as FactoryContract;
   }, [factoryAddress, library]);
 }
 

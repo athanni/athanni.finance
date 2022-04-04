@@ -5,6 +5,7 @@ import theme from 'config/theme';
 import { ethers, Wallet } from 'ethers';
 import { NextSeo } from 'next-seo';
 import type { AppProps } from 'next/app';
+import { QueryClient, QueryClientProvider } from 'react-query';
 
 /**
  * Constructs the Web3 instance for use with the web3-react lib.
@@ -13,28 +14,41 @@ function getLibrary(provider: any) {
   return new ethers.providers.Web3Provider(provider);
 }
 
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: Infinity,
+    },
+  },
+});
+
 export default function MyApp({ Component, pageProps }: AppProps) {
   return (
-    <Web3ReactProvider getLibrary={getLibrary}>
-      <NextSeo
-        title="Athanni Finance"
-        description="A fast and cheap non-custodial token swap on Theta Network."
-        additionalMetaTags={[
-          { name: 'viewport', content: 'initial-scale=1, width=device-width' },
-        ]}
-      />
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <Component {...pageProps} />
+    <QueryClientProvider client={queryClient}>
+      <Web3ReactProvider getLibrary={getLibrary}>
+        <NextSeo
+          title="Athanni Finance"
+          description="A fast and cheap non-custodial token swap on Theta Network."
+          additionalMetaTags={[
+            {
+              name: 'viewport',
+              content: 'initial-scale=1, width=device-width',
+            },
+          ]}
+        />
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <Component {...pageProps} />
 
-        <GlobalStyles
-          styles={`
+          <GlobalStyles
+            styles={`
             body {
               background-color: ${grey[50]};
             }
           `}
-        />
-      </ThemeProvider>
-    </Web3ReactProvider>
+          />
+        </ThemeProvider>
+      </Web3ReactProvider>
+    </QueryClientProvider>
   );
 }
