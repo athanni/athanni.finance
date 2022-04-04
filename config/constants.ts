@@ -8,3 +8,8 @@ export const THETA_TESTNET_RPC_URL =
  * The default deadline for each transaction. Unit is in seconds.
  */
 export const THETA_DEFAULT_DEADLINE_FROM_NOW = 60 * 5;
+
+/**
+ * A zero value address that points to the void.
+ */
+export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';

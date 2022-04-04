@@ -1,3 +1,4 @@
+import { ZERO_ADDRESS } from 'config/constants';
 import { useEffect } from 'react';
 import { useQuery } from 'react-query';
 import { useFactoryContract } from 'utils/ethers';
@@ -10,7 +11,10 @@ export function usePairAddressForTokens(tokenA?: string, tokenB?: string) {
 
   const query = useQuery(
     ['pair-address-token', tokenA, tokenB],
-    async () => factoryContract!.getPair(tokenA!, tokenB!),
+    async () => {
+      const pairAddress = await factoryContract!.getPair(tokenA!, tokenB!);
+      return pairAddress !== ZERO_ADDRESS ? pairAddress : null;
+    },
     {
       enabled: Boolean(factoryContract) && Boolean(tokenA) && Boolean(tokenB),
     }

@@ -71,8 +71,6 @@ export default function LiquidityDialog() {
   const { data: pairAddress, isLoading: isPairAddressLoading } =
     usePairAddressForTokens(tokenA, tokenB);
 
-  console.log({ pairAddress });
-
   return (
     <>
       <Button variant="contained" onClick={toggleOpen}>
