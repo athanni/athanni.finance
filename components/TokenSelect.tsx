@@ -23,7 +23,7 @@ export default function TokenSelect({ name, tokens }: TokenSelectProps) {
           inputRef={field.ref}
         >
           {tokens.map((token) => (
-            <MenuItem key={token.address} value={token.ticker}>
+            <MenuItem key={token.address} value={token.address}>
               <Stack>
                 <Typography variant="body2">{token.ticker}</Typography>
                 <Typography variant="caption" color="textSecondary">
