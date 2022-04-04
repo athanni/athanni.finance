@@ -37,7 +37,7 @@ export default function CurrencyInput({
 
         <Select
           variant="standard"
-          value="ETH"
+          value=""
           size="small"
           disableUnderline
           disabled={disableCurrencySelection}
@@ -51,7 +51,9 @@ export default function CurrencyInput({
           }}
         >
           {supportedTokens.map((token) => (
-            <MenuItem key={token.address}>{token.ticker}</MenuItem>
+            <MenuItem key={token.address} value={token.address}>
+              {token.ticker}
+            </MenuItem>
           ))}
         </Select>
       </Stack>

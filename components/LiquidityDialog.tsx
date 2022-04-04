@@ -42,8 +42,6 @@ export default function LiquidityDialog() {
     [token0]
   );
 
-  console.log({ token0, token1 });
-
   return (
     <>
       <Button variant="contained" onClick={toggleOpen}>
