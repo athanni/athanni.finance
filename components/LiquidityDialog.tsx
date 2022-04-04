@@ -11,11 +11,23 @@ import {
 } from '@mui/material';
 import { Box } from '@mui/system';
 import supportedTokens from 'config/supportedTokens';
+import { useForm } from 'react-hook-form';
 import { useBoolean } from 'react-use';
+import { materialRegister } from 'utils/materialForm';
 import CurrencyInput from './CurrencyInput';
 
 export default function LiquidityDialog() {
   const [open, toggleOpen] = useBoolean(false);
+
+  const { register } = useForm({
+    defaultValues: {
+      token0: '',
+      token1: '',
+      startingPrice: '',
+      token0Deposit: '',
+      token1Deposit: '',
+    },
+  });
 
   return (
     <>
@@ -63,7 +75,11 @@ export default function LiquidityDialog() {
           <Typography fontWeight="medium" mt={4}>
             Set Starting Price
           </Typography>
-          <TextField fullWidth sx={{ mt: 2 }} />
+          <TextField
+            fullWidth
+            sx={{ mt: 2 }}
+            {...materialRegister(register, 'startingPrice')}
+          />
 
           <Typography fontWeight="medium" mt={4}>
             Deposit Amounts
