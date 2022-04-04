@@ -78,10 +78,10 @@ export default function LiquidityDialog() {
               Deposit Amounts
             </Typography>
             <Box mt={2}>
-              <LiquidityAmountInput address={token0} />
+              <LiquidityAmountInput name="token0Deposit" address={token0} />
             </Box>
             <Box mt={2}>
-              <LiquidityAmountInput address={token1} />
+              <LiquidityAmountInput name="token1Deposit" address={token1} />
             </Box>
 
             <Button variant="contained" fullWidth size="large" sx={{ mt: 4 }}>
