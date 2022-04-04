@@ -1,12 +1,13 @@
 import { TextField, useTheme } from '@mui/material';
-import { Controller, useFormContext } from 'react-hook-form';
+import { Controller, useFormContext, useWatch } from 'react-hook-form';
 import { handleDecimalInput } from 'utils/numeric';
 
 type PriceInputProps = {
   name: string;
+  disabled?: boolean;
 };
 
-export default function PriceInput({ name }: PriceInputProps) {
+export default function PriceInput({ name, disabled }: PriceInputProps) {
   const { control } = useFormContext();
   const theme = useTheme();
 
@@ -25,6 +26,7 @@ export default function PriceInput({ name }: PriceInputProps) {
               fontWeight: 'medium',
             },
           }}
+          disabled={disabled}
         />
       )}
     />

@@ -4,10 +4,15 @@ import { Controller, useFormContext } from 'react-hook-form';
 
 type TokenSelectProps = {
   name: string;
+  placeholder: string;
   tokens: Token[];
 };
 
-export default function TokenSelect({ name, tokens }: TokenSelectProps) {
+export default function TokenSelect({
+  name,
+  placeholder,
+  tokens,
+}: TokenSelectProps) {
   const { control } = useFormContext();
 
   return (
@@ -22,10 +27,18 @@ export default function TokenSelect({ name, tokens }: TokenSelectProps) {
           onChange={field.onChange}
           inputRef={field.ref}
         >
+          <MenuItem value="0x">
+            <Stack>
+              <Typography>Select a token</Typography>
+              <Typography variant="caption" color="textSecondary">
+                {placeholder}
+              </Typography>
+            </Stack>
+          </MenuItem>
           {tokens.map((token) => (
             <MenuItem key={token.address} value={token.address}>
               <Stack>
-                <Typography variant="body2">{token.ticker}</Typography>
+                <Typography>{token.ticker}</Typography>
                 <Typography variant="caption" color="textSecondary">
                   {token.name}
                 </Typography>
