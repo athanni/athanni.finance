@@ -14,7 +14,6 @@ import { useMemo } from 'react';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { useBoolean } from 'react-use';
 import { materialRegister } from 'utils/materialForm';
-import CurrencyInput from './CurrencyInput';
 import LiquidityAmountInput from './LiquidityAmountInput';
 import TokenSelect from './TokenSelect';
 

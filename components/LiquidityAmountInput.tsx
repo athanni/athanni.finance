@@ -1,7 +1,7 @@
 import { Box, Button, Input, Stack, useTheme } from '@mui/material';
 import supportedTokens from 'config/supportedTokens';
 import { useMemo } from 'react';
-import { useFormContext } from 'react-hook-form';
+import { Controller, useFormContext } from 'react-hook-form';
 import { materialRegister } from 'utils/materialForm';
 
 type LiquidityAmountInputProps = {
@@ -20,7 +20,7 @@ export default function LiquidityAmountInput({
     [address]
   );
 
-  const { register } = useFormContext();
+  const { control } = useFormContext();
 
   return (
     <Box bgcolor="grey.100" px={2} py={1.5} borderRadius={1.5}>
@@ -30,15 +30,40 @@ export default function LiquidityAmountInput({
         justifyContent="space-between"
         alignItems="center"
       >
-        <Input
-          disableUnderline
-          fullWidth
-          placeholder="0.0"
-          sx={{
-            fontSize: typography.h5.fontSize,
-            fontWeight: 'medium',
-          }}
-          {...materialRegister(register, name)}
+        <Controller
+          name={name}
+          control={control}
+          render={({ field }) => (
+            <Input
+              disableUnderline
+              fullWidth
+              placeholder="0.0"
+              sx={{
+                fontSize: typography.h5.fontSize,
+                fontWeight: 'medium',
+              }}
+              {...field}
+              onChange={(e) => {
+                // This is to allow only floating point inputs.
+
+                const num = parseFloat(e.target.value);
+                const hasSucceedingDot = e.target.value.endsWith('.');
+                const containsDotBefore = e.target.value
+                  .substring(0, e.target.value.length - 1)
+                  .includes('.');
+
+                if (Number.isNaN(num)) {
+                  return field.onChange('0');
+                }
+
+                if (!containsDotBefore && hasSucceedingDot) {
+                  return field.onChange(`${num}.`);
+                }
+
+                return field.onChange(`${num}`);
+              }}
+            />
+          )}
         />
 
         <Button variant="contained" color="inherit" disabled={!token}>
