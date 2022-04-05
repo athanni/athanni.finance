@@ -129,12 +129,12 @@ export default function LiquidityDialog() {
         const tokenADeposit = ethers.BigNumber.from(
           token0Deposit
             .multipliedBy(new BigNumber(10).pow(decimalsA.decimals))
-            .toString()
+            .toFixed()
         );
         const tokenBDeposit = ethers.BigNumber.from(
           token1Deposit
             .multipliedBy(new BigNumber(10).pow(decimalsB.decimals))
-            .toString()
+            .toFixed()
         );
 
         const amountAMin = calculateSlippageMin(
