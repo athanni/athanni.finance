@@ -164,13 +164,9 @@ export default function LiquidityDialog() {
 
   // TODO: Handle the ratio based on the market price for existing pairs.
   const startingPrice = useWatch({ control, name: 'startingPrice' });
-  const pairRatioA = useMemo(
+  const startingPriceBig = useMemo(
     () => new BigNumber(startingPrice),
     [startingPrice]
-  );
-  const pairRatioB = useMemo(
-    () => new BigNumber(1).dividedBy(pairRatioA),
-    [pairRatioA]
   );
 
   return (
@@ -226,7 +222,8 @@ export default function LiquidityDialog() {
                 <LiquidityAmountInput
                   name="token0Deposit"
                   pairName="token1Deposit"
-                  priceRatio={pairRatioA}
+                  priceRatio={startingPriceBig}
+                  isRatioInverse={false}
                   address={tokenA && tokenB ? tokenA : ''}
                 />
               </Box>
@@ -234,7 +231,8 @@ export default function LiquidityDialog() {
                 <LiquidityAmountInput
                   name="token1Deposit"
                   pairName="token0Deposit"
-                  priceRatio={pairRatioB}
+                  priceRatio={startingPriceBig}
+                  isRatioInverse
                   address={tokenA && tokenB ? tokenB : ''}
                 />
               </Box>

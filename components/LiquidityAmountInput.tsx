@@ -11,6 +11,7 @@ type LiquidityAmountInputProps = {
   name: string;
   pairName: string;
   priceRatio: BigNumber;
+  isRatioInverse: boolean;
   address: string;
 };
 
@@ -18,6 +19,7 @@ export default function LiquidityAmountInput({
   name,
   pairName,
   priceRatio,
+  isRatioInverse: inverseRatio,
   address,
 }: LiquidityAmountInputProps) {
   const { typography } = useTheme();
@@ -66,7 +68,9 @@ export default function LiquidityAmountInput({
                 handleDecimalInput(e, field.onChange);
                 handleDecimalInput(e, (event) => {
                   const v = new BigNumber(e.target.value);
-                  const pairValue = v.multipliedBy(priceRatio);
+                  const pairValue = inverseRatio
+                    ? v.dividedBy(priceRatio)
+                    : v.multipliedBy(priceRatio);
                   setValue(
                     pairName,
                     pairValue.isNaN() ? '0' : pairValue.toString()
