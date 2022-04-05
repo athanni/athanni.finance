@@ -15,7 +15,7 @@ export default function PriceInput({ name, disabled }: PriceInputProps) {
     <Controller
       name={name}
       control={control}
-      render={({ field }) => (
+      render={({ field, fieldState }) => (
         <TextField
           fullWidth
           {...field}
@@ -27,6 +27,7 @@ export default function PriceInput({ name, disabled }: PriceInputProps) {
             },
           }}
           disabled={disabled}
+          error={Boolean(fieldState.error)}
         />
       )}
     />

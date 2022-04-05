@@ -19,13 +19,14 @@ export default function TokenSelect({
     <Controller
       name={name}
       control={control}
-      render={({ field }) => (
+      render={({ field, fieldState }) => (
         <TextField
           select
           fullWidth
           value={field.value}
           onChange={field.onChange}
           inputRef={field.ref}
+          error={Boolean(fieldState.error)}
         >
           <MenuItem value="0x">
             <Stack>

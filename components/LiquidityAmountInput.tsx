@@ -1,4 +1,5 @@
 import { Box, Button, Input, Stack, Typography, useTheme } from '@mui/material';
+import { red } from '@mui/material/colors';
 import { useTokenBalance } from 'api/token';
 import supportedTokens from 'config/supportedTokens';
 import { ethers } from 'ethers';
@@ -23,10 +24,20 @@ export default function LiquidityAmountInput({
   );
   const { data: tokenBalance } = useTokenBalance(address);
 
-  const { control } = useFormContext();
+  const {
+    control,
+    formState: { errors },
+  } = useFormContext();
 
   return (
-    <Box bgcolor="grey.100" px={2} py={1.5} borderRadius={1.5}>
+    <Box
+      bgcolor="grey.100"
+      border="1px solid"
+      borderColor={errors[name] ? red[700] : 'grey.400'}
+      px={2}
+      py={1.5}
+      borderRadius={1.5}
+    >
       <Stack
         direction="row"
         spacing={1}
