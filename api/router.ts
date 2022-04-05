@@ -26,6 +26,10 @@ export function useAddLiquidity() {
         return;
       }
 
+      const deadline = ethers.BigNumber.from(
+        THETA_DEFAULT_DEADLINE_FROM_NOW
+      ).add(ethers.BigNumber.from(Date.now()).div(1000));
+
       await routerContract.addLiquidity(
         args.tokenA,
         args.tokenB,
@@ -34,7 +38,7 @@ export function useAddLiquidity() {
         args.amountAMin,
         args.amountBMin,
         account,
-        ethers.BigNumber.from(THETA_DEFAULT_DEADLINE_FROM_NOW)
+        deadline
       );
     },
     [account, routerContract]
