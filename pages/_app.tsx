@@ -2,9 +2,10 @@ import { CssBaseline, GlobalStyles, ThemeProvider } from '@mui/material';
 import { grey } from '@mui/material/colors';
 import { Web3ReactProvider } from '@web3-react/core';
 import theme from 'config/theme';
-import { ethers, Wallet } from 'ethers';
+import { ethers } from 'ethers';
 import { NextSeo } from 'next-seo';
 import type { AppProps } from 'next/app';
+import { SnackbarProvider } from 'notistack';
 import { QueryClient, QueryClientProvider } from 'react-query';
 
 /**
@@ -38,7 +39,9 @@ export default function MyApp({ Component, pageProps }: AppProps) {
         />
         <ThemeProvider theme={theme}>
           <CssBaseline />
-          <Component {...pageProps} />
+          <SnackbarProvider>
+            <Component {...pageProps} />
+          </SnackbarProvider>
 
           <GlobalStyles
             styles={`

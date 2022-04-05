@@ -14,6 +14,7 @@ import { useAddLiquidity } from 'api/router';
 import BigNumber from 'bignumber.js';
 import supportedTokens, { tokenMap } from 'config/supportedTokens';
 import { ethers } from 'ethers';
+import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useMemo } from 'react';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { useBoolean } from 'react-use';
@@ -96,40 +97,51 @@ export default function LiquidityDialog() {
   const { data: pairAddress, isLoading: isPairAddressLoading } =
     usePairAddressForTokens(tokenA, tokenB);
 
+  const { enqueueSnackbar } = useSnackbar();
+
   const addLiquidity = useAddLiquidity();
   const onSubmit = useCallback(
     async (state: any) => {
-      const { token0, token1, token0Deposit, token1Deposit } =
-        state as SchemaType;
+      try {
+        const { token0, token1, token0Deposit, token1Deposit } =
+          state as SchemaType;
 
-      // TODO: Also support adding liquidity to existing pair.
+        // TODO: Also support adding liquidity to existing pair.
 
-      const decimalsA = tokenMap[token0];
-      const decimalsB = tokenMap[token1];
+        const decimalsA = tokenMap[token0];
+        const decimalsB = tokenMap[token1];
 
-      const tokenADeposit = ethers.BigNumber.from(
-        token0Deposit
-          .multipliedBy(new BigNumber(10).pow(decimalsA.decimals))
-          .toString()
-      );
-      const tokenBDeposit = ethers.BigNumber.from(
-        token1Deposit
-          .multipliedBy(new BigNumber(10).pow(decimalsB.decimals))
-          .toString()
-      );
+        const tokenADeposit = ethers.BigNumber.from(
+          token0Deposit
+            .multipliedBy(new BigNumber(10).pow(decimalsA.decimals))
+            .toString()
+        );
+        const tokenBDeposit = ethers.BigNumber.from(
+          token1Deposit
+            .multipliedBy(new BigNumber(10).pow(decimalsB.decimals))
+            .toString()
+        );
 
-      await addLiquidity({
-        tokenA: token0,
-        tokenB: token1,
-        amountADesired: tokenADeposit,
-        amountBDesired: tokenBDeposit,
-        amountAMin: tokenADeposit,
-        amountBMin: tokenBDeposit,
-      });
-
-      toggleOpen(false);
+        await addLiquidity({
+          tokenA: token0,
+          tokenB: token1,
+          amountADesired: tokenADeposit,
+          amountBDesired: tokenBDeposit,
+          amountAMin: tokenADeposit,
+          amountBMin: tokenBDeposit,
+        });
+        enqueueSnackbar('Successfully added liquidity.', {
+          variant: 'success',
+        });
+        toggleOpen(false);
+      } catch (err) {
+        enqueueSnackbar('Failed to add liquidity.', {
+          variant: 'error',
+        });
+        throw err;
+      }
     },
-    [addLiquidity, toggleOpen]
+    [addLiquidity, enqueueSnackbar, toggleOpen]
   );
 
   return (
