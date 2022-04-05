@@ -12,12 +12,14 @@ import {
 import { usePairAddressForTokens } from 'api/pairs';
 import { useAddLiquidity } from 'api/router';
 import BigNumber from 'bignumber.js';
+import { DEFAULT_SPLIPPAGE_RATE } from 'config/constants';
 import supportedTokens, { tokenMap } from 'config/supportedTokens';
 import { ethers } from 'ethers';
 import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useMemo } from 'react';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { useBoolean } from 'react-use';
+import { calculateSlippageMin } from 'utils/slippage';
 import { z } from 'zod';
 import LiquidityAmountInput from './LiquidityAmountInput';
 import PriceInput from './PriceInput';
@@ -122,13 +124,22 @@ export default function LiquidityDialog() {
             .toString()
         );
 
+        const amountAMin = calculateSlippageMin(
+          tokenADeposit,
+          DEFAULT_SPLIPPAGE_RATE
+        );
+        const amountBMin = calculateSlippageMin(
+          tokenBDeposit,
+          DEFAULT_SPLIPPAGE_RATE
+        );
+
         await addLiquidity({
           tokenA: token0,
           tokenB: token1,
           amountADesired: tokenADeposit,
           amountBDesired: tokenBDeposit,
-          amountAMin: tokenADeposit,
-          amountBMin: tokenBDeposit,
+          amountAMin,
+          amountBMin,
         });
         enqueueSnackbar('Successfully added liquidity.', {
           variant: 'success',

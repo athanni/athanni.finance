@@ -13,3 +13,8 @@ export const THETA_DEFAULT_DEADLINE_FROM_NOW = 60 * 5;
  * A zero value address that points to the void.
  */
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
+
+/**
+ * The default price splippage rate of 0.5%.
+ */
+export const DEFAULT_SPLIPPAGE_RATE = 0.005;
