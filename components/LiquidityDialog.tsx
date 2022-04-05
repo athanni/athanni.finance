@@ -10,8 +10,10 @@ import {
   Typography,
 } from '@mui/material';
 import { usePairAddressForTokens } from 'api/pairs';
+import { useAddLiquidity } from 'api/router';
 import BigNumber from 'bignumber.js';
-import supportedTokens from 'config/supportedTokens';
+import supportedTokens, { tokenMap } from 'config/supportedTokens';
+import { ethers } from 'ethers';
 import { useCallback, useEffect, useMemo } from 'react';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { useBoolean } from 'react-use';
@@ -94,10 +96,41 @@ export default function LiquidityDialog() {
   const { data: pairAddress, isLoading: isPairAddressLoading } =
     usePairAddressForTokens(tokenA, tokenB);
 
-  const onSubmit = useCallback((state: any) => {
-    const { token0, token1, startingPrice, token0Deposit, token1Deposit } =
-      state as SchemaType;
-  }, []);
+  const addLiquidity = useAddLiquidity();
+  const onSubmit = useCallback(
+    async (state: any) => {
+      const { token0, token1, token0Deposit, token1Deposit } =
+        state as SchemaType;
+
+      // TODO: Also support adding liquidity to existing pair.
+
+      const decimalsA = tokenMap[token0];
+      const decimalsB = tokenMap[token1];
+
+      const tokenADeposit = ethers.BigNumber.from(
+        token0Deposit
+          .multipliedBy(new BigNumber(10).pow(decimalsA.decimals))
+          .toString()
+      );
+      const tokenBDeposit = ethers.BigNumber.from(
+        token1Deposit
+          .multipliedBy(new BigNumber(10).pow(decimalsB.decimals))
+          .toString()
+      );
+
+      await addLiquidity({
+        tokenA: token0,
+        tokenB: token1,
+        amountADesired: tokenADeposit,
+        amountBDesired: tokenBDeposit,
+        amountAMin: tokenADeposit,
+        amountBMin: tokenBDeposit,
+      });
+
+      toggleOpen(false);
+    },
+    [addLiquidity, toggleOpen]
+  );
 
   return (
     <>

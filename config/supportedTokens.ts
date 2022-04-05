@@ -27,7 +27,7 @@ export type Token = {
 /**
  * The tokens that are first party within the app.
  */
-const tokens: Token[] = [
+const supportedTokens: Token[] = [
   {
     address: '0x09d1fF723D83C40e551e1AEd7C1225dc301B0615',
     name: 'Tokener',
@@ -72,4 +72,12 @@ const tokens: Token[] = [
   },
 ];
 
-export default tokens;
+/**
+ * A map of all the supported tokens.
+ */
+export const tokenMap = supportedTokens.reduce((acc, cur) => {
+  acc[cur.address] = cur;
+  return acc;
+}, {} as { [key: string]: Token });
+
+export default supportedTokens;

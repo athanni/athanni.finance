@@ -1,6 +1,7 @@
+import { useWeb3React } from '@web3-react/core';
 import { THETA_DEFAULT_DEADLINE_FROM_NOW } from 'config/constants';
 import { ethers } from 'ethers';
-import { useAsyncFn } from 'react-use';
+import { useCallback } from 'react';
 import { useRouterContract } from 'utils/ethers';
 
 type AddLiquidityArgs = {
@@ -10,7 +11,6 @@ type AddLiquidityArgs = {
   amountBDesired: ethers.BigNumber;
   amountAMin: ethers.BigNumber;
   amountBMin: ethers.BigNumber;
-  to: string;
 };
 
 /**
@@ -18,10 +18,11 @@ type AddLiquidityArgs = {
  */
 export function useAddLiquidity() {
   const routerContract = useRouterContract();
+  const { account } = useWeb3React();
 
-  return useAsyncFn(
+  return useCallback(
     async (args: AddLiquidityArgs) => {
-      if (!routerContract) {
+      if (!routerContract || !account) {
         return;
       }
 
@@ -32,10 +33,10 @@ export function useAddLiquidity() {
         args.amountBDesired,
         args.amountAMin,
         args.amountBMin,
-        args.to,
+        account,
         ethers.BigNumber.from(THETA_DEFAULT_DEADLINE_FROM_NOW)
       );
     },
-    [routerContract]
+    [account, routerContract]
   );
 }
