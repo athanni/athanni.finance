@@ -25,22 +25,25 @@ import LiquidityAmountInput from './LiquidityAmountInput';
 import PriceInput from './PriceInput';
 import TokenSelect from './TokenSelect';
 
-const schema = z.object({
-  token0: z.string().refine((v) => v !== '0x', 'Required'),
-  token1: z.string().refine((v) => v !== '0x', 'Required'),
-  startingPrice: z
-    .string()
-    .transform((v) => new BigNumber(v))
-    .refine((v) => v.gt(0), 'Required'),
-  token0Deposit: z
-    .string()
-    .transform((v) => new BigNumber(v))
-    .refine((v) => v.gt(0), 'Required'),
-  token1Deposit: z
-    .string()
-    .transform((v) => new BigNumber(v))
-    .refine((v) => v.gt(0), 'Required'),
-});
+const schema = z
+  .object({
+    token0: z.string().refine((v) => v !== '0x', 'Required'),
+    token1: z.string().refine((v) => v !== '0x', 'Required'),
+    hasPair: z.boolean(),
+    startingPrice: z.string().transform((v) => new BigNumber(v)),
+    token0Deposit: z
+      .string()
+      .transform((v) => new BigNumber(v))
+      .refine((v) => v.gt(0), 'Required'),
+    token1Deposit: z
+      .string()
+      .transform((v) => new BigNumber(v))
+      .refine((v) => v.gt(0), 'Required'),
+  })
+  .refine((arg) => !arg.hasPair && arg.startingPrice.gt(0), {
+    message: 'Required',
+    path: ['startingPrice'],
+  });
 
 type SchemaType = z.infer<typeof schema>;
 
@@ -53,6 +56,7 @@ export default function LiquidityDialog() {
       // selections.
       token0: '0x',
       token1: '0x',
+      hasPair: false,
       startingPrice: '',
       token0Deposit: '',
       token1Deposit: '',
@@ -99,6 +103,11 @@ export default function LiquidityDialog() {
   const { data: pairAddress, isLoading: isPairAddressLoading } =
     usePairAddressForTokens(tokenA, tokenB);
 
+  // Set the form state for validations to run if no pair address exists.
+  useEffect(() => {
+    setValue('hasPair', !isPairAddressLoading && Boolean(pairAddress));
+  }, [isPairAddressLoading, pairAddress, setValue]);
+
   const { enqueueSnackbar } = useSnackbar();
 
   const addLiquidity = useAddLiquidity();
@@ -107,8 +116,6 @@ export default function LiquidityDialog() {
       try {
         const { token0, token1, token0Deposit, token1Deposit } =
           state as SchemaType;
-
-        // TODO: Also support adding liquidity to existing pair.
 
         const decimalsA = tokenMap[token0];
         const decimalsB = tokenMap[token1];
@@ -181,23 +188,25 @@ export default function LiquidityDialog() {
               </Stack>
 
               {tokenA && tokenB && !isPairAddressLoading && !pairAddress && (
-                <Alert severity="info" icon={false} sx={{ mt: 2 }}>
-                  This is a new pool and it needs to be initialized first before
-                  adding liquidity to it. To initialize input the starting price
-                  for the pool and the deposit amount. Gas fees will be higher
-                  than usual due to initialization.
-                </Alert>
-              )}
+                <>
+                  <Alert severity="info" icon={false} sx={{ mt: 2 }}>
+                    This is a new pool and it needs to be initialized first
+                    before adding liquidity to it. To initialize input the
+                    starting price for the pool and the deposit amount. Gas fees
+                    will be higher than usual due to initialization.
+                  </Alert>
 
-              <Typography fontWeight="medium" mt={4}>
-                Set Starting Price
-              </Typography>
-              <Box mt={2}>
-                <PriceInput
-                  name="startingPrice"
-                  disabled={!tokenA || !tokenB}
-                />
-              </Box>
+                  <Typography fontWeight="medium" mt={4}>
+                    Set Starting Price
+                  </Typography>
+                  <Box mt={2}>
+                    <PriceInput
+                      name="startingPrice"
+                      disabled={!tokenA || !tokenB}
+                    />
+                  </Box>
+                </>
+              )}
 
               <Typography fontWeight="medium" mt={4}>
                 Deposit Amounts
@@ -221,8 +230,9 @@ export default function LiquidityDialog() {
                 fullWidth
                 size="large"
                 sx={{ mt: 4 }}
+                disabled={isPairAddressLoading}
               >
-                Add
+                Add Liquidity
               </Button>
             </FormProvider>
           </form>

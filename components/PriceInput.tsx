@@ -26,6 +26,7 @@ export default function PriceInput({ name, disabled }: PriceInputProps) {
               fontWeight: 'medium',
             },
           }}
+          placeholder="0.0"
           disabled={disabled}
           error={Boolean(fieldState.error)}
         />
