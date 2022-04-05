@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { LoadingButton } from '@mui/lab';
 import {
   Alert,
   Box,
@@ -63,7 +64,12 @@ export default function LiquidityDialog() {
     },
     resolver: zodResolver(schema),
   });
-  const { control, setValue, handleSubmit } = form;
+  const {
+    control,
+    setValue,
+    handleSubmit,
+    formState: { isSubmitting },
+  } = form;
 
   const token0 = useWatch({ control: form.control, name: 'token0' });
   const token1 = useWatch({ control: form.control, name: 'token1' });
@@ -237,16 +243,17 @@ export default function LiquidityDialog() {
                 />
               </Box>
 
-              <Button
+              <LoadingButton
                 type="submit"
                 variant="contained"
                 fullWidth
                 size="large"
                 sx={{ mt: 4 }}
+                loading={isSubmitting}
                 disabled={isPairAddressLoading}
               >
                 Add Liquidity
-              </Button>
+              </LoadingButton>
             </FormProvider>
           </form>
         </DialogContent>
