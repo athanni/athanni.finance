@@ -93,6 +93,7 @@ export function usePairContract(pairAddress: string): ethers.Contract | null {
 
 type ERC20Contract = ethers.Contract & {
   balanceOf(address: string): Promise<ethers.BigNumber>;
+  decimals(): Promise<ethers.BigNumber>;
 };
 
 /**

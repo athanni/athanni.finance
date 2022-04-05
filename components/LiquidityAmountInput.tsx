@@ -1,5 +1,7 @@
-import { Box, Button, Input, Stack, useTheme } from '@mui/material';
+import { Box, Button, Input, Stack, Typography, useTheme } from '@mui/material';
+import { useTokenBalance } from 'api/token';
 import supportedTokens from 'config/supportedTokens';
+import { ethers } from 'ethers';
 import { useMemo } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 import { handleDecimalInput } from 'utils/numeric';
@@ -19,6 +21,7 @@ export default function LiquidityAmountInput({
     () => supportedTokens.find((token) => token.address === address),
     [address]
   );
+  const { data: tokenBalance } = useTokenBalance(address);
 
   const { control } = useFormContext();
 
@@ -52,6 +55,14 @@ export default function LiquidityAmountInput({
         <Button variant="contained" color="inherit" disabled={!token}>
           {token?.ticker ?? 'UNSET'}
         </Button>
+      </Stack>
+
+      <Stack direction="row" justifyContent="flex-end">
+        {tokenBalance && (
+          <Typography variant="body2" color="textSecondary">
+            Balance: {tokenBalance.toString()}
+          </Typography>
+        )}
       </Stack>
     </Box>
   );
