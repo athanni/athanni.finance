@@ -3,6 +3,7 @@ import config from 'config/config';
 import { ethers } from 'ethers';
 import { useMemo } from 'react';
 import { useAsync } from 'react-use';
+import erc20ContractAbi from './erc20ContractAbi';
 import factoryContractAbi from './factoryContractAbi';
 import pairContractAbi from './pairContractAbi';
 import routerContractAbi from './routerContractAbi';
@@ -88,4 +89,27 @@ export function usePairContract(pairAddress: string): ethers.Contract | null {
     const signer = library.getSigner();
     return new ethers.Contract(pairAddress, pairContractAbi, signer);
   }, [pairAddress, library]);
+}
+
+type ERC20Contract = ethers.Contract & {
+  balanceOf(address: string): Promise<ethers.BigNumber>;
+};
+
+/**
+ * Gets the ERC20 contract API using ethers.
+ */
+export function useERC20Contract(address: string): ERC20Contract | null {
+  const { library } = useWeb3React();
+  return useMemo(() => {
+    if (!library) {
+      return null;
+    }
+
+    const signer = library.getSigner();
+    return new ethers.Contract(
+      address,
+      erc20ContractAbi,
+      signer
+    ) as ERC20Contract;
+  }, [address, library]);
 }
