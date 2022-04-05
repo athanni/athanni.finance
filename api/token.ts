@@ -1,23 +1,28 @@
 import { useWeb3React } from '@web3-react/core';
 import BigNumber from 'bignumber.js';
+import supportedTokens from 'config/supportedTokens';
 import { ethers } from 'ethers';
 import { useEffect } from 'react';
 import { useQuery } from 'react-query';
 import { useERC20Contract } from 'utils/ethers';
 
 class TokenBalance {
+  address: string;
   balance: ethers.BigNumber;
-  decimals: ethers.BigNumber;
 
-  constructor(balance: ethers.BigNumber, decimals: ethers.BigNumber) {
+  constructor(address: string, balance: ethers.BigNumber) {
+    this.address = address;
     this.balance = balance;
-    this.decimals = decimals;
   }
 
   toString() {
     const bal = new BigNumber(this.balance.toString());
-    const dec = new BigNumber(this.decimals.toString());
-    return bal.div(new BigNumber(10).pow(dec)).toFormat({
+    const token = supportedTokens.find((it) => it.address === this.address);
+    if (!token) {
+      throw new Error('unsupported token used');
+    }
+
+    return bal.div(new BigNumber(10).pow(token.decimals)).toFormat({
       groupSize: 3,
       groupSeparator: ',',
       decimalSeparator: '.',
@@ -36,11 +41,8 @@ export function useTokenBalance(token: string) {
   const query = useQuery(
     ['token-balance', token, account],
     async () => {
-      const [balance, decimals] = await Promise.all([
-        erc20Contract!.balanceOf(account!),
-        erc20Contract!.decimals(),
-      ]);
-      return new TokenBalance(balance, decimals);
+      const balance = await erc20Contract!.balanceOf(account!);
+      return new TokenBalance(token, balance);
     },
     {
       enabled: Boolean(erc20Contract) && Boolean(account),
