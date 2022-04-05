@@ -1,5 +1,7 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Alert,
+  Box,
   Button,
   Dialog,
   DialogContent,
@@ -7,15 +9,35 @@ import {
   Stack,
   Typography,
 } from '@mui/material';
-import { Box } from '@mui/system';
 import { usePairAddressForTokens } from 'api/pairs';
+import BigNumber from 'bignumber.js';
 import supportedTokens from 'config/supportedTokens';
-import { useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { useBoolean } from 'react-use';
+import { z } from 'zod';
 import LiquidityAmountInput from './LiquidityAmountInput';
 import PriceInput from './PriceInput';
 import TokenSelect from './TokenSelect';
+
+const schema = z.object({
+  token0: z.string().refine((v) => v !== '0x', 'Required'),
+  token1: z.string().refine((v) => v !== '0x', 'Required'),
+  startingPrice: z
+    .string()
+    .transform((v) => new BigNumber(v))
+    .refine((v) => v.gt(0), 'Required'),
+  token0Deposit: z
+    .string()
+    .transform((v) => new BigNumber(v))
+    .refine((v) => v.gt(0), 'Required'),
+  token1Deposit: z
+    .string()
+    .transform((v) => new BigNumber(v))
+    .refine((v) => v.gt(0), 'Required'),
+});
+
+type SchemaType = z.infer<typeof schema>;
 
 export default function LiquidityDialog() {
   const [open, toggleOpen] = useBoolean(false);
@@ -30,8 +52,9 @@ export default function LiquidityDialog() {
       token0Deposit: '',
       token1Deposit: '',
     },
+    resolver: zodResolver(schema),
   });
-  const { setValue } = form;
+  const { setValue, handleSubmit } = form;
 
   const token0 = useWatch({ control: form.control, name: 'token0' });
   const token1 = useWatch({ control: form.control, name: 'token1' });
@@ -71,6 +94,11 @@ export default function LiquidityDialog() {
   const { data: pairAddress, isLoading: isPairAddressLoading } =
     usePairAddressForTokens(tokenA, tokenB);
 
+  const onSubmit = useCallback((state: any) => {
+    const { token0, token1, startingPrice, token0Deposit, token1Deposit } =
+      state as SchemaType;
+  }, []);
+
   return (
     <>
       <Button variant="contained" onClick={toggleOpen}>
@@ -80,57 +108,68 @@ export default function LiquidityDialog() {
       <Dialog open={open} onClose={toggleOpen} fullWidth>
         <DialogTitle>Add Liquidity</DialogTitle>
         <DialogContent>
-          <FormProvider {...form}>
-            <Typography fontWeight="medium">Select Pair</Typography>
-            <Stack direction="row" spacing={2} mt={2}>
-              <TokenSelect
-                name="token0"
-                placeholder="First token"
-                tokens={tokenAOptions}
-              />
-              <TokenSelect
-                name="token1"
-                placeholder="Second token"
-                tokens={tokenBOptions}
-              />
-            </Stack>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <FormProvider {...form}>
+              <Typography fontWeight="medium">Select Pair</Typography>
+              <Stack direction="row" spacing={2} mt={2}>
+                <TokenSelect
+                  name="token0"
+                  placeholder="First token"
+                  tokens={tokenAOptions}
+                />
+                <TokenSelect
+                  name="token1"
+                  placeholder="Second token"
+                  tokens={tokenBOptions}
+                />
+              </Stack>
 
-            {tokenA && tokenB && !isPairAddressLoading && !pairAddress && (
-              <Alert severity="info" icon={false} sx={{ mt: 2 }}>
-                This is a new pool and it needs to be initialized first before
-                adding liquidity to it. To initialize input the starting price
-                for the pool and the deposit amount. Gas fees will be higher
-                than usual due to initialization.
-              </Alert>
-            )}
+              {tokenA && tokenB && !isPairAddressLoading && !pairAddress && (
+                <Alert severity="info" icon={false} sx={{ mt: 2 }}>
+                  This is a new pool and it needs to be initialized first before
+                  adding liquidity to it. To initialize input the starting price
+                  for the pool and the deposit amount. Gas fees will be higher
+                  than usual due to initialization.
+                </Alert>
+              )}
 
-            <Typography fontWeight="medium" mt={4}>
-              Set Starting Price
-            </Typography>
-            <Box mt={2}>
-              <PriceInput name="startingPrice" disabled={!tokenA || !tokenB} />
-            </Box>
+              <Typography fontWeight="medium" mt={4}>
+                Set Starting Price
+              </Typography>
+              <Box mt={2}>
+                <PriceInput
+                  name="startingPrice"
+                  disabled={!tokenA || !tokenB}
+                />
+              </Box>
 
-            <Typography fontWeight="medium" mt={4}>
-              Deposit Amounts
-            </Typography>
-            <Box mt={2}>
-              <LiquidityAmountInput
-                name="token0Deposit"
-                address={tokenA && tokenB ? tokenA : ''}
-              />
-            </Box>
-            <Box mt={2}>
-              <LiquidityAmountInput
-                name="token1Deposit"
-                address={tokenA && tokenB ? tokenB : ''}
-              />
-            </Box>
+              <Typography fontWeight="medium" mt={4}>
+                Deposit Amounts
+              </Typography>
+              <Box mt={2}>
+                <LiquidityAmountInput
+                  name="token0Deposit"
+                  address={tokenA && tokenB ? tokenA : ''}
+                />
+              </Box>
+              <Box mt={2}>
+                <LiquidityAmountInput
+                  name="token1Deposit"
+                  address={tokenA && tokenB ? tokenB : ''}
+                />
+              </Box>
 
-            <Button variant="contained" fullWidth size="large" sx={{ mt: 4 }}>
-              Add
-            </Button>
-          </FormProvider>
+              <Button
+                type="submit"
+                variant="contained"
+                fullWidth
+                size="large"
+                sx={{ mt: 4 }}
+              >
+                Add
+              </Button>
+            </FormProvider>
+          </form>
         </DialogContent>
       </Dialog>
     </>
