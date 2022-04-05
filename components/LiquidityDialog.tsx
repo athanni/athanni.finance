@@ -63,7 +63,7 @@ export default function LiquidityDialog() {
     },
     resolver: zodResolver(schema),
   });
-  const { setValue, handleSubmit } = form;
+  const { control, setValue, handleSubmit } = form;
 
   const token0 = useWatch({ control: form.control, name: 'token0' });
   const token1 = useWatch({ control: form.control, name: 'token1' });
@@ -162,6 +162,17 @@ export default function LiquidityDialog() {
     [addLiquidity, enqueueSnackbar, toggleOpen]
   );
 
+  // TODO: Handle the ratio based on the market price for existing pairs.
+  const startingPrice = useWatch({ control, name: 'startingPrice' });
+  const pairRatioA = useMemo(
+    () => new BigNumber(startingPrice),
+    [startingPrice]
+  );
+  const pairRatioB = useMemo(
+    () => new BigNumber(1).dividedBy(pairRatioA),
+    [pairRatioA]
+  );
+
   return (
     <>
       <Button variant="contained" onClick={toggleOpen}>
@@ -214,12 +225,16 @@ export default function LiquidityDialog() {
               <Box mt={2}>
                 <LiquidityAmountInput
                   name="token0Deposit"
+                  pairName="token1Deposit"
+                  priceRatio={pairRatioA}
                   address={tokenA && tokenB ? tokenA : ''}
                 />
               </Box>
               <Box mt={2}>
                 <LiquidityAmountInput
                   name="token1Deposit"
+                  pairName="token0Deposit"
+                  priceRatio={pairRatioB}
                   address={tokenA && tokenB ? tokenB : ''}
                 />
               </Box>

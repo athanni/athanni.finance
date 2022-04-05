@@ -1,19 +1,23 @@
 import { Box, Button, Input, Stack, Typography, useTheme } from '@mui/material';
 import { red } from '@mui/material/colors';
 import { useTokenBalance } from 'api/token';
+import BigNumber from 'bignumber.js';
 import supportedTokens from 'config/supportedTokens';
-import { ethers } from 'ethers';
 import { useMemo } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 import { handleDecimalInput } from 'utils/numeric';
 
 type LiquidityAmountInputProps = {
   name: string;
+  pairName: string;
+  priceRatio: BigNumber;
   address: string;
 };
 
 export default function LiquidityAmountInput({
   name,
+  pairName,
+  priceRatio,
   address,
 }: LiquidityAmountInputProps) {
   const { typography } = useTheme();
@@ -26,6 +30,7 @@ export default function LiquidityAmountInput({
 
   const {
     control,
+    setValue,
     formState: { errors },
   } = useFormContext();
 
@@ -57,7 +62,17 @@ export default function LiquidityAmountInput({
                 fontWeight: 'medium',
               }}
               {...field}
-              onChange={(e) => handleDecimalInput(e, field.onChange)}
+              onChange={(e) => {
+                handleDecimalInput(e, field.onChange);
+                handleDecimalInput(e, (event) => {
+                  const v = new BigNumber(e.target.value);
+                  const pairValue = v.multipliedBy(priceRatio);
+                  setValue(
+                    pairName,
+                    pairValue.isNaN() ? '0' : pairValue.toString()
+                  );
+                });
+              }}
               disabled={!token}
             />
           )}
