@@ -12,5 +12,5 @@ export function calculateSlippageMin(
 ): ethers.BigNumber {
   const p = new BigNumber(price.toString());
   const slipped = p.multipliedBy(new BigNumber(1).minus(slippageRate));
-  return ethers.BigNumber.from(slipped.toString());
+  return ethers.BigNumber.from(slipped.toFixed());
 }
