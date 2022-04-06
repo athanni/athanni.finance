@@ -18,3 +18,11 @@ export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
  * The default price splippage rate of 0.5%.
  */
 export const DEFAULT_SPLIPPAGE_RATE = 0.005;
+
+/**
+ * The network with which the app can interact.
+ */
+export enum Network {
+  Theta = 'theta',
+  Polygon = 'polygon',
+}
