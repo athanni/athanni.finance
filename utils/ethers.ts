@@ -1,6 +1,6 @@
 import { useWeb3React } from '@web3-react/core';
 import config from 'config/config';
-import { ethers } from 'ethers';
+import { ethers, ContractTransaction } from 'ethers';
 import { useMemo } from 'react';
 import { useAsync } from 'react-use';
 import erc20ContractAbi from './erc20ContractAbi';
@@ -19,7 +19,7 @@ type RouterContract = ethers.Contract & {
     amountBMin: string,
     to: string,
     deadline: string
-  ): Promise<[ethers.BigNumber, ethers.BigNumber, ethers.BigNumber]>;
+  ): Promise<ContractTransaction>;
 };
 
 /**
@@ -95,7 +95,7 @@ type ERC20Contract = ethers.Contract & {
   balanceOf(address: string): Promise<ethers.BigNumber>;
   decimals(): Promise<ethers.BigNumber>;
   allowance(ownner: string, spender: string): Promise<ethers.BigNumber>;
-  approve(spender: string, amount: string): Promise<boolean>;
+  approve(spender: string, amount: string): Promise<ContractTransaction>;
 };
 
 /**

@@ -144,16 +144,19 @@ export default function LiquidityDialog() {
         ).toFixed();
 
         // Get the approval for token transfers to add liquidity.
-        await approvalOfTransfer(
+        const approvalTxA = await approvalOfTransfer(
           token0,
           ethers.BigNumber.from(tokenADeposit.toFixed())
         );
-        await approvalOfTransfer(
+        const approvalTxB = await approvalOfTransfer(
           token1,
           ethers.BigNumber.from(tokenBDeposit.toFixed())
         );
 
-        await addLiquidity({
+        // Wait on the transaction to be confirmed before adding liquidity of the same.
+        await Promise.all([approvalTxA?.wait(), approvalTxB?.wait()]);
+
+        const addTx = await addLiquidity({
           tokenA: token0,
           tokenB: token1,
           amountADesired: tokenADeposit.toFixed(),
@@ -161,6 +164,8 @@ export default function LiquidityDialog() {
           amountAMin,
           amountBMin,
         });
+        await addTx?.wait();
+
         enqueueSnackbar('Successfully added liquidity.', {
           variant: 'success',
         });

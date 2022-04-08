@@ -88,7 +88,10 @@ export function useApprovalOfTransfer() {
         return;
       }
 
-      await contract.approve(config.ROUTER_CONTRACT_ADDRESS, amount.toString());
+      return await contract.approve(
+        config.ROUTER_CONTRACT_ADDRESS,
+        amount.toString()
+      );
     },
     [account, library]
   );

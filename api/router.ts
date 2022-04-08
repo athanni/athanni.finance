@@ -30,7 +30,7 @@ export function useAddLiquidity() {
         .add(ethers.BigNumber.from(Date.now()).div(1000))
         .toString();
 
-      await routerContract.addLiquidity(
+      return await routerContract.addLiquidity(
         args.tokenA,
         args.tokenB,
         args.amountADesired,
