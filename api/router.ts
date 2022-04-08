@@ -7,10 +7,10 @@ import { useRouterContract } from 'utils/ethers';
 type AddLiquidityArgs = {
   tokenA: string;
   tokenB: string;
-  amountADesired: ethers.BigNumber;
-  amountBDesired: ethers.BigNumber;
-  amountAMin: ethers.BigNumber;
-  amountBMin: ethers.BigNumber;
+  amountADesired: string;
+  amountBDesired: string;
+  amountAMin: string;
+  amountBMin: string;
 };
 
 /**
@@ -26,9 +26,9 @@ export function useAddLiquidity() {
         return;
       }
 
-      const deadline = ethers.BigNumber.from(
-        THETA_DEFAULT_DEADLINE_FROM_NOW
-      ).add(ethers.BigNumber.from(Date.now()).div(1000));
+      const deadline = ethers.BigNumber.from(THETA_DEFAULT_DEADLINE_FROM_NOW)
+        .add(ethers.BigNumber.from(Date.now()).div(1000))
+        .toString();
 
       await routerContract.addLiquidity(
         args.tokenA,

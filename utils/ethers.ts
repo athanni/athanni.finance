@@ -13,12 +13,12 @@ type RouterContract = ethers.Contract & {
   addLiquidity(
     tokenA: string,
     tokenB: string,
-    amountADesired: ethers.BigNumber,
-    amountBDesired: ethers.BigNumber,
-    amountAMin: ethers.BigNumber,
-    amountBMin: ethers.BigNumber,
+    amountADesired: string,
+    amountBDesired: string,
+    amountAMin: string,
+    amountBMin: string,
     to: string,
-    deadline: ethers.BigNumber
+    deadline: string
   ): Promise<[ethers.BigNumber, ethers.BigNumber, ethers.BigNumber]>;
 };
 

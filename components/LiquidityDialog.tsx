@@ -15,7 +15,6 @@ import { useAddLiquidity } from 'api/router';
 import BigNumber from 'bignumber.js';
 import { DEFAULT_SPLIPPAGE_RATE } from 'config/constants';
 import supportedTokens, { tokenMap } from 'config/supportedTokens';
-import { ethers } from 'ethers';
 import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useMemo } from 'react';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
@@ -126,31 +125,26 @@ export default function LiquidityDialog() {
         const decimalsA = tokenMap[token0];
         const decimalsB = tokenMap[token1];
 
-        const tokenADeposit = ethers.BigNumber.from(
-          token0Deposit
-            .multipliedBy(new BigNumber(10).pow(decimalsA.decimals))
-            .toFixed()
+        const tokenADeposit = token0Deposit.multipliedBy(
+          new BigNumber(10).pow(decimalsA.decimals)
         );
-        const tokenBDeposit = ethers.BigNumber.from(
-          token1Deposit
-            .multipliedBy(new BigNumber(10).pow(decimalsB.decimals))
-            .toFixed()
-        );
-
+        const tokenBDeposit = token1Deposit
+          .multipliedBy(new BigNumber(10).pow(decimalsB.decimals))
+          .integerValue();
         const amountAMin = calculateSlippageMin(
           tokenADeposit,
           DEFAULT_SPLIPPAGE_RATE
-        );
+        ).toFixed();
         const amountBMin = calculateSlippageMin(
           tokenBDeposit,
           DEFAULT_SPLIPPAGE_RATE
-        );
+        ).toFixed();
 
         await addLiquidity({
           tokenA: token0,
           tokenB: token1,
-          amountADesired: tokenADeposit,
-          amountBDesired: tokenBDeposit,
+          amountADesired: tokenADeposit.toFixed(),
+          amountBDesired: tokenBDeposit.toFixed(),
           amountAMin,
           amountBMin,
         });
