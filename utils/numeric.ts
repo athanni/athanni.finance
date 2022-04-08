@@ -30,7 +30,7 @@ export function handleDecimalInput(
 
   // Only allow one decimal point within the input.
   if (!containsDotBefore && (hasSucceedingDot || hasSucceedingDoubleDot)) {
-    return onChange(`${num.toString()}.`);
+    return onChange(`${num.toFixed()}.`);
   }
 
   return onChange(num.toString());

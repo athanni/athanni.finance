@@ -24,7 +24,7 @@ import { useBoolean } from 'react-use';
 import { calculateSlippageMin } from 'utils/slippage';
 import { z } from 'zod';
 import LiquidityAmountInput from './LiquidityAmountInput';
-import PriceInput from './PriceInput';
+import StartingPriceInput from './StartingPriceInput';
 import TokenSelect from './TokenSelect';
 
 const schema = z
@@ -225,10 +225,7 @@ export default function LiquidityDialog() {
                     Set Starting Price
                   </Typography>
                   <Box mt={2}>
-                    <PriceInput
-                      name="startingPrice"
-                      disabled={!tokenA || !tokenB}
-                    />
+                    <StartingPriceInput disabled={!tokenA || !tokenB} />
                   </Box>
                 </>
               )}
