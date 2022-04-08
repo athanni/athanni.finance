@@ -94,23 +94,33 @@ export function usePairContract(pairAddress: string): ethers.Contract | null {
 type ERC20Contract = ethers.Contract & {
   balanceOf(address: string): Promise<ethers.BigNumber>;
   decimals(): Promise<ethers.BigNumber>;
+  allowance(ownner: string, spender: string): Promise<ethers.BigNumber>;
+  approve(spender: string, amount: string): Promise<boolean>;
 };
+
+/**
+ * Gets the ERC20 contract API using ethers.
+ */
+export function getERC20Contract(
+  library: any,
+  address: string
+): ERC20Contract | null {
+  if (!library) {
+    return null;
+  }
+
+  const signer = library.getSigner();
+  return new ethers.Contract(
+    address,
+    erc20ContractAbi,
+    signer
+  ) as ERC20Contract;
+}
 
 /**
  * Gets the ERC20 contract API using ethers.
  */
 export function useERC20Contract(address: string): ERC20Contract | null {
   const { library } = useWeb3React();
-  return useMemo(() => {
-    if (!library) {
-      return null;
-    }
-
-    const signer = library.getSigner();
-    return new ethers.Contract(
-      address,
-      erc20ContractAbi,
-      signer
-    ) as ERC20Contract;
-  }, [address, library]);
+  return useMemo(() => getERC20Contract(library, address), [address, library]);
 }

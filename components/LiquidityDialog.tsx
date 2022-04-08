@@ -12,9 +12,11 @@ import {
 } from '@mui/material';
 import { usePairAddressForTokens } from 'api/pairs';
 import { useAddLiquidity } from 'api/router';
+import { useApprovalOfTransfer } from 'api/token';
 import BigNumber from 'bignumber.js';
 import { DEFAULT_SPLIPPAGE_RATE } from 'config/constants';
 import supportedTokens, { tokenMap } from 'config/supportedTokens';
+import { ethers } from 'ethers';
 import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useMemo } from 'react';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
@@ -115,6 +117,7 @@ export default function LiquidityDialog() {
 
   const { enqueueSnackbar } = useSnackbar();
 
+  const approvalOfTransfer = useApprovalOfTransfer();
   const addLiquidity = useAddLiquidity();
   const onSubmit = useCallback(
     async (state: any) => {
@@ -125,9 +128,9 @@ export default function LiquidityDialog() {
         const decimalsA = tokenMap[token0];
         const decimalsB = tokenMap[token1];
 
-        const tokenADeposit = token0Deposit.multipliedBy(
-          new BigNumber(10).pow(decimalsA.decimals)
-        );
+        const tokenADeposit = token0Deposit
+          .multipliedBy(new BigNumber(10).pow(decimalsA.decimals))
+          .integerValue();
         const tokenBDeposit = token1Deposit
           .multipliedBy(new BigNumber(10).pow(decimalsB.decimals))
           .integerValue();
@@ -139,6 +142,16 @@ export default function LiquidityDialog() {
           tokenBDeposit,
           DEFAULT_SPLIPPAGE_RATE
         ).toFixed();
+
+        // Get the approval for token transfers to add liquidity.
+        await approvalOfTransfer(
+          token0,
+          ethers.BigNumber.from(tokenADeposit.toFixed())
+        );
+        await approvalOfTransfer(
+          token1,
+          ethers.BigNumber.from(tokenBDeposit.toFixed())
+        );
 
         await addLiquidity({
           tokenA: token0,
@@ -159,7 +172,7 @@ export default function LiquidityDialog() {
         throw err;
       }
     },
-    [addLiquidity, enqueueSnackbar, toggleOpen]
+    [addLiquidity, approvalOfTransfer, enqueueSnackbar, toggleOpen]
   );
 
   // TODO: Handle the ratio based on the market price for existing pairs.
