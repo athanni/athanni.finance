@@ -5,6 +5,7 @@ import { ethers } from 'ethers';
 import { useEffect } from 'react';
 import { useQuery } from 'react-query';
 import { getUniswapV2PairContract, useFactoryContract } from 'utils/ethers';
+import { TokenBalance } from './token';
 
 /**
  * Gets the pair address for a pair of token addresses (if it exists).
@@ -91,8 +92,8 @@ type AllPooledPairsResponse = {
   currentAccountBalance: LiquidPoolTokenBalance;
   tokenA: string;
   tokenB: string;
-  reserveA: ethers.BigNumber;
-  reserveB: ethers.BigNumber;
+  reserveA: TokenBalance;
+  reserveB: TokenBalance;
 }[];
 
 /**
@@ -118,8 +119,8 @@ export function useAllPooledPairs() {
             currentAccountBalance: new LiquidPoolTokenBalance(balance),
             tokenA,
             tokenB,
-            reserveA,
-            reserveB,
+            reserveA: new TokenBalance(tokenA, reserveA),
+            reserveB: new TokenBalance(tokenB, reserveB),
           };
         })
       ),
@@ -134,6 +135,55 @@ export function useAllPooledPairs() {
       refetch();
     }
   }, [account, allPairs, library, refetch]);
+
+  return query;
+}
+
+type PooledPairResponse = {
+  address: string;
+  currentAccountBalance: LiquidPoolTokenBalance;
+  tokenA: string;
+  tokenB: string;
+  reserveA: TokenBalance;
+  reserveB: TokenBalance;
+};
+
+/**
+ * Get a pooled pair for a token pair.
+ */
+export function usePoolPair(tokenA: string, tokenB: string) {
+  const { account, library } = useWeb3React();
+  const { data: pairAddress } = usePairAddressForTokens(tokenA, tokenB);
+
+  const query = useQuery<PooledPairResponse>(
+    ['pooled-pair', account, pairAddress],
+    async () => {
+      const pairContract = getUniswapV2PairContract(library, pairAddress!)!;
+      const balance = await pairContract.balanceOf(account!);
+      const tokenA = await pairContract.token0();
+      const tokenB = await pairContract.token1();
+      const [reserveA, reserveB] = await pairContract.getReserves();
+
+      return {
+        address: pairAddress!,
+        currentAccountBalance: new LiquidPoolTokenBalance(balance),
+        tokenA,
+        tokenB,
+        reserveA: new TokenBalance(tokenA, reserveA),
+        reserveB: new TokenBalance(tokenB, reserveB),
+      };
+    },
+    {
+      enabled: Boolean(library && account && pairAddress),
+    }
+  );
+
+  const { refetch } = query;
+  useEffect(() => {
+    if (library && account && pairAddress) {
+      refetch();
+    }
+  }, [account, library, pairAddress, refetch]);
 
   return query;
 }

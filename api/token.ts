@@ -7,7 +7,7 @@ import { useCallback, useEffect } from 'react';
 import { useQuery } from 'react-query';
 import { getERC20Contract, useERC20Contract } from 'utils/ethers';
 
-class TokenBalance {
+export class TokenBalance {
   address: string;
   balance: ethers.BigNumber;
 
@@ -16,14 +16,41 @@ class TokenBalance {
     this.balance = balance;
   }
 
-  toString() {
+  /**
+   * Converts the token balance from its base unit to the major unit.
+   */
+  inMajorUnit(): BigNumber {
     const bal = new BigNumber(this.balance.toString());
     const token = supportedTokens.find((it) => it.address === this.address);
     if (!token) {
       throw new Error('unsupported token used');
     }
 
-    return bal.div(new BigNumber(10).pow(token.decimals)).toFormat({
+    return bal.div(new BigNumber(10).pow(token.decimals));
+  }
+
+  /**
+   * A ratio between two tokens.
+   */
+  tokenRatioWith(another: TokenBalance): BigNumber {
+    return this.inMajorUnit().div(another.inMajorUnit());
+  }
+
+  /**
+   * A ratio between two tokens as formatted string.
+   */
+  tokenRatioWithAsString(another: TokenBalance): string {
+    const ratio = this.tokenRatioWith(another);
+    return ratio.toFormat({
+      groupSize: 3,
+      groupSeparator: ',',
+      decimalSeparator: '.',
+      fractionGroupSize: 1,
+    });
+  }
+
+  toString() {
+    return this.inMajorUnit().toFormat({
       groupSize: 3,
       groupSeparator: ',',
       decimalSeparator: '.',
