@@ -1,5 +1,6 @@
 import {
   Button,
+  CircularProgress,
   List,
   ListItem,
   Paper,
@@ -38,12 +39,20 @@ export default function Pooler() {
           <Typography fontWeight="medium">Pool</Typography>
           <LiquidityDialog />
         </Stack>
-        {activePairs.length === 0 && (
+
+        {isLoading && (
+          <Stack alignItems="center" my={8}>
+            <CircularProgress />
+          </Stack>
+        )}
+
+        {!isLoading && activePairs.length === 0 && (
           <Typography textAlign="center" color="textSecondary" mt={12} mb={10}>
             Your active liquidity positions will appear here.
           </Typography>
         )}
-        {activePairs.length > 0 && (
+
+        {!isLoading && activePairs.length > 0 && (
           <List>
             {activePairs.map((pair) => (
               <ListItem key={pair.address}>
