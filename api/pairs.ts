@@ -160,17 +160,22 @@ export function usePoolPair(tokenA?: string, tokenB?: string) {
     async () => {
       const pairContract = getUniswapV2PairContract(library, pairAddress!)!;
       const balance = await pairContract.balanceOf(account!);
-      const tokenA = await pairContract.token0();
-      const tokenB = await pairContract.token1();
+      const token0 = await pairContract.token0();
       const [reserveA, reserveB] = await pairContract.getReserves();
 
       return {
         address: pairAddress!,
         currentAccountBalance: new LiquidPoolTokenBalance(balance),
-        tokenA,
-        tokenB,
-        reserveA: new TokenBalance(tokenA, reserveA),
-        reserveB: new TokenBalance(tokenB, reserveB),
+        tokenA: tokenA!,
+        tokenB: tokenB!,
+        reserveA: new TokenBalance(
+          tokenA!,
+          tokenA === token0 ? reserveA : reserveB
+        ),
+        reserveB: new TokenBalance(
+          tokenB!,
+          tokenB === token0 ? reserveA : reserveB
+        ),
       };
     },
     {
