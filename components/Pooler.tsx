@@ -1,13 +1,6 @@
-import {
-  Button,
-  CircularProgress,
-  List,
-  ListItem,
-  Paper,
-  Stack,
-  Typography,
-} from '@mui/material';
+import { CircularProgress, Paper, Stack, Typography } from '@mui/material';
 import { useAllPooledPairs } from 'api/pairs';
+import { tokenMap } from 'config/supportedTokens';
 import { useMemo } from 'react';
 import LiquidityDialog from './LiquidityDialog';
 
@@ -15,7 +8,9 @@ export default function Pooler() {
   const { data: pooledPairs, isLoading } = useAllPooledPairs();
   const activePairs = useMemo(
     () =>
-      (pooledPairs ?? []).filter((pair) => pair.currentAccountBalance.gt(0)),
+      (pooledPairs ?? []).filter((pair) =>
+        pair.currentAccountBalance.balance.gt(0)
+      ),
     [pooledPairs]
   );
 
@@ -53,13 +48,23 @@ export default function Pooler() {
         )}
 
         {!isLoading && activePairs.length > 0 && (
-          <List>
+          <Stack mt={2} spacing={1}>
             {activePairs.map((pair) => (
-              <ListItem key={pair.address}>
-                {pair.tokenA}-{pair.tokenB}
-              </ListItem>
+              <Paper
+                key={pair.address}
+                variant="outlined"
+                sx={{ px: 2, py: 1, bgcolor: 'grey.50' }}
+              >
+                <Typography variant="h6">
+                  {tokenMap[pair.tokenA].ticker}-{tokenMap[pair.tokenB].ticker}
+                </Typography>
+
+                <Typography color="textSecondary">
+                  {pair.currentAccountBalance.toString()} LP
+                </Typography>
+              </Paper>
             ))}
-          </List>
+          </Stack>
         )}
       </Paper>
     </>

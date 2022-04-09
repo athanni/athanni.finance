@@ -1,4 +1,5 @@
 import { useWeb3React } from '@web3-react/core';
+import BigNumber from 'bignumber.js';
 import { ZERO_ADDRESS } from 'config/constants';
 import { ethers } from 'ethers';
 import { useEffect } from 'react';
@@ -62,9 +63,32 @@ export function useAllPairs() {
   return query;
 }
 
+/**
+ * The balance of a liquid pool tokens of a pair.
+ */
+class LiquidPoolTokenBalance {
+  balance: ethers.BigNumber;
+
+  constructor(balance: ethers.BigNumber) {
+    this.balance = balance;
+  }
+
+  toString() {
+    const bal = new BigNumber(this.balance.toString());
+    const decimals = 18;
+
+    return bal.div(new BigNumber(10).pow(decimals)).toFormat({
+      groupSize: 3,
+      groupSeparator: ',',
+      decimalSeparator: '.',
+      fractionGroupSize: 1,
+    });
+  }
+}
+
 type AllPooledPairsResponse = {
   address: string;
-  currentAccountBalance: ethers.BigNumber;
+  currentAccountBalance: LiquidPoolTokenBalance;
   tokenA: string;
   tokenB: string;
   reserveA: ethers.BigNumber;
@@ -84,14 +108,14 @@ export function useAllPooledPairs() {
       Promise.all(
         allPairs!.map(async (pairAddress) => {
           const pairContract = getUniswapV2PairContract(library, pairAddress)!;
-          const currentAccountBalance = await pairContract.balanceOf(account!);
+          const balance = await pairContract.balanceOf(account!);
           const tokenA = await pairContract.token0();
           const tokenB = await pairContract.token1();
           const [reserveA, reserveB] = await pairContract.getReserves();
 
           return {
             address: pairAddress,
-            currentAccountBalance,
+            currentAccountBalance: new LiquidPoolTokenBalance(balance),
             tokenA,
             tokenB,
             reserveA,
