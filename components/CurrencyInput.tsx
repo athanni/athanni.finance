@@ -7,8 +7,15 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
+import supportedTokens from 'config/supportedTokens';
 
-export default function CurrencyInput() {
+type CurrencyInputProps = {
+  disableCurrencySelection?: boolean;
+};
+
+export default function CurrencyInput({
+  disableCurrencySelection,
+}: CurrencyInputProps) {
   const { typography } = useTheme();
 
   return (
@@ -30,9 +37,10 @@ export default function CurrencyInput() {
 
         <Select
           variant="standard"
-          value="ETH"
+          value=""
           size="small"
           disableUnderline
+          disabled={disableCurrencySelection}
           sx={{
             '& .MuiSelect-select': {
               bgcolor: 'grey.200',
@@ -42,10 +50,11 @@ export default function CurrencyInput() {
             },
           }}
         >
-          <MenuItem value="ETH">ETH</MenuItem>
-          <MenuItem value="BTC">BTC</MenuItem>
-          <MenuItem value="THETA">THETA</MenuItem>
-          <MenuItem value="TFUEL">TFUEL</MenuItem>
+          {supportedTokens.map((token) => (
+            <MenuItem key={token.address} value={token.address}>
+              {token.ticker}
+            </MenuItem>
+          ))}
         </Select>
       </Stack>
       <Stack direction="row" spacing={1} justifyContent="space-between">

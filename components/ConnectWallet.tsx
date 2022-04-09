@@ -12,7 +12,10 @@ import {
 } from '@mui/material';
 import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core';
 import { InjectedConnector } from '@web3-react/injected-connector';
+import config from 'config/config';
 import {
+  Network,
+  POLYGON_TESTNET_CHAIN_ID,
   THETA_MAINNET_CHAIN_ID,
   THETA_TESTNET_CHAIN_ID,
 } from 'config/constants';
@@ -26,12 +29,15 @@ type ConnectWalletProps = {
 };
 
 const injectedWallet = new InjectedConnector({
-  supportedChainIds: [THETA_TESTNET_CHAIN_ID, THETA_MAINNET_CHAIN_ID],
+  supportedChainIds:
+    config.NETWORK === Network.Theta
+      ? [THETA_TESTNET_CHAIN_ID, THETA_MAINNET_CHAIN_ID]
+      : [POLYGON_TESTNET_CHAIN_ID],
 });
 
 export default function ConnectWallet({ buttonProps }: ConnectWalletProps) {
   const [open, toggleOpen] = useBoolean(false);
-  const { active, activate, account, error } = useWeb3React();
+  const { active, activate, account, error, chainId } = useWeb3React();
 
   const onConnectMetaMask = useCallback(async () => {
     await activate(injectedWallet);

@@ -11,16 +11,23 @@
   "dependencies": {
     "@emotion/react": "^11.8.2",
     "@emotion/styled": "^11.8.1",
+    "@hookform/resolvers": "^2.8.8",
+    "@mui/lab": "^5.0.0-alpha.75",
     "@mui/material": "^5.5.3",
     "@web3-react/core": "^6.1.9",
     "@web3-react/injected-connector": "^6.0.7",
+    "bignumber.js": "^9.0.2",
     "ethers": "^5.6.2",
     "next": "12.1.4",
     "next-seo": "^5.3.0",
+    "notistack": "^2.0.3",
     "react": "18.0.0",
     "react-dom": "18.0.0",
+    "react-hook-form": "^7.29.0",
     "react-icons": "^4.3.1",
-    "react-use": "^17.3.2"
+    "react-query": "^3.34.19",
+    "react-use": "^17.3.2",
+    "zod": "^3.14.4"
   },
   "devDependencies": {
     "@types/node": "17.0.23",
