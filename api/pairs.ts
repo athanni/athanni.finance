@@ -78,8 +78,6 @@ export function useAllPooledPairs() {
   const { data: allPairs } = useAllPairs();
   const { account, library } = useWeb3React();
 
-  console.log(allPairs);
-
   const query = useQuery<AllPooledPairsResponse>(
     ['all-pooled-pairs', account],
     async () =>
@@ -89,8 +87,7 @@ export function useAllPooledPairs() {
           const currentAccountBalance = await pairContract.balanceOf(account!);
           const tokenA = await pairContract.token0();
           const tokenB = await pairContract.token1();
-          const reserveA = await pairContract.reserve0();
-          const reserveB = await pairContract.reserve1();
+          const [reserveA, reserveB] = await pairContract.getReserves();
 
           return {
             address: pairAddress,

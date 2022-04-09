@@ -111,8 +111,9 @@ export function useERC20Contract(address: string): ERC20Contract | null {
 type UniswapV2PairContract = ERC20Contract & {
   token0(): Promise<string>;
   token1(): Promise<string>;
-  reserve0(): Promise<ethers.BigNumber>;
-  reserve1(): Promise<ethers.BigNumber>;
+  getReserves(): Promise<
+    [ethers.BigNumber, ethers.BigNumber, ethers.BigNumber]
+  >;
 };
 
 /**
