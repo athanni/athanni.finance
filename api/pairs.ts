@@ -56,8 +56,8 @@ export function useAllPairs() {
 }
 
 type AllPooledPairsResponse = {
-  pair: string;
-  balance: ethers.BigNumber;
+  address: string;
+  currentAccountBalance: ethers.BigNumber;
   tokenA: string;
   tokenB: string;
   reserveA: ethers.BigNumber;
@@ -77,15 +77,15 @@ export function useAllPooledPairs() {
       Promise.all(
         allPairs!.map(async (pairAddress) => {
           const pairContract = getUniswapV2PairContract(library, pairAddress)!;
-          const balance = await pairContract.balanceOf(account!);
+          const currentAccountBalance = await pairContract.balanceOf(account!);
           const tokenA = await pairContract.token0();
           const tokenB = await pairContract.token1();
           const reserveA = await pairContract.reserve0();
           const reserveB = await pairContract.reserve1();
 
           return {
-            pair: pairAddress,
-            balance,
+            address: pairAddress,
+            currentAccountBalance,
             tokenA,
             tokenB,
             reserveA,
