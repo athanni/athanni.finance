@@ -18,7 +18,7 @@ export function usePairAddressForTokens(tokenA?: string, tokenB?: string) {
       return pairAddress !== ZERO_ADDRESS ? pairAddress : null;
     },
     {
-      enabled: Boolean(factoryContract) && Boolean(tokenA) && Boolean(tokenB),
+      enabled: Boolean(factoryContract && tokenA && tokenB),
     }
   );
 
@@ -41,7 +41,14 @@ export function useAllPairs() {
 
   const query = useQuery(
     'all-pairs',
-    async () => await factoryContract!.allPairs(),
+    async () => {
+      const length = await factoryContract!.allPairsLength();
+      return await Promise.all(
+        Array(length.toNumber())
+          .fill(0)
+          .map((_, index) => factoryContract!.allPairs(index))
+      );
+    },
     { enabled: Boolean(factoryContract) }
   );
 
@@ -71,6 +78,8 @@ export function useAllPooledPairs() {
   const { data: allPairs } = useAllPairs();
   const { account, library } = useWeb3React();
 
+  console.log(allPairs);
+
   const query = useQuery<AllPooledPairsResponse>(
     ['all-pooled-pairs', account],
     async () =>
@@ -94,7 +103,7 @@ export function useAllPooledPairs() {
         })
       ),
     {
-      enabled: Boolean(library) && Boolean(account) && Boolean(allPairs),
+      enabled: Boolean(library && account && allPairs),
     }
   );
 

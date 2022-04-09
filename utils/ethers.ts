@@ -43,7 +43,8 @@ export function useRouterContract(): RouterContract | null {
 
 type FactoryContract = ethers.Contract & {
   getPair(tokenA: string, tokenB: string): Promise<string>;
-  allPairs(): Promise<string[]>;
+  allPairs(index: number): Promise<string>;
+  allPairsLength(): Promise<ethers.BigNumber>;
 };
 
 /**
