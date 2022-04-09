@@ -90,14 +90,11 @@ export default function LiquidityDialog() {
     [tokenA]
   );
 
-  // Reset all other fields if the token are not selected.
+  // Reset all the other fields if the token selection changes.
   useEffect(() => {
-    if (!tokenA || !tokenB) {
-      // Reset all other fields.
-      setValue('startingPrice', '');
-      setValue('token0Deposit', '');
-      setValue('token1Deposit', '');
-    }
+    setValue('startingPrice', '');
+    setValue('token0Deposit', '');
+    setValue('token1Deposit', '');
   }, [setValue, tokenA, tokenB]);
 
   // Reset the form itself on close.
