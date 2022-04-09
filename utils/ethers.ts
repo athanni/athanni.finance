@@ -7,6 +7,7 @@ import erc20ContractAbi from './erc20ContractAbi';
 import factoryContractAbi from './factoryContractAbi';
 import pairContractAbi from './pairContractAbi';
 import routerContractAbi from './routerContractAbi';
+import uniswapV2PairAbi from 'abi/UniswapV2Pair.json';
 
 type RouterContract = ethers.Contract & {
   factory(): Promise<string>;
@@ -43,6 +44,7 @@ export function useRouterContract(): RouterContract | null {
 
 type FactoryContract = ethers.Contract & {
   getPair(tokenA: string, tokenB: string): Promise<string>;
+  allPairs(): Promise<string[]>;
 };
 
 /**
@@ -123,4 +125,30 @@ export function getERC20Contract(
 export function useERC20Contract(address: string): ERC20Contract | null {
   const { library } = useWeb3React();
   return useMemo(() => getERC20Contract(library, address), [address, library]);
+}
+
+type UniswapV2PairContract = ERC20Contract & {
+  token0(): Promise<string>;
+  token1(): Promise<string>;
+  reserve0(): Promise<ethers.BigNumber>;
+  reserve1(): Promise<ethers.BigNumber>;
+};
+
+/**
+ * Gets the UniswapV2Pair contract API using ethers.
+ */
+export function getUniswapV2PairContract(
+  library: any,
+  address: string
+): UniswapV2PairContract | null {
+  if (!library) {
+    return null;
+  }
+
+  const signer = library.getSigner();
+  return new ethers.Contract(
+    address,
+    uniswapV2PairAbi,
+    signer
+  ) as UniswapV2PairContract;
 }
