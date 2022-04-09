@@ -10,7 +10,7 @@ import {
   Stack,
   Typography,
 } from '@mui/material';
-import { usePairAddressForTokens } from 'api/pairs';
+import { usePairAddressForTokens, usePoolPair } from 'api/pairs';
 import { useAddLiquidity } from 'api/router';
 import { useApprovalOfTransfer } from 'api/token';
 import BigNumber from 'bignumber.js';
@@ -181,11 +181,19 @@ export default function LiquidityDialog() {
     [addLiquidity, approvalOfTransfer, enqueueSnackbar, toggleOpen]
   );
 
-  // TODO: Handle the ratio based on the market price for existing pairs.
   const startingPrice = useWatch({ control, name: 'startingPrice' });
-  const startingPriceBig = useMemo(
-    () => new BigNumber(startingPrice),
-    [startingPrice]
+  const { data: pair, isLoading: isPoolPairLoading } = usePoolPair(
+    tokenA,
+    tokenB
+  );
+
+  // Get the ratio based on if there exists a liquidity pair.
+  const pairRatio = useMemo(
+    () =>
+      pair
+        ? pair.reserveB.tokenRatioWith(pair.reserveA)
+        : new BigNumber(startingPrice),
+    [pair, startingPrice]
   );
 
   return (
@@ -242,18 +250,18 @@ export default function LiquidityDialog() {
                 <LiquidityAmountInput
                   name="token0Deposit"
                   pairName="token1Deposit"
-                  priceRatio={startingPriceBig}
+                  priceRatio={pairRatio}
                   isRatioInverse={false}
-                  address={tokenA && tokenB ? tokenA : ''}
+                  address={tokenA && tokenB && !isPoolPairLoading ? tokenA : ''}
                 />
               </Box>
               <Box mt={2}>
                 <LiquidityAmountInput
                   name="token1Deposit"
                   pairName="token0Deposit"
-                  priceRatio={startingPriceBig}
+                  priceRatio={pairRatio}
                   isRatioInverse
-                  address={tokenA && tokenB ? tokenB : ''}
+                  address={tokenA && tokenB && !isPoolPairLoading ? tokenB : ''}
                 />
               </Box>
 

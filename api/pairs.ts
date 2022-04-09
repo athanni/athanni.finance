@@ -151,7 +151,7 @@ type PooledPairResponse = {
 /**
  * Get a pooled pair for a token pair.
  */
-export function usePoolPair(tokenA: string, tokenB: string) {
+export function usePoolPair(tokenA?: string, tokenB?: string) {
   const { account, library } = useWeb3React();
   const { data: pairAddress } = usePairAddressForTokens(tokenA, tokenB);
 
