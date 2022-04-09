@@ -1,13 +1,12 @@
 import { useWeb3React } from '@web3-react/core';
+import erc20Abi from 'abi/ERC20.json';
+import factoryAbi from 'abi/UniswapV2Factory.json';
+import uniswapV2PairAbi from 'abi/UniswapV2Pair.json';
+import routerAbi from 'abi/UniswapV2Router02.json';
 import config from 'config/config';
-import { ethers, ContractTransaction } from 'ethers';
+import { ContractTransaction, ethers } from 'ethers';
 import { useMemo } from 'react';
 import { useAsync } from 'react-use';
-import erc20ContractAbi from './erc20ContractAbi';
-import factoryContractAbi from './factoryContractAbi';
-import pairContractAbi from './pairContractAbi';
-import routerContractAbi from './routerContractAbi';
-import uniswapV2PairAbi from 'abi/UniswapV2Pair.json';
 
 type RouterContract = ethers.Contract & {
   factory(): Promise<string>;
@@ -36,7 +35,7 @@ export function useRouterContract(): RouterContract | null {
     const signer = library.getSigner();
     return new ethers.Contract(
       config.ROUTER_CONTRACT_ADDRESS,
-      routerContractAbi,
+      routerAbi,
       signer
     ) as RouterContract;
   }, [library]);
@@ -72,25 +71,10 @@ export function useFactoryContract(): FactoryContract | null {
     const signer = library.getSigner();
     return new ethers.Contract(
       factoryAddress,
-      factoryContractAbi,
+      factoryAbi,
       signer
     ) as FactoryContract;
   }, [factoryAddress, library]);
-}
-
-/**
- * Gets the pair contract API using ethers.
- */
-export function usePairContract(pairAddress: string): ethers.Contract | null {
-  const { library } = useWeb3React();
-  return useMemo(() => {
-    if (!library) {
-      return null;
-    }
-
-    const signer = library.getSigner();
-    return new ethers.Contract(pairAddress, pairContractAbi, signer);
-  }, [pairAddress, library]);
 }
 
 type ERC20Contract = ethers.Contract & {
@@ -112,11 +96,7 @@ export function getERC20Contract(
   }
 
   const signer = library.getSigner();
-  return new ethers.Contract(
-    address,
-    erc20ContractAbi,
-    signer
-  ) as ERC20Contract;
+  return new ethers.Contract(address, erc20Abi, signer) as ERC20Contract;
 }
 
 /**
