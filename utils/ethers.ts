@@ -20,6 +20,15 @@ type RouterContract = ethers.Contract & {
     to: string,
     deadline: string
   ): Promise<ContractTransaction>;
+  removeLiquidity(
+    tokenA: string,
+    tokenB: string,
+    liquidity: string,
+    amountAMin: string,
+    amountBMin: string,
+    to: string,
+    deadline: string
+  ): Promise<ContractTransaction>;
 };
 
 /**

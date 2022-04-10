@@ -44,3 +44,42 @@ export function useAddLiquidity() {
     [account, routerContract]
   );
 }
+
+type RemoveLiquidityArgs = {
+  tokenA: string;
+  tokenB: string;
+  liquidity: string;
+  amountAMin: string;
+  amountBMin: string;
+};
+
+/**
+ * Removes liquidity for a token pair.
+ */
+export function useRemoveLiquidity() {
+  const routerContract = useRouterContract();
+  const { account } = useWeb3React();
+
+  return useCallback(
+    async (args: RemoveLiquidityArgs) => {
+      if (!routerContract || !account) {
+        return;
+      }
+
+      const deadline = ethers.BigNumber.from(THETA_DEFAULT_DEADLINE_FROM_NOW)
+        .add(ethers.BigNumber.from(Date.now()).div(1000))
+        .toString();
+
+      return await routerContract.removeLiquidity(
+        args.tokenA,
+        args.tokenB,
+        args.liquidity,
+        args.amountAMin,
+        args.amountBMin,
+        account,
+        deadline
+      );
+    },
+    [account, routerContract]
+  );
+}
