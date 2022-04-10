@@ -78,7 +78,7 @@ class LiquidPoolTokenBalance {
     const bal = new BigNumber(this.balance.toString());
     const decimals = 18;
 
-    return bal.div(new BigNumber(10).pow(decimals)).toFormat({
+    return bal.div(new BigNumber(10).pow(decimals)).toFormat(4, 1, {
       groupSize: 3,
       groupSeparator: ',',
       decimalSeparator: '.',
@@ -87,14 +87,16 @@ class LiquidPoolTokenBalance {
   }
 }
 
-type AllPooledPairsResponse = {
+export type PooledPairItem = {
   address: string;
   currentAccountBalance: LiquidPoolTokenBalance;
   tokenA: string;
   tokenB: string;
   reserveA: TokenBalance;
   reserveB: TokenBalance;
-}[];
+};
+
+export type AllPooledPairsResponse = PooledPairItem[];
 
 /**
  * Gets all the pairs that are pooled.
@@ -109,10 +111,13 @@ export function useAllPooledPairs() {
       Promise.all(
         allPairs!.map(async (pairAddress) => {
           const pairContract = getUniswapV2PairContract(library, pairAddress)!;
-          const balance = await pairContract.balanceOf(account!);
-          const tokenA = await pairContract.token0();
-          const tokenB = await pairContract.token1();
-          const [reserveA, reserveB] = await pairContract.getReserves();
+          const [balance, tokenA, tokenB, [reserveA, reserveB]] =
+            await Promise.all([
+              pairContract.balanceOf(account!),
+              pairContract.token0(),
+              pairContract.token1(),
+              pairContract.getReserves(),
+            ]);
 
           return {
             address: pairAddress,
@@ -142,6 +147,7 @@ export function useAllPooledPairs() {
 type PooledPairResponse = {
   address: string;
   currentAccountBalance: LiquidPoolTokenBalance;
+  totalSupply: LiquidPoolTokenBalance;
   tokenA: string;
   tokenB: string;
   reserveA: TokenBalance;
@@ -159,13 +165,18 @@ export function usePoolPair(tokenA?: string, tokenB?: string) {
     ['pooled-pair', account, pairAddress],
     async () => {
       const pairContract = getUniswapV2PairContract(library, pairAddress!)!;
-      const balance = await pairContract.balanceOf(account!);
-      const token0 = await pairContract.token0();
-      const [reserveA, reserveB] = await pairContract.getReserves();
+      const [balance, token0, [reserveA, reserveB], totalSupply] =
+        await Promise.all([
+          pairContract.balanceOf(account!),
+          pairContract.token0(),
+          pairContract.getReserves(),
+          pairContract.totalSupply(),
+        ]);
 
       return {
         address: pairAddress!,
         currentAccountBalance: new LiquidPoolTokenBalance(balance),
+        totalSupply: new LiquidPoolTokenBalance(totalSupply),
         tokenA: tokenA!,
         tokenB: tokenB!,
         reserveA: new TokenBalance(

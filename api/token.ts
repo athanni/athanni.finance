@@ -50,7 +50,7 @@ export class TokenBalance {
   }
 
   toString() {
-    return this.inMajorUnit().toFormat({
+    return this.inMajorUnit().toFormat(4, 1, {
       groupSize: 3,
       groupSeparator: ',',
       decimalSeparator: '.',
