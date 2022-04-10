@@ -87,14 +87,16 @@ class LiquidPoolTokenBalance {
   }
 }
 
-type AllPooledPairsResponse = {
+export type PooledPairItem = {
   address: string;
   currentAccountBalance: LiquidPoolTokenBalance;
   tokenA: string;
   tokenB: string;
   reserveA: TokenBalance;
   reserveB: TokenBalance;
-}[];
+};
+
+export type AllPooledPairsResponse = PooledPairItem[];
 
 /**
  * Gets all the pairs that are pooled.
