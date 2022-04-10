@@ -20,6 +20,7 @@ import { ethers } from 'ethers';
 import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useMemo } from 'react';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
+import { useQueryClient } from 'react-query';
 import { useBoolean } from 'react-use';
 import { calculateSlippageMin } from 'utils/slippage';
 import { z } from 'zod';
@@ -43,7 +44,7 @@ const schema = z
       .transform((v) => new BigNumber(v))
       .refine((v) => v.gt(0), 'Required'),
   })
-  .refine((arg) => !arg.hasPair && arg.startingPrice.gt(0), {
+  .refine((arg) => (!arg.hasPair ? arg.startingPrice.gt(0) : true), {
     message: 'Required',
     path: ['startingPrice'],
   });
@@ -117,6 +118,8 @@ export default function LiquidityDialog() {
 
   const approvalOfTransfer = useApprovalOfTransfer();
   const addLiquidity = useAddLiquidity();
+  const queryClient = useQueryClient();
+
   const onSubmit = useCallback(
     async (state: any) => {
       try {
@@ -164,6 +167,10 @@ export default function LiquidityDialog() {
         });
         await addTx?.wait();
 
+        // Refetch all the liquidity pairs.
+        queryClient.invalidateQueries('all-pairs');
+        queryClient.invalidateQueries('all-pooled-pairs');
+
         enqueueSnackbar('Successfully added liquidity.', {
           variant: 'success',
         });
@@ -175,7 +182,7 @@ export default function LiquidityDialog() {
         throw err;
       }
     },
-    [addLiquidity, approvalOfTransfer, enqueueSnackbar, toggleOpen]
+    [addLiquidity, approvalOfTransfer, enqueueSnackbar, queryClient, toggleOpen]
   );
 
   const startingPrice = useWatch({ control, name: 'startingPrice' });
