@@ -111,10 +111,13 @@ export function useAllPooledPairs() {
       Promise.all(
         allPairs!.map(async (pairAddress) => {
           const pairContract = getUniswapV2PairContract(library, pairAddress)!;
-          const balance = await pairContract.balanceOf(account!);
-          const tokenA = await pairContract.token0();
-          const tokenB = await pairContract.token1();
-          const [reserveA, reserveB] = await pairContract.getReserves();
+          const [balance, tokenA, tokenB, [reserveA, reserveB]] =
+            await Promise.all([
+              pairContract.balanceOf(account!),
+              pairContract.token0(),
+              pairContract.token1(),
+              pairContract.getReserves(),
+            ]);
 
           return {
             address: pairAddress,
