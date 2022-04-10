@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { LoadingButton } from '@mui/lab';
 import {
-  Button,
   Dialog,
   DialogContent,
   DialogTitle,
@@ -10,13 +10,16 @@ import {
   Typography,
 } from '@mui/material';
 import { usePoolPair } from 'api/pairs';
+import { useRemoveLiquidity } from 'api/router';
 import { TokenBalance } from 'api/token';
 import BigNumber from 'bignumber.js';
 import { DEFAULT_SPLIPPAGE_RATE } from 'config/constants';
 import { tokenMap } from 'config/supportedTokens';
 import { ethers } from 'ethers';
+import { useSnackbar } from 'notistack';
 import { useCallback, useMemo } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
+import { useQueryClient } from 'react-query';
 import { calculateSlippageMin } from 'utils/slippage';
 import { z } from 'zod';
 
@@ -42,68 +45,123 @@ export default function RemoveLiquidityDialog({
   const token0 = tokenMap[tokenA];
   const token1 = tokenMap[tokenB];
 
-  const { control, handleSubmit } = useForm({
+  const {
+    control,
+    handleSubmit,
+    formState: { isSubmitting },
+  } = useForm({
     defaultValues: {
       amount: 0,
     },
     resolver: zodResolver(schema),
   });
 
-  const onSubmit = useCallback((state: SchemaType) => {}, []);
-
   const { data: poolPair, isLoading: isPoolPairLoading } = usePoolPair(
     tokenA,
     tokenB
   );
   const amount = useWatch({ control, name: 'amount' });
-  const { tokenAAmount, tokenBAmount, tokenAMinAmount, tokenBMinAmount } =
-    useMemo(() => {
-      if (!poolPair) {
-        return {};
+  const {
+    poolTokenAmount,
+    tokenAAmount,
+    tokenBAmount,
+    tokenAMinAmount,
+    tokenBMinAmount,
+  } = useMemo(() => {
+    if (!poolPair) {
+      return {};
+    }
+
+    const percentage = new BigNumber(amount);
+    const poolTokenAmount = percentage.multipliedBy(
+      new BigNumber(poolPair.currentAccountBalance.balance.toString())
+    );
+    const poolPercentage = poolTokenAmount.dividedBy(
+      new BigNumber(poolPair.totalSupply.balance.toString())
+    );
+
+    const tokenAAmount = poolPercentage.multipliedBy(
+      new BigNumber(poolPair.reserveA.balance.toString())
+    );
+    const tokenBAmount = poolPercentage.multipliedBy(
+      new BigNumber(poolPair.reserveB.balance.toString())
+    );
+    const tokenAMinAmount = calculateSlippageMin(
+      tokenAAmount,
+      DEFAULT_SPLIPPAGE_RATE
+    );
+    const tokenBMinAmount = calculateSlippageMin(
+      tokenBAmount,
+      DEFAULT_SPLIPPAGE_RATE
+    );
+
+    return {
+      poolTokenAmount: poolTokenAmount,
+      tokenAAmount: new TokenBalance(
+        poolPair.tokenA,
+        ethers.BigNumber.from(tokenAAmount.integerValue().toFixed())
+      ),
+      tokenBAmount: new TokenBalance(
+        poolPair.tokenB,
+        ethers.BigNumber.from(tokenBAmount.integerValue().toFixed())
+      ),
+      tokenAMinAmount: new TokenBalance(
+        poolPair.tokenA,
+        ethers.BigNumber.from(tokenAMinAmount.integerValue().toFixed())
+      ),
+      tokenBMinAmount: new TokenBalance(
+        poolPair.tokenB,
+        ethers.BigNumber.from(tokenBMinAmount.integerValue().toFixed())
+      ),
+    };
+  }, [amount, poolPair]);
+
+  const queryClient = useQueryClient();
+
+  const { enqueueSnackbar } = useSnackbar();
+  const removeLiquidity = useRemoveLiquidity();
+  const onSubmit = useCallback(
+    async (state: SchemaType) => {
+      if (!poolTokenAmount || !tokenAMinAmount || !tokenBMinAmount) {
+        return;
       }
 
-      const percentage = new BigNumber(amount);
-      const poolTokenAmount = percentage.multipliedBy(
-        new BigNumber(poolPair.currentAccountBalance.balance.toString())
-      );
-      const poolPercentage = poolTokenAmount.dividedBy(
-        new BigNumber(poolPair.totalSupply.balance.toString())
-      );
+      try {
+        await removeLiquidity({
+          tokenA,
+          tokenB,
+          liquidity: poolTokenAmount.toFixed(),
+          amountAMin: tokenAMinAmount.balance.toString(),
+          amountBMin: tokenBMinAmount.balance.toString(),
+        });
 
-      const tokenAAmount = poolPercentage.multipliedBy(
-        new BigNumber(poolPair.reserveA.balance.toString())
-      );
-      const tokenBAmount = poolPercentage.multipliedBy(
-        new BigNumber(poolPair.reserveB.balance.toString())
-      );
-      const tokenAMinAmount = calculateSlippageMin(
-        tokenAAmount,
-        DEFAULT_SPLIPPAGE_RATE
-      );
-      const tokenBMinAmount = calculateSlippageMin(
-        tokenBAmount,
-        DEFAULT_SPLIPPAGE_RATE
-      );
+        // Refetch all the liquidity pairs.
+        queryClient.invalidateQueries('all-pairs');
+        queryClient.invalidateQueries('all-pooled-pairs');
 
-      return {
-        tokenAAmount: new TokenBalance(
-          poolPair.tokenA,
-          ethers.BigNumber.from(tokenAAmount.integerValue().toFixed())
-        ),
-        tokenBAmount: new TokenBalance(
-          poolPair.tokenB,
-          ethers.BigNumber.from(tokenBAmount.integerValue().toFixed())
-        ),
-        tokenAMinAmount: new TokenBalance(
-          poolPair.tokenA,
-          ethers.BigNumber.from(tokenAMinAmount.integerValue().toFixed())
-        ),
-        tokenBMinAmount: new TokenBalance(
-          poolPair.tokenB,
-          ethers.BigNumber.from(tokenBMinAmount.integerValue().toFixed())
-        ),
-      };
-    }, [amount, poolPair]);
+        enqueueSnackbar('Successfully removed liquidity.', {
+          variant: 'success',
+        });
+        onClose();
+      } catch (err) {
+        enqueueSnackbar('Failed to remove liquidity.', {
+          variant: 'error',
+        });
+        throw err;
+      }
+    },
+    [
+      enqueueSnackbar,
+      onClose,
+      poolTokenAmount,
+      queryClient,
+      removeLiquidity,
+      tokenA,
+      tokenAMinAmount,
+      tokenB,
+      tokenBMinAmount,
+    ]
+  );
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
@@ -188,9 +246,16 @@ export default function RemoveLiquidityDialog({
             </Paper>
           )}
 
-          <Button type="submit" variant="contained" size="large" fullWidth>
+          <LoadingButton
+            type="submit"
+            variant="contained"
+            size="large"
+            fullWidth
+            loading={isSubmitting}
+            disabled={isPoolPairLoading}
+          >
             Remove Liquidity
-          </Button>
+          </LoadingButton>
         </Stack>
       </DialogContent>
     </Dialog>
