@@ -78,7 +78,7 @@ class LiquidPoolTokenBalance {
     const bal = new BigNumber(this.balance.toString());
     const decimals = 18;
 
-    return bal.div(new BigNumber(10).pow(decimals)).toFormat({
+    return bal.div(new BigNumber(10).pow(decimals)).toFormat(4, 1, {
       groupSize: 3,
       groupSeparator: ',',
       decimalSeparator: '.',
