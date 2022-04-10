@@ -11,7 +11,7 @@ import {
 } from '@mui/material';
 import { usePoolPair } from 'api/pairs';
 import { useRemoveLiquidity } from 'api/router';
-import { TokenBalance } from 'api/token';
+import { TokenBalance, useApprovalOfTransfer } from 'api/token';
 import BigNumber from 'bignumber.js';
 import { DEFAULT_SPLIPPAGE_RATE } from 'config/constants';
 import { tokenMap } from 'config/supportedTokens';
@@ -24,6 +24,7 @@ import { calculateSlippageMin } from 'utils/slippage';
 import { z } from 'zod';
 
 type RemoveLiquidityDialogProps = {
+  pair: string;
   tokenA: string;
   tokenB: string;
   open: boolean;
@@ -37,6 +38,7 @@ const schema = z.object({
 type SchemaType = z.infer<typeof schema>;
 
 export default function RemoveLiquidityDialog({
+  pair,
   tokenA,
   tokenB,
   open,
@@ -96,7 +98,9 @@ export default function RemoveLiquidityDialog({
     );
 
     return {
-      poolTokenAmount: poolTokenAmount,
+      poolTokenAmount: ethers.BigNumber.from(
+        poolTokenAmount.integerValue().toFixed()
+      ),
       tokenAAmount: new TokenBalance(
         poolPair.tokenA,
         ethers.BigNumber.from(tokenAAmount.integerValue().toFixed())
@@ -117,7 +121,7 @@ export default function RemoveLiquidityDialog({
   }, [amount, poolPair]);
 
   const queryClient = useQueryClient();
-
+  const approvalOfTransfer = useApprovalOfTransfer();
   const { enqueueSnackbar } = useSnackbar();
   const removeLiquidity = useRemoveLiquidity();
   const onSubmit = useCallback(
@@ -127,32 +131,41 @@ export default function RemoveLiquidityDialog({
       }
 
       try {
-        await removeLiquidity({
+        const approvalTx = await approvalOfTransfer(
+          pair,
+          ethers.BigNumber.from(poolTokenAmount.toString())
+        );
+        await approvalTx?.wait();
+
+        const removeTx = await removeLiquidity({
           tokenA,
           tokenB,
-          liquidity: poolTokenAmount.toFixed(),
+          liquidity: poolTokenAmount.toString(),
           amountAMin: tokenAMinAmount.balance.toString(),
           amountBMin: tokenBMinAmount.balance.toString(),
         });
+        await removeTx?.wait();
 
         // Refetch all the liquidity pairs.
         queryClient.invalidateQueries('all-pairs');
         queryClient.invalidateQueries('all-pooled-pairs');
 
-        enqueueSnackbar('Successfully removed liquidity.', {
+        enqueueSnackbar('Successfully withdrew liquidity.', {
           variant: 'success',
         });
         onClose();
       } catch (err) {
-        enqueueSnackbar('Failed to remove liquidity.', {
+        enqueueSnackbar('Failed to withdraw liquidity.', {
           variant: 'error',
         });
         throw err;
       }
     },
     [
+      approvalOfTransfer,
       enqueueSnackbar,
       onClose,
+      pair,
       poolTokenAmount,
       queryClient,
       removeLiquidity,

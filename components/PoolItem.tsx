@@ -67,6 +67,7 @@ export default function PoolItem({ pair }: PoolItemProps) {
         onClose={toggleRemoveOpen}
         tokenA={pair.tokenA}
         tokenB={pair.tokenB}
+        pair={pair.address}
       />
     </>
   );
