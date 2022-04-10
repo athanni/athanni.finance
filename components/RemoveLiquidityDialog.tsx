@@ -1,3 +1,4 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import {
   Button,
   Dialog,
@@ -11,6 +12,7 @@ import BigNumber from 'bignumber.js';
 import { tokenMap } from 'config/supportedTokens';
 import { useCallback } from 'react';
 import { Controller, useForm } from 'react-hook-form';
+import { z } from 'zod';
 
 type RemoveLiquidityDialogProps = {
   tokenA: string;
@@ -18,6 +20,12 @@ type RemoveLiquidityDialogProps = {
   open: boolean;
   onClose: () => void;
 };
+
+const schema = z.object({
+  amount: z.number().gt(0, 'Required'),
+});
+
+type SchemaType = z.infer<typeof schema>;
 
 export default function RemoveLiquidityDialog({
   tokenA,
@@ -32,9 +40,10 @@ export default function RemoveLiquidityDialog({
     defaultValues: {
       amount: 0,
     },
+    resolver: zodResolver(schema),
   });
 
-  const onSubmit = useCallback(() => {}, []);
+  const onSubmit = useCallback((state: SchemaType) => {}, []);
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
@@ -53,12 +62,12 @@ export default function RemoveLiquidityDialog({
                 <Slider
                   min={0}
                   max={1}
-                  step={0.0001}
+                  step={0.001}
                   valueLabelDisplay="auto"
                   value={field.value}
                   onChange={field.onChange}
                   valueLabelFormat={(v) =>
-                    `${new BigNumber(v).multipliedBy(100).toFixed()}%`
+                    `${new BigNumber(v).multipliedBy(100).toFixed(1)}%`
                   }
                 />
               )}
