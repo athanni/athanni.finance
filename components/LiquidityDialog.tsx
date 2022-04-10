@@ -43,7 +43,7 @@ const schema = z
       .transform((v) => new BigNumber(v))
       .refine((v) => v.gt(0), 'Required'),
   })
-  .refine((arg) => !arg.hasPair && arg.startingPrice.gt(0), {
+  .refine((arg) => (!arg.hasPair ? arg.startingPrice.gt(0) : true), {
     message: 'Required',
     path: ['startingPrice'],
   });
