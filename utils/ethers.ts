@@ -80,6 +80,7 @@ export function useFactoryContract(): FactoryContract | null {
 
 type ERC20Contract = ethers.Contract & {
   balanceOf(address: string): Promise<ethers.BigNumber>;
+  totalSupply(): Promise<ethers.BigNumber>;
   decimals(): Promise<ethers.BigNumber>;
   allowance(ownner: string, spender: string): Promise<ethers.BigNumber>;
   approve(spender: string, amount: string): Promise<ContractTransaction>;

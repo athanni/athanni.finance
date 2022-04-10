@@ -144,6 +144,7 @@ export function useAllPooledPairs() {
 type PooledPairResponse = {
   address: string;
   currentAccountBalance: LiquidPoolTokenBalance;
+  totalSupply: LiquidPoolTokenBalance;
   tokenA: string;
   tokenB: string;
   reserveA: TokenBalance;
@@ -161,13 +162,18 @@ export function usePoolPair(tokenA?: string, tokenB?: string) {
     ['pooled-pair', account, pairAddress],
     async () => {
       const pairContract = getUniswapV2PairContract(library, pairAddress!)!;
-      const balance = await pairContract.balanceOf(account!);
-      const token0 = await pairContract.token0();
-      const [reserveA, reserveB] = await pairContract.getReserves();
+      const [balance, token0, [reserveA, reserveB], totalSupply] =
+        await Promise.all([
+          pairContract.balanceOf(account!),
+          pairContract.token0(),
+          pairContract.getReserves(),
+          pairContract.totalSupply(),
+        ]);
 
       return {
         address: pairAddress!,
         currentAccountBalance: new LiquidPoolTokenBalance(balance),
+        totalSupply: new LiquidPoolTokenBalance(totalSupply),
         tokenA: tokenA!,
         tokenB: tokenB!,
         reserveA: new TokenBalance(
