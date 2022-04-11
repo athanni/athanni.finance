@@ -96,6 +96,14 @@ type PairMap = {
 };
 
 /**
+ * A path used to swap a token from source to destination and the amounts converted at each steps.
+ */
+export type SwapAmount = {
+  path: string[];
+  pathAmount: ethers.BigNumber[];
+};
+
+/**
  * Gets the swappable amounts for a given token [amount] either [source] or [destination]. The calculation
  * is done in the [direction]. If it is `in`, gets output amount for a given input amount of [source].
  * If it is `out`, gets the input amount for the given output amount of [destination].
@@ -152,7 +160,7 @@ export function useSwapAmounts(
         return {
           path,
           pathAmount: amount,
-        };
+        } as SwapAmount;
       });
     },
     {
@@ -210,4 +218,34 @@ function findPaths(
   });
 
   return foundPaths;
+}
+
+/**
+ * Gets the best swap amount for a
+ */
+export function useBestSwapAmount(
+  source?: string,
+  destination?: string,
+  amount?: string,
+  direction?: 'in' | 'out'
+) {
+  const { data, ...rest } = useSwapAmounts(
+    source,
+    destination,
+    amount,
+    direction
+  );
+
+  const best = useMemo(() => {
+    const sorted = (data ?? []).sort((left, right) =>
+      left.pathAmount[left.pathAmount.length - 1]
+        .sub(right.pathAmount[right.pathAmount.length - 1])
+        .mod(2)
+        .toNumber()
+    );
+
+    return sorted[sorted.length - 1] || null;
+  }, [data]);
+
+  return { data: best, ...rest };
 }

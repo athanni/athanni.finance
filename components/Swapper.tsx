@@ -1,7 +1,7 @@
 import { Button, IconButton, Paper, Stack, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core';
-import { useSwapAmounts } from 'api/router';
+import { useBestSwapAmount, useSwapAmounts } from 'api/router';
 import { useCallback } from 'react';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { MdSwapVert } from 'react-icons/md';
@@ -45,14 +45,12 @@ export default function Swapper() {
   });
   const editedToken = useWatch({ control: form.control, name: 'editedToken' });
 
-  const { data: swapAmount } = useSwapAmounts(
+  const { data: swapAmount } = useBestSwapAmount(
     tokenA,
     tokenB,
     editedToken === tokenA ? tokenAAmount : tokenBAmount,
     editedToken === tokenA ? 'out' : 'in'
   );
-
-  console.log(swapAmount);
 
   return (
     <Paper
@@ -75,7 +73,7 @@ export default function Swapper() {
           </Stack>
           <SwapInput isTokenA={false} />
 
-          <SwapInfo />
+          {swapAmount && <SwapInfo swap={swapAmount} />}
 
           <Box mt={3}>
             {isConnected ? (
