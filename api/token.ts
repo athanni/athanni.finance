@@ -3,7 +3,7 @@ import BigNumber from 'bignumber.js';
 import config from 'config/config';
 import supportedTokens from 'config/supportedTokens';
 import { ethers } from 'ethers';
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 import { useQuery } from 'react-query';
 import { getERC20Contract, useERC20Contract } from 'utils/ethers';
 
@@ -66,25 +66,18 @@ export function useTokenBalance(token: string) {
   const { account } = useWeb3React();
   const erc20Contract = useERC20Contract(token);
 
-  const query = useQuery(
-    ['token-balance', token, account],
+  return useQuery(
+    ['token-balance', Boolean(erc20Contract), token, account],
     async () => {
       const balance = await erc20Contract!.balanceOf(account!);
       return new TokenBalance(token, balance);
     },
     {
-      enabled: Boolean(erc20Contract) && Boolean(account),
+      // Refetch the token balance after every 10 seconds.
+      refetchInterval: 10 * 1000,
+      enabled: Boolean(erc20Contract && account),
     }
   );
-
-  const { refetch } = query;
-  useEffect(() => {
-    if (account && erc20Contract) {
-      refetch();
-    }
-  }, [account, erc20Contract, refetch]);
-
-  return query;
 }
 
 /**
