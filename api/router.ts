@@ -2,6 +2,7 @@ import { useWeb3React } from '@web3-react/core';
 import { THETA_DEFAULT_DEADLINE_FROM_NOW } from 'config/constants';
 import { ethers } from 'ethers';
 import { useCallback } from 'react';
+import { useQuery } from 'react-query';
 import { useRouterContract } from 'utils/ethers';
 
 type AddLiquidityArgs = {

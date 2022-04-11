@@ -5,6 +5,7 @@ import { useCallback } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { MdSwapVert } from 'react-icons/md';
 import ConnectWallet from './ConnectWallet';
+import SwapInfo from './SwapInfo';
 import SwapInput from './SwapInput';
 
 export default function Swapper() {
@@ -50,6 +51,9 @@ export default function Swapper() {
             </IconButton>
           </Stack>
           <SwapInput isTokenA={false} />
+
+          <SwapInfo />
+
           <Box mt={3}>
             {isConnected ? (
               <Button variant="contained" fullWidth size="large">
