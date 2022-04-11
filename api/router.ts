@@ -111,7 +111,9 @@ export function useSwapAmounts(
     () =>
       (pooledPairs ?? []).reduce((acc, cur) => {
         acc[cur.tokenA] ??= {};
+        acc[cur.tokenB] ??= {};
         acc[cur.tokenA][cur.tokenB] = cur.address;
+        acc[cur.tokenB][cur.tokenA] = cur.address;
         return acc;
       }, {} as PairMap),
     [pooledPairs]
