@@ -15,7 +15,7 @@ type CurrencyInputProps = {
   isTokenA: boolean;
 };
 
-export default function CurrencyInput({ isTokenA }: CurrencyInputProps) {
+export default function SwapInput({ isTokenA }: CurrencyInputProps) {
   const { typography } = useTheme();
   const name = isTokenA ? 'tokenAAmount' : 'tokenBAmount';
   const tokenName = isTokenA ? 'tokenA' : 'tokenB';
@@ -67,7 +67,9 @@ export default function CurrencyInput({ isTokenA }: CurrencyInputProps) {
               value={field.value}
               onChange={field.onChange}
             >
-              <MenuItem value="0x">UNSET</MenuItem>
+              <MenuItem value="0x">
+                <Typography color="textSecondary">-</Typography>
+              </MenuItem>
               {supportedTokens.map((token) => (
                 <MenuItem key={token.address} value={token.address}>
                   {token.ticker}

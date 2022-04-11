@@ -2,7 +2,7 @@ import { Button, Paper, Stack, Typography } from '@mui/material';
 import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core';
 import { FormProvider, useForm } from 'react-hook-form';
 import ConnectWallet from './ConnectWallet';
-import CurrencyInput from './CurrencyInput';
+import SwapInput from './SwapInput';
 
 export default function Swapper() {
   const { active, error } = useWeb3React();
@@ -31,8 +31,8 @@ export default function Swapper() {
       <Typography fontWeight="medium">Swap</Typography>
       <FormProvider {...form}>
         <Stack mt={3} spacing={3}>
-          <CurrencyInput isTokenA />
-          <CurrencyInput isTokenA={false} />
+          <SwapInput isTokenA />
+          <SwapInput isTokenA={false} />
           {isConnected ? (
             <Button variant="contained" fullWidth size="large">
               Swap
