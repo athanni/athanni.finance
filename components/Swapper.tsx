@@ -1,5 +1,6 @@
 import { Button, Paper, Stack, Typography } from '@mui/material';
 import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core';
+import { FormProvider, useForm } from 'react-hook-form';
 import ConnectWallet from './ConnectWallet';
 import CurrencyInput from './CurrencyInput';
 
@@ -7,6 +8,15 @@ export default function Swapper() {
   const { active, error } = useWeb3React();
   // It is connected even if wallet not on valid chain id.
   const isConnected = active || error instanceof UnsupportedChainIdError;
+
+  const form = useForm({
+    defaultValues: {
+      tokenAAmount: '',
+      tokenA: '0x',
+      tokenBAmount: '',
+      tokenB: '0x',
+    },
+  });
 
   return (
     <Paper
@@ -19,22 +29,24 @@ export default function Swapper() {
       }}
     >
       <Typography fontWeight="medium">Swap</Typography>
-      <Stack mt={3} spacing={3}>
-        <CurrencyInput />
-        <CurrencyInput />
-        {isConnected ? (
-          <Button variant="contained" fullWidth size="large">
-            Swap
-          </Button>
-        ) : (
-          <ConnectWallet
-            buttonProps={{
-              size: 'large',
-              fullWidth: true,
-            }}
-          />
-        )}
-      </Stack>
+      <FormProvider {...form}>
+        <Stack mt={3} spacing={3}>
+          <CurrencyInput isTokenA />
+          <CurrencyInput isTokenA={false} />
+          {isConnected ? (
+            <Button variant="contained" fullWidth size="large">
+              Swap
+            </Button>
+          ) : (
+            <ConnectWallet
+              buttonProps={{
+                size: 'large',
+                fullWidth: true,
+              }}
+            />
+          )}
+        </Stack>
+      </FormProvider>
     </Paper>
   );
 }

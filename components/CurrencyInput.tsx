@@ -8,15 +8,18 @@ import {
   useTheme,
 } from '@mui/material';
 import supportedTokens from 'config/supportedTokens';
+import { Controller, useFormContext } from 'react-hook-form';
+import { handleDecimalInput } from 'utils/numeric';
 
 type CurrencyInputProps = {
-  disableCurrencySelection?: boolean;
+  isTokenA: boolean;
 };
 
-export default function CurrencyInput({
-  disableCurrencySelection,
-}: CurrencyInputProps) {
+export default function CurrencyInput({ isTokenA }: CurrencyInputProps) {
   const { typography } = useTheme();
+  const name = isTokenA ? 'tokenAAmount' : 'tokenBAmount';
+  const tokenName = isTokenA ? 'tokenA' : 'tokenB';
+  const { control } = useFormContext();
 
   return (
     <Box bgcolor="grey.100" px={2} py={1.5} borderRadius={1.5}>
@@ -26,36 +29,53 @@ export default function CurrencyInput({
         justifyContent="space-between"
         alignItems="center"
       >
-        <Input
-          disableUnderline
-          fullWidth
-          sx={{
-            fontSize: typography.h5.fontSize,
-            fontWeight: 'medium',
-          }}
+        <Controller
+          name={name}
+          control={control}
+          render={({ field }) => (
+            <Input
+              disableUnderline
+              fullWidth
+              sx={{
+                fontSize: typography.h5.fontSize,
+                fontWeight: 'medium',
+              }}
+              {...field}
+              onChange={(e) => {
+                handleDecimalInput(e, field.onChange);
+              }}
+            />
+          )}
         />
 
-        <Select
-          variant="standard"
-          value=""
-          size="small"
-          disableUnderline
-          disabled={disableCurrencySelection}
-          sx={{
-            '& .MuiSelect-select': {
-              bgcolor: 'grey.200',
-              px: 2,
-              py: 1,
-              borderRadius: 1.5,
-            },
-          }}
-        >
-          {supportedTokens.map((token) => (
-            <MenuItem key={token.address} value={token.address}>
-              {token.ticker}
-            </MenuItem>
-          ))}
-        </Select>
+        <Controller
+          name={tokenName}
+          control={control}
+          render={({ field }) => (
+            <Select
+              variant="standard"
+              size="small"
+              disableUnderline
+              sx={{
+                '& .MuiSelect-select': {
+                  bgcolor: 'grey.200',
+                  px: 2,
+                  py: 1,
+                  borderRadius: 1.5,
+                },
+              }}
+              value={field.value}
+              onChange={field.onChange}
+            >
+              <MenuItem value="0x">UNSET</MenuItem>
+              {supportedTokens.map((token) => (
+                <MenuItem key={token.address} value={token.address}>
+                  {token.ticker}
+                </MenuItem>
+              ))}
+            </Select>
+          )}
+        />
       </Stack>
       <Stack direction="row" spacing={1} justifyContent="space-between">
         <Typography variant="body2" color="textSecondary">
