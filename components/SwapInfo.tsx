@@ -17,8 +17,9 @@ export default function SwapInfo({ path }: SwapInfoProps) {
       <Stack direction="row" justifyContent="space-between" alignItems="center">
         <Typography variant="body2">Swap rate</Typography>
         <Typography fontWeight="medium">
-          {first.toString()} {tokenMap[first.address].ticker} ={' '}
-          {last.toString()} {tokenMap[last.address].ticker}
+          1 {tokenMap[first.address].ticker} ={' '}
+          {last.dividedBy(first.inMajorUnit()).toString()}{' '}
+          {tokenMap[last.address].ticker}
         </Typography>
       </Stack>
       <Stack direction="row" justifyContent="space-between" alignItems="center">

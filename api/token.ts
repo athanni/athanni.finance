@@ -49,6 +49,21 @@ export class TokenBalance {
     });
   }
 
+  /**
+   * Divide the balance by a number.
+   */
+  dividedBy(num: BigNumber): TokenBalance {
+    return new TokenBalance(
+      this.address,
+      ethers.BigNumber.from(
+        new BigNumber(this.balance.toString())
+          .dividedBy(num)
+          .integerValue()
+          .toFixed()
+      )
+    );
+  }
+
   toString() {
     return this.inMajorUnit().toFormat(4, 1, {
       groupSize: 3,
