@@ -254,9 +254,21 @@ export function usePriceImpact(path: TokenBalance[]) {
       return null;
     }
 
+    // The market price of the first token in the path against last token in the path.
     const marketPrice = new BigNumber(
-      poolPair.reserveB.balance.toString()
-    ).dividedBy(new BigNumber(poolPair.reserveA.balance.toString()));
+      (poolPair.tokenA === last.address
+        ? poolPair.reserveA
+        : poolPair.reserveB
+      ).balance.toString()
+    ).dividedBy(
+      new BigNumber(
+        (poolPair.tokenA === last.address
+          ? poolPair.reserveB
+          : poolPair.reserveA
+        ).balance.toString()
+      )
+    );
+
     const currentPrice = new BigNumber(last.balance.toString()).dividedBy(
       new BigNumber(first.balance.toString())
     );
@@ -265,6 +277,7 @@ export function usePriceImpact(path: TokenBalance[]) {
       .dividedBy(marketPrice)
       .multipliedBy(100)
       .toFixed(2);
+
     return `${percentage}%`;
-  }, [first.balance, last.balance, poolPair]);
+  }, [first, last, poolPair]);
 }
