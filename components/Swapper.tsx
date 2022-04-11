@@ -2,7 +2,7 @@ import { Button, IconButton, Paper, Stack, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core';
 import { useBestSwapAmount } from 'api/router';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { MdSwapVert } from 'react-icons/md';
 import { convertAmountToBaseUnit } from 'utils/numeric';
@@ -70,6 +70,25 @@ export default function Swapper() {
     editedToken === tokenA ? tokenABaseUnit : tokenBBaseUnit,
     editedToken === tokenA ? 'out' : 'in'
   );
+
+  // Whenever the input or the swap amount changes update the non-edited field.
+  useEffect(() => {
+    if (!path) {
+      return;
+    }
+
+    const first = path[0];
+    const last = path[path.length - 1];
+
+    if (editedToken === tokenA) {
+      setValue('tokenBAmount', last.tokenRatioWith(first).toFixed(4));
+      return;
+    }
+
+    if (editedToken === tokenB) {
+      setValue('tokenAAmount', first.tokenRatioWith(last).toFixed(4));
+    }
+  }, [editedToken, path, setValue, tokenA, tokenB]);
 
   return (
     <Paper
