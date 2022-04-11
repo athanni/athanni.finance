@@ -7,8 +7,9 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
+import { useTokenBalance } from 'api/token';
 import supportedTokens from 'config/supportedTokens';
-import { Controller, useFormContext } from 'react-hook-form';
+import { Controller, useFormContext, useWatch } from 'react-hook-form';
 import { handleDecimalInput } from 'utils/numeric';
 
 type CurrencyInputProps = {
@@ -20,6 +21,9 @@ export default function SwapInput({ isTokenA }: CurrencyInputProps) {
   const name = isTokenA ? 'tokenAAmount' : 'tokenBAmount';
   const tokenName = isTokenA ? 'tokenA' : 'tokenB';
   const { control } = useFormContext();
+
+  const tokenAddress = useWatch({ control, name: tokenName });
+  const { data: tokenBalance } = useTokenBalance(tokenAddress);
 
   return (
     <Box bgcolor="grey.100" px={2} py={1.5} borderRadius={1.5}>
@@ -79,15 +83,13 @@ export default function SwapInput({ isTokenA }: CurrencyInputProps) {
           )}
         />
       </Stack>
-      <Stack direction="row" spacing={1} justifyContent="space-between">
-        <Typography variant="body2" color="textSecondary">
-          $12,121.4
-        </Typography>
-
-        <Typography variant="body2" color="textSecondary">
-          Balance: 0
-        </Typography>
-      </Stack>
+      {tokenBalance && (
+        <Stack direction="row" spacing={1} justifyContent="flex-end">
+          <Typography variant="body2" color="textSecondary">
+            Balance: {tokenBalance.toString()}
+          </Typography>
+        </Stack>
+      )}
     </Box>
   );
 }
