@@ -84,3 +84,39 @@ export function useRemoveLiquidity() {
     [account, routerContract]
   );
 }
+
+/**
+ * Gets the output amount for the input amount after swapping through the tokens
+ * in the given path.
+ */
+export function useAmountsOut(amountIn: string, path: string[]) {
+  const routerContract = useRouterContract();
+
+  return useQuery(
+    ['amounts-out', Boolean(routerContract), amountIn, ...path],
+    async () => routerContract!.getAmountsOut(amountIn, path),
+    {
+      // Every 10ms fetch a new value.
+      refetchInterval: 10 * 1000,
+      enabled: Boolean(routerContract && path.length > 0),
+    }
+  );
+}
+
+/**
+ * Gets the input amount for the output amount that is to be swapped through the tokens
+ * in the given path.
+ */
+export function useAmountsIn(amountOut: string, path: string[]) {
+  const routerContract = useRouterContract();
+
+  return useQuery(
+    ['amounts-out', Boolean(routerContract), amountOut, ...path],
+    async () => routerContract!.getAmountsIn(amountOut, path),
+    {
+      // Every 10ms fetch a new value.
+      refetchInterval: 10 * 1000,
+      enabled: Boolean(routerContract && path.length > 0),
+    }
+  );
+}

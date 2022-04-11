@@ -58,6 +58,7 @@ export default function SwapInput({ isTokenA }: CurrencyInputProps) {
                 fontSize: typography.h5.fontSize,
                 fontWeight: 'medium',
               }}
+              disabled={tokenAddress === '0x'}
               {...field}
               onChange={(e) => {
                 handleDecimalInput(e, field.onChange);
