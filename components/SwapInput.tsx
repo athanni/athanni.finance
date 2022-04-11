@@ -7,8 +7,9 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
+import { useSwappableTokens } from 'api/pairs';
 import { useTokenBalance } from 'api/token';
-import supportedTokens from 'config/supportedTokens';
+import { tokenMap } from 'config/supportedTokens';
 import { Controller, useFormContext, useWatch } from 'react-hook-form';
 import { handleDecimalInput } from 'utils/numeric';
 
@@ -27,6 +28,8 @@ export default function SwapInput({ isTokenA }: CurrencyInputProps) {
   const { data: tokenBalance } = useTokenBalance(tokenAddress);
 
   const pairTokenAddress = useWatch({ control, name: pairTokenName });
+
+  const { data: swappableTokens } = useSwappableTokens();
 
   return (
     <Box
@@ -85,11 +88,12 @@ export default function SwapInput({ isTokenA }: CurrencyInputProps) {
               <MenuItem value="0x">
                 <Typography color="textSecondary">-</Typography>
               </MenuItem>
-              {supportedTokens
-                .filter((token) => token.address !== pairTokenAddress)
+              {swappableTokens
+                .filter((token) => token !== pairTokenAddress)
+                .filter((token) => Boolean(tokenMap[token]))
                 .map((token) => (
-                  <MenuItem key={token.address} value={token.address}>
-                    {token.ticker}
+                  <MenuItem key={token} value={token}>
+                    {tokenMap[token].ticker}
                   </MenuItem>
                 ))}
             </Select>

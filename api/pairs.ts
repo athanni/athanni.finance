@@ -2,7 +2,7 @@ import { useWeb3React } from '@web3-react/core';
 import BigNumber from 'bignumber.js';
 import { ZERO_ADDRESS } from 'config/constants';
 import { ethers } from 'ethers';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useQuery } from 'react-query';
 import { getUniswapV2PairContract, useFactoryContract } from 'utils/ethers';
 import { TokenBalance } from './token';
@@ -202,4 +202,25 @@ export function usePoolPair(tokenA?: string, tokenB?: string) {
   }, [account, library, pairAddress, refetch]);
 
   return query;
+}
+
+/**
+ * Gets all the swappable token addresses from all the pooled pairs.
+ */
+export function useSwappableTokens() {
+  const { data, ...rest } = useAllPooledPairs();
+  const tokens = useMemo(() => {
+    const all = new Set<string>();
+
+    if (data) {
+      data.forEach((poolPair) => {
+        all.add(poolPair.tokenA);
+        all.add(poolPair.tokenB);
+      });
+    }
+
+    return Array.from(all);
+  }, [data]);
+
+  return { data: tokens, ...rest };
 }
