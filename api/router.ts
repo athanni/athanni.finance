@@ -101,10 +101,10 @@ type PairMap = {
  * If it is `out`, gets the input amount for the given output amount of [destination].
  */
 export function useSwapAmounts(
-  source: string,
-  destination: string,
-  amount: string,
-  direction: 'in' | 'out'
+  source?: string,
+  destination?: string,
+  amount?: string,
+  direction?: 'in' | 'out'
 ) {
   const { data: pooledPairs } = useAllPooledPairs();
   const pairMap = useMemo(
@@ -118,7 +118,10 @@ export function useSwapAmounts(
   );
 
   const paths = useMemo(
-    () => findPaths(pairMap, source, destination, [source], 0),
+    () =>
+      source && destination
+        ? findPaths(pairMap, source, destination, [source], 0)
+        : [],
     [destination, pairMap, source]
   );
 
@@ -139,10 +142,10 @@ export function useSwapAmounts(
           : routerContract!.getAmountsOut;
 
       const amounts = await Promise.all(
-        paths.map((path) => getAmounts(amount, path))
+        paths.map((path) => getAmounts(amount!, path))
       );
 
-      return amounts.forEach((amount, index) => {
+      return amounts.map((amount, index) => {
         const path = paths[index];
         return {
           path,
@@ -153,7 +156,14 @@ export function useSwapAmounts(
     {
       // Every 10ms fetch a new value.
       refetchInterval: 10 * 1000,
-      enabled: Boolean(routerContract && paths.length > 0),
+      enabled: Boolean(
+        routerContract &&
+          source &&
+          destination &&
+          amount &&
+          direction &&
+          paths.length > 0
+      ),
     }
   );
 }
