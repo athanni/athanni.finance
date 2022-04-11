@@ -1,10 +1,11 @@
 import { useWeb3React } from '@web3-react/core';
+import BigNumber from 'bignumber.js';
 import { THETA_DEFAULT_DEADLINE_FROM_NOW } from 'config/constants';
 import { ethers } from 'ethers';
 import { useCallback, useMemo } from 'react';
 import { useQuery } from 'react-query';
 import { useRouterContract } from 'utils/ethers';
-import { useAllPooledPairs } from './pairs';
+import { useAllPooledPairs, usePoolPair } from './pairs';
 import { TokenBalance } from './token';
 
 type AddLiquidityArgs = {
@@ -238,4 +239,32 @@ export function useBestSwapAmount(
   }, [data]);
 
   return { data: best, ...rest };
+}
+
+/**
+ * Gets the value of price impact for the token swap path.
+ */
+export function usePriceImpact(path: TokenBalance[]) {
+  const first = path[0];
+  const last = path[path.length - 1];
+  const { data: poolPair } = usePoolPair(first.address, last.address);
+
+  return useMemo(() => {
+    if (!poolPair) {
+      return null;
+    }
+
+    const marketPrice = new BigNumber(
+      poolPair.reserveB.balance.toString()
+    ).dividedBy(new BigNumber(poolPair.reserveA.balance.toString()));
+    const currentPrice = new BigNumber(last.balance.toString()).dividedBy(
+      new BigNumber(first.balance.toString())
+    );
+    const difference = currentPrice.minus(marketPrice);
+    const percentage = difference
+      .dividedBy(marketPrice)
+      .multipliedBy(100)
+      .toFixed(2);
+    return `${percentage}%`;
+  }, [first.balance, last.balance, poolPair]);
 }
