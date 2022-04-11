@@ -15,6 +15,7 @@ export default function Swapper() {
 
   const form = useForm({
     defaultValues: {
+      editedToken: '',
       tokenAAmount: '',
       tokenA: '0x',
       tokenBAmount: '',

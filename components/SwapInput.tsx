@@ -22,7 +22,7 @@ export default function SwapInput({ isTokenA }: CurrencyInputProps) {
   const name = isTokenA ? 'tokenAAmount' : 'tokenBAmount';
   const tokenName = isTokenA ? 'tokenA' : 'tokenB';
   const pairTokenName = isTokenA ? 'tokenB' : 'tokenA';
-  const { control } = useFormContext();
+  const { control, setValue } = useFormContext();
 
   const tokenAddress = useWatch({ control, name: tokenName });
   const { data: tokenBalance } = useTokenBalance(tokenAddress);
@@ -62,6 +62,7 @@ export default function SwapInput({ isTokenA }: CurrencyInputProps) {
               {...field}
               onChange={(e) => {
                 handleDecimalInput(e, field.onChange);
+                setValue('editedToken', tokenAddress);
               }}
             />
           )}
