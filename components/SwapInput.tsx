@@ -20,10 +20,13 @@ export default function SwapInput({ isTokenA }: CurrencyInputProps) {
   const { typography } = useTheme();
   const name = isTokenA ? 'tokenAAmount' : 'tokenBAmount';
   const tokenName = isTokenA ? 'tokenA' : 'tokenB';
+  const pairTokenName = isTokenA ? 'tokenB' : 'tokenA';
   const { control } = useFormContext();
 
   const tokenAddress = useWatch({ control, name: tokenName });
   const { data: tokenBalance } = useTokenBalance(tokenAddress);
+
+  const pairTokenAddress = useWatch({ control, name: pairTokenName });
 
   return (
     <Box
@@ -82,11 +85,13 @@ export default function SwapInput({ isTokenA }: CurrencyInputProps) {
               <MenuItem value="0x">
                 <Typography color="textSecondary">-</Typography>
               </MenuItem>
-              {supportedTokens.map((token) => (
-                <MenuItem key={token.address} value={token.address}>
-                  {token.ticker}
-                </MenuItem>
-              ))}
+              {supportedTokens
+                .filter((token) => token.address !== pairTokenAddress)
+                .map((token) => (
+                  <MenuItem key={token.address} value={token.address}>
+                    {token.ticker}
+                  </MenuItem>
+                ))}
             </Select>
           )}
         />
