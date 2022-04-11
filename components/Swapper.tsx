@@ -1,14 +1,33 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, IconButton, Paper, Stack, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core';
 import { useBestSwapAmount } from 'api/router';
+import BigNumber from 'bignumber.js';
 import { useCallback, useEffect, useMemo } from 'react';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { MdSwapVert } from 'react-icons/md';
 import { convertAmountToBaseUnit } from 'utils/numeric';
+import { z } from 'zod';
 import ConnectWallet from './ConnectWallet';
 import SwapInfo from './SwapInfo';
 import SwapInput from './SwapInput';
+
+const schema = z.object({
+  editedToken: z.string(),
+  tokenA: z.string().refine((v) => v !== '0x', 'Required'),
+  tokenB: z.string().refine((v) => v !== '0x', 'Required'),
+  tokenAAmount: z
+    .string()
+    .transform((v) => new BigNumber(v))
+    .refine((v) => v.gt(0), 'Required'),
+  tokenBAmount: z
+    .string()
+    .transform((v) => new BigNumber(v))
+    .refine((v) => v.gt(0), 'Required'),
+});
+
+type SchemaType = z.infer<typeof schema>;
 
 export default function Swapper() {
   const { active, error } = useWeb3React();
@@ -23,9 +42,10 @@ export default function Swapper() {
       tokenBAmount: '',
       tokenB: '0x',
     },
+    resolver: zodResolver(schema),
   });
 
-  const { getValues, setValue } = form;
+  const { handleSubmit, getValues, setValue } = form;
   const onSwitchInput = useCallback(() => {
     const fields = getValues();
     setValue('tokenAAmount', fields.tokenBAmount);
@@ -97,6 +117,11 @@ export default function Swapper() {
     }
   }, [editedToken, path, setValue, token0, token1, tokenA, tokenB]);
 
+  const onSubmit = useCallback((state: any) => {
+    const { editedToken, tokenA, tokenB, tokenAAmount, tokenBAmount } =
+      state as SchemaType;
+  }, []);
+
   return (
     <Paper
       variant="outlined"
@@ -109,7 +134,7 @@ export default function Swapper() {
     >
       <Typography fontWeight="medium">Swap</Typography>
       <FormProvider {...form}>
-        <Stack mt={3}>
+        <Stack component="form" mt={3} onSubmit={handleSubmit(onSubmit)}>
           <SwapInput isTokenA />
           <Stack alignItems="center" my={1}>
             <IconButton sx={{ bgcolor: 'grey.200' }} onClick={onSwitchInput}>
@@ -122,7 +147,7 @@ export default function Swapper() {
 
           <Box mt={3}>
             {isConnected ? (
-              <Button variant="contained" fullWidth size="large">
+              <Button type="submit" variant="contained" fullWidth size="large">
                 Swap
               </Button>
             ) : (
