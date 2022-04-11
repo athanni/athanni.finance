@@ -26,7 +26,14 @@ export default function SwapInput({ isTokenA }: CurrencyInputProps) {
   const { data: tokenBalance } = useTokenBalance(tokenAddress);
 
   return (
-    <Box bgcolor="grey.100" px={2} py={1.5} borderRadius={1.5}>
+    <Box
+      bgcolor="grey.100"
+      px={2}
+      py={1.5}
+      borderRadius={1.5}
+      border="1px solid"
+      borderColor="grey.400"
+    >
       <Stack
         direction="row"
         spacing={1}
@@ -38,6 +45,7 @@ export default function SwapInput({ isTokenA }: CurrencyInputProps) {
           control={control}
           render={({ field }) => (
             <Input
+              placeholder="0.0"
               disableUnderline
               fullWidth
               sx={{
