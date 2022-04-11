@@ -36,8 +36,14 @@ export default function Swapper() {
 
   const tokenA = useWatch({ control: form.control, name: 'tokenA' });
   const tokenB = useWatch({ control: form.control, name: 'tokenB' });
-  const token0 = useMemo(() => (tokenA !== '0x' ? tokenA : null), [tokenA]);
-  const token1 = useMemo(() => (tokenB !== '0x' ? tokenB : null), [tokenB]);
+  const token0 = useMemo(
+    () => (tokenA !== '0x' ? tokenA : undefined),
+    [tokenA]
+  );
+  const token1 = useMemo(
+    () => (tokenB !== '0x' ? tokenB : undefined),
+    [tokenB]
+  );
 
   const tokenAAmount = useWatch({
     control: form.control,
@@ -65,30 +71,31 @@ export default function Swapper() {
   );
 
   const { data: path } = useBestSwapAmount(
-    tokenA,
-    tokenB,
-    editedToken === tokenA ? tokenABaseUnit : tokenBBaseUnit,
-    editedToken === tokenA ? 'out' : 'in'
+    token0,
+    token1,
+    editedToken === token0 ? tokenABaseUnit : tokenBBaseUnit,
+    editedToken === token0 ? 'out' : 'in'
   );
 
   // Whenever the input or the swap amount changes update the non-edited field.
   useEffect(() => {
     if (!path) {
+      setValue(editedToken === token0 ? 'tokenBAmount' : 'tokenAAmount', '');
       return;
     }
 
     const first = path[0];
     const last = path[path.length - 1];
 
-    if (editedToken === tokenA) {
-      setValue('tokenBAmount', last.tokenRatioWith(first).toFixed(4));
+    if (editedToken === token0) {
+      setValue('tokenBAmount', last.toPlainString());
       return;
     }
 
-    if (editedToken === tokenB) {
-      setValue('tokenAAmount', first.tokenRatioWith(last).toFixed(4));
+    if (editedToken === token1) {
+      setValue('tokenAAmount', first.toPlainString());
     }
-  }, [editedToken, path, setValue, tokenA, tokenB]);
+  }, [editedToken, path, setValue, token0, token1, tokenA, tokenB]);
 
   return (
     <Paper

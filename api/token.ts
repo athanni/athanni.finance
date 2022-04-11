@@ -64,6 +64,9 @@ export class TokenBalance {
     );
   }
 
+  /**
+   * Format the token amount for user viewing.
+   */
   toString() {
     return this.inMajorUnit().toFormat(4, 1, {
       groupSize: 3,
@@ -71,6 +74,14 @@ export class TokenBalance {
       decimalSeparator: '.',
       fractionGroupSize: 1,
     });
+  }
+
+  /**
+   * Convert the number to string without any formatting limiting the output to
+   * 4 decimal places.
+   */
+  toPlainString() {
+    return this.inMajorUnit().toFixed(4, 1);
   }
 }
 
