@@ -1,4 +1,5 @@
 import BigNumber from 'bignumber.js';
+import { tokenMap } from 'config/supportedTokens';
 import { ChangeEvent } from 'react';
 
 /**
@@ -34,4 +35,14 @@ export function handleDecimalInput(
   }
 
   return onChange(num.toString());
+}
+
+/**
+ * Converts a given [amount] in its normal unit to the base unit based on the [token]
+ * address.
+ */
+export function convertAmountToBaseUnit(amount: string, token: string): string {
+  const amt = new BigNumber(amount);
+  const multiplier = new BigNumber(10).pow(tokenMap[token].decimals);
+  return amt.multipliedBy(multiplier).integerValue().toFixed();
 }

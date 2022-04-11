@@ -5,6 +5,7 @@ import { useCallback, useMemo } from 'react';
 import { useQuery } from 'react-query';
 import { useRouterContract } from 'utils/ethers';
 import { useAllPooledPairs } from './pairs';
+import { TokenBalance } from './token';
 
 type AddLiquidityArgs = {
   tokenA: string;
@@ -96,14 +97,6 @@ type PairMap = {
 };
 
 /**
- * A path used to swap a token from source to destination and the amounts converted at each steps.
- */
-export type SwapAmount = {
-  path: string[];
-  pathAmount: ethers.BigNumber[];
-};
-
-/**
  * Gets the swappable amounts for a given token [amount] either [source] or [destination]. The calculation
  * is done in the [direction]. If it is `in`, gets output amount for a given input amount of [source].
  * If it is `out`, gets the input amount for the given output amount of [destination].
@@ -155,12 +148,9 @@ export function useSwapAmounts(
         paths.map((path) => getAmounts(amount!, path))
       );
 
-      return amounts.map((amount, index) => {
-        const path = paths[index];
-        return {
-          path,
-          pathAmount: amount,
-        } as SwapAmount;
+      return amounts.map((amount, i) => {
+        const path = paths[i];
+        return amount.map((amt, j) => new TokenBalance(path[j], amt));
       });
     },
     {
@@ -238,8 +228,8 @@ export function useBestSwapAmount(
 
   const best = useMemo(() => {
     const sorted = (data ?? []).sort((left, right) =>
-      left.pathAmount[left.pathAmount.length - 1]
-        .sub(right.pathAmount[right.pathAmount.length - 1])
+      left[left.length - 1].balance
+        .sub(right[right.length - 1].balance)
         .mod(2)
         .toNumber()
     );

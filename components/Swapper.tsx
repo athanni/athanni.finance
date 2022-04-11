@@ -1,10 +1,11 @@
 import { Button, IconButton, Paper, Stack, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core';
-import { useBestSwapAmount, useSwapAmounts } from 'api/router';
-import { useCallback } from 'react';
+import { useBestSwapAmount } from 'api/router';
+import { useCallback, useMemo } from 'react';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { MdSwapVert } from 'react-icons/md';
+import { convertAmountToBaseUnit } from 'utils/numeric';
 import ConnectWallet from './ConnectWallet';
 import SwapInfo from './SwapInfo';
 import SwapInput from './SwapInput';
@@ -35,6 +36,9 @@ export default function Swapper() {
 
   const tokenA = useWatch({ control: form.control, name: 'tokenA' });
   const tokenB = useWatch({ control: form.control, name: 'tokenB' });
+  const token0 = useMemo(() => (tokenA !== '0x' ? tokenA : null), [tokenA]);
+  const token1 = useMemo(() => (tokenB !== '0x' ? tokenB : null), [tokenB]);
+
   const tokenAAmount = useWatch({
     control: form.control,
     name: 'tokenAAmount',
@@ -45,10 +49,25 @@ export default function Swapper() {
   });
   const editedToken = useWatch({ control: form.control, name: 'editedToken' });
 
-  const { data: swapAmount } = useBestSwapAmount(
+  const tokenABaseUnit = useMemo(
+    () =>
+      token0 && tokenAAmount
+        ? convertAmountToBaseUnit(tokenAAmount, token0)
+        : undefined,
+    [token0, tokenAAmount]
+  );
+  const tokenBBaseUnit = useMemo(
+    () =>
+      token1 && tokenBAmount
+        ? convertAmountToBaseUnit(tokenBAmount, token1)
+        : undefined,
+    [token1, tokenBAmount]
+  );
+
+  const { data: path } = useBestSwapAmount(
     tokenA,
     tokenB,
-    editedToken === tokenA ? tokenAAmount : tokenBAmount,
+    editedToken === tokenA ? tokenABaseUnit : tokenBBaseUnit,
     editedToken === tokenA ? 'out' : 'in'
   );
 
@@ -73,7 +92,7 @@ export default function Swapper() {
           </Stack>
           <SwapInput isTokenA={false} />
 
-          {swapAmount && <SwapInfo swap={swapAmount} />}
+          {path && <SwapInfo path={path} />}
 
           <Box mt={3}>
             {isConnected ? (
