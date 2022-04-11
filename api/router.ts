@@ -1,9 +1,10 @@
 import { useWeb3React } from '@web3-react/core';
 import { THETA_DEFAULT_DEADLINE_FROM_NOW } from 'config/constants';
 import { ethers } from 'ethers';
-import { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import { useQuery } from 'react-query';
 import { useRouterContract } from 'utils/ethers';
+import { useAllPooledPairs } from './pairs';
 
 type AddLiquidityArgs = {
   tokenA: string;
@@ -86,37 +87,115 @@ export function useRemoveLiquidity() {
 }
 
 /**
- * Gets the output amount for the input amount after swapping through the tokens
- * in the given path.
+ * A map that can easily be used to get the pair address for any two addresses.
  */
-export function useAmountsOut(amountIn: string, path: string[]) {
-  const routerContract = useRouterContract();
+type PairMap = {
+  [address: string]: {
+    [address: string]: string;
+  };
+};
 
+/**
+ * Gets the swappable amounts for a given token [amount] either [source] or [destination]. The calculation
+ * is done in the [direction]. If it is `in`, gets output amount for a given input amount of [source].
+ * If it is `out`, gets the input amount for the given output amount of [destination].
+ */
+export function useSwapAmounts(
+  source: string,
+  destination: string,
+  amount: string,
+  direction: 'in' | 'out'
+) {
+  const { data: pooledPairs } = useAllPooledPairs();
+  const pairMap = useMemo(
+    () =>
+      (pooledPairs ?? []).reduce((acc, cur) => {
+        acc[cur.tokenA] ??= {};
+        acc[cur.tokenA][cur.tokenB] = cur.address;
+        return acc;
+      }, {} as PairMap),
+    [pooledPairs]
+  );
+
+  const paths = useMemo(
+    () => findPaths(pairMap, source, destination, [source], 0),
+    [destination, pairMap, source]
+  );
+
+  const routerContract = useRouterContract();
   return useQuery(
-    ['amounts-out', Boolean(routerContract), amountIn, ...path],
-    async () => routerContract!.getAmountsOut(amountIn, path),
+    [
+      'swap-amounts',
+      Boolean(routerContract),
+      source,
+      destination,
+      amount,
+      direction,
+    ],
+    async () => {
+      const getAmounts =
+        direction === 'in'
+          ? routerContract!.getAmountsIn
+          : routerContract!.getAmountsOut;
+
+      const amounts = await Promise.all(
+        paths.map((path) => getAmounts(amount, path))
+      );
+
+      return amounts.forEach((amount, index) => {
+        const path = paths[index];
+        return {
+          path,
+          pathAmount: amount,
+        };
+      });
+    },
     {
       // Every 10ms fetch a new value.
       refetchInterval: 10 * 1000,
-      enabled: Boolean(routerContract && path.length > 0),
+      enabled: Boolean(routerContract && paths.length > 0),
     }
   );
 }
 
 /**
- * Gets the input amount for the output amount that is to be swapped through the tokens
- * in the given path.
+ * Get all the valid paths that a source token can be converted to a destination token.
  */
-export function useAmountsIn(amountOut: string, path: string[]) {
-  const routerContract = useRouterContract();
+function findPaths(
+  map: PairMap,
+  source: string,
+  destination: string,
+  currentPath: string[],
+  recursionCount: number
+): string[][] {
+  recursionCount += 1;
+  const foundPaths: string[][] = [];
 
-  return useQuery(
-    ['amounts-out', Boolean(routerContract), amountOut, ...path],
-    async () => routerContract!.getAmountsIn(amountOut, path),
-    {
-      // Every 10ms fetch a new value.
-      refetchInterval: 10 * 1000,
-      enabled: Boolean(routerContract && path.length > 0),
+  // A path cannot be very long because it is going to have higher costs for
+  // swapping.
+  if (recursionCount > 3) {
+    return foundPaths;
+  }
+
+  Object.keys(map[source] ?? []).forEach((next) => {
+    // If the destination matches, then a path was found.
+    if (next === destination) {
+      foundPaths.push([...currentPath, destination]);
+      return;
     }
-  );
+
+    // Try looking for other new paths which have not been traversed yet.
+    if (!currentPath.includes(next)) {
+      const paths = findPaths(
+        map,
+        next,
+        destination,
+        [...currentPath, next],
+        recursionCount
+      );
+      foundPaths.push(...paths);
+    }
+  });
+
+  return foundPaths;
 }
