@@ -11,7 +11,7 @@ import { useSwappableTokens } from 'api/pairs';
 import { useTokenBalance } from 'api/token';
 import { tokenMap } from 'config/supportedTokens';
 import { Controller, useFormContext, useWatch } from 'react-hook-form';
-import { handleDecimalInput } from 'utils/numeric';
+import { handleAllowedInput, decimalRegex } from 'utils/numeric';
 
 type CurrencyInputProps = {
   isTokenA: boolean;
@@ -60,8 +60,11 @@ export default function SwapInput({ isTokenA }: CurrencyInputProps) {
               }}
               disabled={tokenAddress === '0x'}
               {...field}
+              inputProps={{
+                pattern: decimalRegex,
+              }}
               onChange={(e) => {
-                handleDecimalInput(e, field.onChange);
+                handleAllowedInput(e, field.onChange, field.value);
                 setValue('editedToken', tokenAddress);
               }}
             />

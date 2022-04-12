@@ -1,7 +1,7 @@
 import { TextField, useTheme } from '@mui/material';
 import BigNumber from 'bignumber.js';
 import { Controller, useFormContext } from 'react-hook-form';
-import { handleDecimalInput } from 'utils/numeric';
+import { decimalRegex, handleAllowedInput } from 'utils/numeric';
 
 type StartingPriceInput = {
   disabled?: boolean;
@@ -19,18 +19,25 @@ export default function StartingPriceInput({ disabled }: StartingPriceInput) {
         <TextField
           fullWidth
           {...field}
+          inputProps={{
+            pattern: decimalRegex,
+          }}
           onChange={(e) => {
-            handleDecimalInput(e, field.onChange);
+            handleAllowedInput(e, field.onChange, field.value);
 
             // Update the deposit amounts based on the changing starting price.
-            handleDecimalInput(e, (v) => {
-              const { token0Deposit } = getValues();
-              const tokenADeposit = new BigNumber(token0Deposit);
-              setValue(
-                'token1Deposit',
-                tokenADeposit.isNaN() ? '' : tokenADeposit.multipliedBy(v)
-              );
-            });
+            handleAllowedInput(
+              e,
+              (v) => {
+                const { token0Deposit } = getValues();
+                const tokenADeposit = new BigNumber(token0Deposit);
+                setValue(
+                  'token1Deposit',
+                  tokenADeposit.isNaN() ? '' : tokenADeposit.multipliedBy(v)
+                );
+              },
+              field.value
+            );
           }}
           InputProps={{
             sx: {
