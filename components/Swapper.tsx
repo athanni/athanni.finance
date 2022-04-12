@@ -90,11 +90,12 @@ export default function Swapper() {
     [token1, tokenBAmount]
   );
 
+  const swapDirection = editedToken === token0 ? 'out' : 'in';
   const { data: path } = useBestSwapAmount(
     token0,
     token1,
     editedToken === token0 ? tokenABaseUnit : tokenBBaseUnit,
-    editedToken === token0 ? 'out' : 'in'
+    swapDirection
   );
 
   // Whenever the input or the swap amount changes update the non-edited field.
@@ -143,7 +144,7 @@ export default function Swapper() {
           </Stack>
           <SwapInput isTokenA={false} />
 
-          {path && <SwapInfo path={path} />}
+          {path && <SwapInfo path={path} swapDirection={swapDirection} />}
 
           <Box mt={3}>
             {isConnected ? (

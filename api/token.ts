@@ -1,7 +1,7 @@
 import { useWeb3React } from '@web3-react/core';
 import BigNumber from 'bignumber.js';
 import config from 'config/config';
-import supportedTokens from 'config/supportedTokens';
+import supportedTokens, { tokenMap } from 'config/supportedTokens';
 import { ethers } from 'ethers';
 import { useCallback } from 'react';
 import { useQuery } from 'react-query';
@@ -67,7 +67,7 @@ export class TokenBalance {
   /**
    * Format the token amount for user viewing.
    */
-  toString() {
+  toString(): string {
     return this.inMajorUnit().toFormat(4, 1, {
       groupSize: 3,
       groupSeparator: ',',
@@ -80,8 +80,15 @@ export class TokenBalance {
    * Convert the number to string without any formatting limiting the output to
    * 4 decimal places.
    */
-  toPlainString() {
+  toPlainString(): string {
     return this.inMajorUnit().toFixed(4, 1);
+  }
+
+  /**
+   * Gets the ticker of the token.
+   */
+  toTicker(): string {
+    return tokenMap[this.address].ticker;
   }
 }
 

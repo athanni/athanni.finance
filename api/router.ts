@@ -1,10 +1,14 @@
 import { useWeb3React } from '@web3-react/core';
 import BigNumber from 'bignumber.js';
-import { THETA_DEFAULT_DEADLINE_FROM_NOW } from 'config/constants';
+import {
+  DEFAULT_SPLIPPAGE_RATE,
+  THETA_DEFAULT_DEADLINE_FROM_NOW,
+} from 'config/constants';
 import { ethers } from 'ethers';
 import { useCallback, useMemo } from 'react';
 import { useQuery } from 'react-query';
 import { useRouterContract } from 'utils/ethers';
+import { calculateSlippageMax, calculateSlippageMin } from 'utils/slippage';
 import { useAllPooledPairs, usePoolPair } from './pairs';
 import { TokenBalance } from './token';
 
@@ -280,4 +284,32 @@ export function usePriceImpact(path: TokenBalance[]) {
 
     return `${percentage}%`;
   }, [first, last, poolPair]);
+}
+
+/**
+ * Gets the slippage amount for a given [inAmount] and [outAmount].
+ */
+export function useSlippageAmount(
+  inAmount: TokenBalance,
+  outAmount: TokenBalance
+) {
+  return useMemo(() => {
+    const inAmnt = new BigNumber(inAmount.balance.toString());
+    const outAmnt = new BigNumber(outAmount.balance.toString());
+
+    return [
+      new TokenBalance(
+        outAmount.address,
+        ethers.BigNumber.from(
+          calculateSlippageMin(outAmnt, DEFAULT_SPLIPPAGE_RATE).toFixed()
+        )
+      ),
+      new TokenBalance(
+        inAmount.address,
+        ethers.BigNumber.from(
+          calculateSlippageMax(inAmnt, DEFAULT_SPLIPPAGE_RATE).toFixed()
+        )
+      ),
+    ];
+  }, [inAmount, outAmount]);
 }
