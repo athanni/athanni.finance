@@ -10,6 +10,7 @@ import {
   Stack,
   Typography,
 } from '@mui/material';
+import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core';
 import { usePairAddressForTokens, usePoolPair } from 'api/pairs';
 import { useAddLiquidity } from 'api/router';
 import { useApprovalOfTransfer } from 'api/token';
@@ -25,6 +26,7 @@ import { useQueryClient } from 'react-query';
 import { useBoolean } from 'react-use';
 import { calculateSlippageMin } from 'utils/slippage';
 import { z } from 'zod';
+import ConnectWallet from './ConnectWallet';
 import LiquidityAmountInput from './LiquidityAmountInput';
 import PoolInfo from './PoolInfo';
 import TokenSelect from './TokenSelect';
@@ -45,6 +47,8 @@ const schema = z.object({
 type SchemaType = z.infer<typeof schema>;
 
 export default function LiquidityDialog() {
+  const { active } = useWeb3React();
+
   const [open, toggleOpen] = useBoolean(false);
 
   const form = useForm({
@@ -65,8 +69,10 @@ export default function LiquidityDialog() {
     formState: { isSubmitting },
   } = form;
 
-  const token0 = useWatch({ control: form.control, name: 'token0' });
-  const token1 = useWatch({ control: form.control, name: 'token1' });
+  const token0 = useWatch({ control, name: 'token0' });
+  const token1 = useWatch({ control, name: 'token1' });
+  const token0Deposit = useWatch({ control, name: 'token0Deposit' });
+  const token1Deposit = useWatch({ control, name: 'token1Deposit' });
 
   // Transform the token addresses to valid ones, removing '0x' references and setting
   // null instead.
@@ -210,11 +216,13 @@ export default function LiquidityDialog() {
                   name="token0"
                   placeholder="First token"
                   tokens={tokenAOptions}
+                  disabled={!active}
                 />
                 <TokenSelect
                   name="token1"
                   placeholder="Second token"
                   tokens={tokenBOptions}
+                  disabled={!active}
                 />
               </Stack>
 
@@ -253,17 +261,35 @@ export default function LiquidityDialog() {
                 />
               </Box>
 
-              <LoadingButton
-                type="submit"
-                variant="contained"
-                fullWidth
-                size="large"
-                sx={{ mt: 4 }}
-                loading={isSubmitting}
-                disabled={isPairAddressLoading}
-              >
-                Add Liquidity
-              </LoadingButton>
+              <Box mt={4}>
+                {active ? (
+                  <LoadingButton
+                    type="submit"
+                    variant="contained"
+                    fullWidth
+                    size="large"
+                    loading={isSubmitting}
+                    disabled={isPairAddressLoading}
+                  >
+                    {!tokenA || !tokenB ? (
+                      'Select Token'
+                    ) : (
+                      <>
+                        {!token0Deposit || !token1Deposit
+                          ? 'Input amount'
+                          : 'Add Liquidity'}
+                      </>
+                    )}
+                  </LoadingButton>
+                ) : (
+                  <ConnectWallet
+                    buttonProps={{
+                      size: 'large',
+                      fullWidth: true,
+                    }}
+                  />
+                )}
+              </Box>
             </FormProvider>
           </form>
         </DialogContent>

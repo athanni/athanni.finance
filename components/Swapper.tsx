@@ -41,9 +41,7 @@ const schema = z.object({
 type SchemaType = z.infer<typeof schema>;
 
 export default function Swapper() {
-  const { active, error } = useWeb3React();
-  // It is connected even if wallet not on valid chain id.
-  const isConnected = active || error instanceof UnsupportedChainIdError;
+  const { active } = useWeb3React();
 
   const form = useForm({
     defaultValues: {
@@ -57,6 +55,7 @@ export default function Swapper() {
   });
 
   const {
+    control,
     handleSubmit,
     getValues,
     setValue,
@@ -71,8 +70,8 @@ export default function Swapper() {
     setValue('tokenB', fields.tokenA);
   }, [getValues, setValue]);
 
-  const tokenA = useWatch({ control: form.control, name: 'tokenA' });
-  const tokenB = useWatch({ control: form.control, name: 'tokenB' });
+  const tokenA = useWatch({ control, name: 'tokenA' });
+  const tokenB = useWatch({ control, name: 'tokenB' });
   const token0 = useMemo(
     () => (tokenA !== '0x' ? tokenA : undefined),
     [tokenA]
@@ -82,15 +81,9 @@ export default function Swapper() {
     [tokenB]
   );
 
-  const tokenAAmount = useWatch({
-    control: form.control,
-    name: 'tokenAAmount',
-  });
-  const tokenBAmount = useWatch({
-    control: form.control,
-    name: 'tokenBAmount',
-  });
-  const editedToken = useWatch({ control: form.control, name: 'editedToken' });
+  const tokenAAmount = useWatch({ control, name: 'tokenAAmount' });
+  const tokenBAmount = useWatch({ control, name: 'tokenBAmount' });
+  const editedToken = useWatch({ control, name: 'editedToken' });
 
   const tokenABaseUnit = useMemo(
     () =>
@@ -259,16 +252,34 @@ export default function Swapper() {
           {path && <SwapInfo path={path} swapDirection={swapDirection} />}
 
           <Box mt={3}>
-            {isConnected ? (
+            {active ? (
               <LoadingButton
                 type="submit"
                 variant="contained"
                 fullWidth
                 size="large"
                 loading={isSubmitting}
-                disabled={isSwapAmountLoading}
+                disabled={
+                  isSwapAmountLoading ||
+                  (!tokenAAmount && Boolean(tokenBAmount))
+                }
               >
-                Swap
+                {!token0 || !token1 ? (
+                  'Select Token'
+                ) : (
+                  <>
+                    {/* If the swap target value is very large compared to the liquidity pool. */}
+                    {!isSwapAmountLoading && !tokenAAmount && tokenBAmount ? (
+                      'Swap Target Very Large'
+                    ) : (
+                      <>
+                        {!tokenAAmount || !tokenBAmount
+                          ? 'Input amount'
+                          : 'Swap'}
+                      </>
+                    )}
+                  </>
+                )}
               </LoadingButton>
             ) : (
               <ConnectWallet
