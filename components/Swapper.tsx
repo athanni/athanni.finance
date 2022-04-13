@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, IconButton, Paper, Stack, Typography } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
+import { IconButton, Paper, Stack, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core';
 import {
@@ -51,7 +52,12 @@ export default function Swapper() {
     resolver: zodResolver(schema),
   });
 
-  const { handleSubmit, getValues, setValue } = form;
+  const {
+    handleSubmit,
+    getValues,
+    setValue,
+    formState: { isSubmitting },
+  } = form;
   const onSwitchInput = useCallback(() => {
     const fields = getValues();
     setValue('tokenAAmount', fields.tokenBAmount);
@@ -97,7 +103,7 @@ export default function Swapper() {
   );
 
   const swapDirection = editedToken === token0 ? 'out' : 'in';
-  const { data: path } = useBestSwapAmount(
+  const { data: path, isLoading: isSwapAmountLoading } = useBestSwapAmount(
     token0,
     token1,
     editedToken === token0 ? tokenABaseUnit : tokenBBaseUnit,
@@ -191,9 +197,16 @@ export default function Swapper() {
 
           <Box mt={3}>
             {isConnected ? (
-              <Button type="submit" variant="contained" fullWidth size="large">
+              <LoadingButton
+                type="submit"
+                variant="contained"
+                fullWidth
+                size="large"
+                loading={isSubmitting}
+                disabled={isSwapAmountLoading}
+              >
                 Swap
-              </Button>
+              </LoadingButton>
             ) : (
               <ConnectWallet
                 buttonProps={{
