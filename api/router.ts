@@ -1,12 +1,10 @@
 import { useWeb3React } from '@web3-react/core';
 import BigNumber from 'bignumber.js';
-import {
-  DEFAULT_SPLIPPAGE_RATE,
-  THETA_DEFAULT_DEADLINE_FROM_NOW,
-} from 'config/constants';
+import { DEFAULT_SPLIPPAGE_RATE } from 'config/constants';
 import { ethers } from 'ethers';
 import { useCallback, useMemo } from 'react';
 import { useQuery } from 'react-query';
+import { deadlineFromNow } from 'utils/deadline';
 import { useRouterContract } from 'utils/ethers';
 import { calculateSlippageMax, calculateSlippageMin } from 'utils/slippage';
 import { useAllPooledPairs, usePoolPair } from './pairs';
@@ -34,10 +32,7 @@ export function useAddLiquidity() {
         return;
       }
 
-      const deadline = ethers.BigNumber.from(THETA_DEFAULT_DEADLINE_FROM_NOW)
-        .add(ethers.BigNumber.from(Date.now()).div(1000))
-        .toString();
-
+      const deadline = deadlineFromNow();
       return await routerContract.addLiquidity(
         args.tokenA,
         args.tokenB,
@@ -74,10 +69,7 @@ export function useRemoveLiquidity() {
         return;
       }
 
-      const deadline = ethers.BigNumber.from(THETA_DEFAULT_DEADLINE_FROM_NOW)
-        .add(ethers.BigNumber.from(Date.now()).div(1000))
-        .toString();
-
+      const deadline = deadlineFromNow();
       return await routerContract.removeLiquidity(
         args.tokenA,
         args.tokenB,

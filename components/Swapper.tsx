@@ -2,12 +2,18 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Button, IconButton, Paper, Stack, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core';
-import { useBestSwapAmount } from 'api/router';
+import {
+  useBestSwapAmount,
+  useSwapExactTokensForTokens,
+  useSwapTokensForExactTokens,
+} from 'api/router';
 import BigNumber from 'bignumber.js';
+import { DEFAULT_SPLIPPAGE_RATE } from 'config/constants';
 import { useCallback, useEffect, useMemo } from 'react';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { MdSwapVert } from 'react-icons/md';
 import { convertAmountToBaseUnit } from 'utils/numeric';
+import { calculateSlippageMax, calculateSlippageMin } from 'utils/slippage';
 import { z } from 'zod';
 import ConnectWallet from './ConnectWallet';
 import SwapInfo from './SwapInfo';
@@ -118,10 +124,47 @@ export default function Swapper() {
     }
   }, [editedToken, path, setValue, token0, token1, tokenA, tokenB]);
 
-  const onSubmit = useCallback((state: any) => {
-    const { editedToken, tokenA, tokenB, tokenAAmount, tokenBAmount } =
-      state as SchemaType;
-  }, []);
+  const swapExactTokensForTokens = useSwapExactTokensForTokens();
+  const swapTokensForExactTokens = useSwapTokensForExactTokens();
+  const onSubmit = useCallback(
+    async (state: any) => {
+      if (!path) {
+        return;
+      }
+
+      const { editedToken, tokenA } = state;
+      const first = path[0];
+      const last = path[path.length - 1];
+
+      // Source tokens are exact.
+      if (editedToken === tokenA) {
+        const amountOutMin = calculateSlippageMin(
+          new BigNumber(last.balance.toString()),
+          DEFAULT_SPLIPPAGE_RATE
+        ).toFixed();
+
+        await swapExactTokensForTokens({
+          amountIn: first.balance.toString(),
+          amountOutMin,
+          path: path.map((it) => it.address),
+        });
+        return;
+      }
+
+      // Destination tokens are exact.
+      const amountInMax = calculateSlippageMax(
+        new BigNumber(first.balance.toString()),
+        DEFAULT_SPLIPPAGE_RATE
+      ).toFixed();
+
+      await swapTokensForExactTokens({
+        amountOut: last.balance.toString(),
+        amountInMax,
+        path: path.map((it) => it.address),
+      });
+    },
+    [path, swapExactTokensForTokens, swapTokensForExactTokens]
+  );
 
   return (
     <Paper
