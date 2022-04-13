@@ -10,6 +10,7 @@ import {
 } from 'api/router';
 import BigNumber from 'bignumber.js';
 import { DEFAULT_SPLIPPAGE_RATE } from 'config/constants';
+import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useMemo } from 'react';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { MdSwapVert } from 'react-icons/md';
@@ -130,6 +131,7 @@ export default function Swapper() {
     }
   }, [editedToken, path, setValue, token0, token1, tokenA, tokenB]);
 
+  const { enqueueSnackbar } = useSnackbar();
   const swapExactTokensForTokens = useSwapExactTokensForTokens();
   const swapTokensForExactTokens = useSwapTokensForExactTokens();
   const onSubmit = useCallback(
@@ -138,38 +140,50 @@ export default function Swapper() {
         return;
       }
 
-      const { editedToken, tokenA } = state;
-      const first = path[0];
-      const last = path[path.length - 1];
+      try {
+        const { editedToken, tokenA } = state;
+        const first = path[0];
+        const last = path[path.length - 1];
 
-      // Source tokens are exact.
-      if (editedToken === tokenA) {
-        const amountOutMin = calculateSlippageMin(
-          new BigNumber(last.balance.toString()),
-          DEFAULT_SPLIPPAGE_RATE
-        ).toFixed();
+        // Source tokens are exact.
+        if (editedToken === tokenA) {
+          const amountOutMin = calculateSlippageMin(
+            new BigNumber(last.balance.toString()),
+            DEFAULT_SPLIPPAGE_RATE
+          ).toFixed();
 
-        await swapExactTokensForTokens({
-          amountIn: first.balance.toString(),
-          amountOutMin,
-          path: path.map((it) => it.address),
+          const swapTx = await swapExactTokensForTokens({
+            amountIn: first.balance.toString(),
+            amountOutMin,
+            path: path.map((it) => it.address),
+          });
+          await swapTx?.wait();
+        } else {
+          // Destination tokens are exact.
+          const amountInMax = calculateSlippageMax(
+            new BigNumber(first.balance.toString()),
+            DEFAULT_SPLIPPAGE_RATE
+          ).toFixed();
+
+          const swapTx = await swapTokensForExactTokens({
+            amountOut: last.balance.toString(),
+            amountInMax,
+            path: path.map((it) => it.address),
+          });
+          await swapTx?.wait();
+        }
+
+        enqueueSnackbar('Successfully swapped tokens.', {
+          variant: 'success',
         });
-        return;
+      } catch (err) {
+        enqueueSnackbar('Failed to swap.', {
+          variant: 'error',
+        });
+        throw err;
       }
-
-      // Destination tokens are exact.
-      const amountInMax = calculateSlippageMax(
-        new BigNumber(first.balance.toString()),
-        DEFAULT_SPLIPPAGE_RATE
-      ).toFixed();
-
-      await swapTokensForExactTokens({
-        amountOut: last.balance.toString(),
-        amountInMax,
-        path: path.map((it) => it.address),
-      });
     },
-    [path, swapExactTokensForTokens, swapTokensForExactTokens]
+    [enqueueSnackbar, path, swapExactTokensForTokens, swapTokensForExactTokens]
   );
 
   return (
