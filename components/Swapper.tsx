@@ -55,6 +55,7 @@ export default function Swapper() {
   });
 
   const {
+    control,
     handleSubmit,
     getValues,
     setValue,
@@ -69,8 +70,8 @@ export default function Swapper() {
     setValue('tokenB', fields.tokenA);
   }, [getValues, setValue]);
 
-  const tokenA = useWatch({ control: form.control, name: 'tokenA' });
-  const tokenB = useWatch({ control: form.control, name: 'tokenB' });
+  const tokenA = useWatch({ control, name: 'tokenA' });
+  const tokenB = useWatch({ control, name: 'tokenB' });
   const token0 = useMemo(
     () => (tokenA !== '0x' ? tokenA : undefined),
     [tokenA]
@@ -80,15 +81,9 @@ export default function Swapper() {
     [tokenB]
   );
 
-  const tokenAAmount = useWatch({
-    control: form.control,
-    name: 'tokenAAmount',
-  });
-  const tokenBAmount = useWatch({
-    control: form.control,
-    name: 'tokenBAmount',
-  });
-  const editedToken = useWatch({ control: form.control, name: 'editedToken' });
+  const tokenAAmount = useWatch({ control, name: 'tokenAAmount' });
+  const tokenBAmount = useWatch({ control, name: 'tokenBAmount' });
+  const editedToken = useWatch({ control, name: 'editedToken' });
 
   const tokenABaseUnit = useMemo(
     () =>
@@ -264,13 +259,25 @@ export default function Swapper() {
                 fullWidth
                 size="large"
                 loading={isSubmitting}
-                disabled={isSwapAmountLoading}
+                disabled={
+                  isSwapAmountLoading ||
+                  (!tokenAAmount && Boolean(tokenBAmount))
+                }
               >
                 {!token0 || !token1 ? (
                   'Select Token'
                 ) : (
                   <>
-                    {!tokenAAmount || !tokenBAmount ? 'Input amount' : 'Swap'}
+                    {/* If the swap target value is very large compared to the liquidity pool. */}
+                    {!isSwapAmountLoading && !tokenAAmount && tokenBAmount ? (
+                      'Swap Target Very Large'
+                    ) : (
+                      <>
+                        {!tokenAAmount || !tokenBAmount
+                          ? 'Input amount'
+                          : 'Swap'}
+                      </>
+                    )}
                   </>
                 )}
               </LoadingButton>
