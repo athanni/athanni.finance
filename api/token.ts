@@ -65,6 +65,16 @@ export class TokenBalance {
   }
 
   /**
+   * Checks if the token balance is less than the given [number]. The number
+   * is in a major unit.
+   */
+  lt(major: BigNumber): boolean {
+    return new BigNumber(this.balance.toString()).lt(
+      major.multipliedBy(new BigNumber(10).pow(tokenMap[this.address].decimals))
+    );
+  }
+
+  /**
    * Format the token amount for user viewing.
    */
   toString(): string {
@@ -77,11 +87,11 @@ export class TokenBalance {
   }
 
   /**
-   * Convert the number to string without any formatting limiting the output to
-   * 4 decimal places.
+   * Convert the balance to string in major units without any formatting to
+   * unlimited decimal places.
    */
   toPlainString(): string {
-    return this.inMajorUnit().toFixed(4, 1);
+    return this.inMajorUnit().toFixed();
   }
 
   /**

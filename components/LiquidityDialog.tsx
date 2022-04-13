@@ -25,29 +25,21 @@ import { useBoolean } from 'react-use';
 import { calculateSlippageMin } from 'utils/slippage';
 import { z } from 'zod';
 import LiquidityAmountInput from './LiquidityAmountInput';
-import PoolRatio from './PoolRatio';
-import StartingPriceInput from './StartingPriceInput';
+import PoolInfo from './PoolInfo';
 import TokenSelect from './TokenSelect';
 
-const schema = z
-  .object({
-    token0: z.string().refine((v) => v !== '0x', 'Required'),
-    token1: z.string().refine((v) => v !== '0x', 'Required'),
-    hasPair: z.boolean(),
-    startingPrice: z.string().transform((v) => new BigNumber(v)),
-    token0Deposit: z
-      .string()
-      .transform((v) => new BigNumber(v))
-      .refine((v) => v.gt(0), 'Required'),
-    token1Deposit: z
-      .string()
-      .transform((v) => new BigNumber(v))
-      .refine((v) => v.gt(0), 'Required'),
-  })
-  .refine((arg) => (!arg.hasPair ? arg.startingPrice.gt(0) : true), {
-    message: 'Required',
-    path: ['startingPrice'],
-  });
+const schema = z.object({
+  token0: z.string().refine((v) => v !== '0x', 'Required'),
+  token1: z.string().refine((v) => v !== '0x', 'Required'),
+  token0Deposit: z
+    .string()
+    .transform((v) => new BigNumber(v))
+    .refine((v) => v.gt(0), 'Required'),
+  token1Deposit: z
+    .string()
+    .transform((v) => new BigNumber(v))
+    .refine((v) => v.gt(0), 'Required'),
+});
 
 type SchemaType = z.infer<typeof schema>;
 
@@ -60,8 +52,6 @@ export default function LiquidityDialog() {
       // selections.
       token0: '0x',
       token1: '0x',
-      hasPair: false,
-      startingPrice: '',
       token0Deposit: '',
       token1Deposit: '',
     },
@@ -93,7 +83,6 @@ export default function LiquidityDialog() {
 
   // Reset all the other fields if the token selection changes.
   useEffect(() => {
-    setValue('startingPrice', '');
     setValue('token0Deposit', '');
     setValue('token1Deposit', '');
   }, [setValue, tokenA, tokenB]);
@@ -108,11 +97,6 @@ export default function LiquidityDialog() {
 
   const { data: pairAddress, isLoading: isPairAddressLoading } =
     usePairAddressForTokens(tokenA, tokenB);
-
-  // Set the form state for validations to run if no pair address exists.
-  useEffect(() => {
-    setValue('hasPair', !isPairAddressLoading && Boolean(pairAddress));
-  }, [isPairAddressLoading, pairAddress, setValue]);
 
   const { enqueueSnackbar } = useSnackbar();
 
@@ -185,7 +169,6 @@ export default function LiquidityDialog() {
     [addLiquidity, approvalOfTransfer, enqueueSnackbar, queryClient, toggleOpen]
   );
 
-  const startingPrice = useWatch({ control, name: 'startingPrice' });
   const { data: pair, isLoading: isPoolPairLoading } = usePoolPair(
     tokenA,
     tokenB
@@ -193,11 +176,8 @@ export default function LiquidityDialog() {
 
   // Get the ratio based on if there exists a liquidity pair.
   const pairRatio = useMemo(
-    () =>
-      pair
-        ? pair.reserveB.tokenRatioWith(pair.reserveA)
-        : new BigNumber(startingPrice),
-    [pair, startingPrice]
+    () => (pair ? pair.reserveB.tokenRatioWith(pair.reserveA) : null),
+    [pair]
   );
 
   return (
@@ -226,25 +206,16 @@ export default function LiquidityDialog() {
               </Stack>
 
               {tokenA && tokenB && !isPairAddressLoading && !pairAddress && (
-                <>
-                  <Alert severity="info" icon={false} sx={{ mt: 2 }}>
-                    This is a new pool and it needs to be initialized first
-                    before adding liquidity to it. To initialize input the
-                    starting price for the pool and the deposit amount. Gas fees
-                    will be higher than usual due to initialization.
-                  </Alert>
-
-                  <Typography fontWeight="medium" mt={4}>
-                    Set Starting Price
-                  </Typography>
-                  <Box mt={2}>
-                    <StartingPriceInput disabled={!tokenA || !tokenB} />
-                  </Box>
-                </>
+                <Alert severity="info" icon={false} sx={{ mt: 2 }}>
+                  This is a new pool and it needs to be initialized first before
+                  adding liquidity to it. Gas fees will be higher than usual due
+                  to initialization. The starting rate of the two tokens will be
+                  the ratio at which this pool is initialized.
+                </Alert>
               )}
 
               {tokenA && tokenB && !isPairAddressLoading && pairAddress && (
-                <PoolRatio tokenA={tokenA} tokenB={tokenB} />
+                <PoolInfo tokenA={tokenA} tokenB={tokenB} />
               )}
 
               <Typography fontWeight="medium" mt={4}>
