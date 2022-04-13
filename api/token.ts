@@ -87,11 +87,11 @@ export class TokenBalance {
   }
 
   /**
-   * Convert the number to string without any formatting limiting the output to
-   * 4 decimal places.
+   * Convert the balance to string in major units without any formatting to
+   * unlimited decimal places.
    */
   toPlainString(): string {
-    return this.inMajorUnit().toFixed(4, 1);
+    return this.inMajorUnit().toFixed();
   }
 
   /**
