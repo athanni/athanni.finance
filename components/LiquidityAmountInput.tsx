@@ -10,7 +10,7 @@ import { decimalRegex, handleAllowedInput } from 'utils/numeric';
 type LiquidityAmountInputProps = {
   name: string;
   pairName: string;
-  priceRatio: BigNumber;
+  priceRatio: BigNumber | null;
   isRatioInverse: boolean;
   address: string;
 };
@@ -69,20 +69,23 @@ export default function LiquidityAmountInput({
               }}
               onChange={(e) => {
                 handleAllowedInput(e, field.onChange, field.value);
-                handleAllowedInput(
-                  e,
-                  (event) => {
-                    const v = new BigNumber(e.target.value);
-                    const pairValue = inverseRatio
-                      ? v.dividedBy(priceRatio)
-                      : v.multipliedBy(priceRatio);
-                    setValue(
-                      pairName,
-                      pairValue.isNaN() ? '0' : pairValue.toString()
-                    );
-                  },
-                  field.value
-                );
+
+                if (priceRatio) {
+                  handleAllowedInput(
+                    e,
+                    (event) => {
+                      const v = new BigNumber(event.target.value);
+                      const pairValue = inverseRatio
+                        ? v.dividedBy(priceRatio)
+                        : v.multipliedBy(priceRatio);
+                      setValue(
+                        pairName,
+                        pairValue.isNaN() ? '0' : pairValue.toString()
+                      );
+                    },
+                    field.value
+                  );
+                }
               }}
               disabled={!token}
             />
