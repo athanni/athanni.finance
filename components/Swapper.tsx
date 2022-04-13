@@ -191,11 +191,7 @@ export default function Swapper() {
           await swapTx?.wait();
         }
 
-        reset({
-          editedToken: '',
-          tokenAAmount: '',
-          tokenBAmount: '',
-        });
+        reset();
         enqueueSnackbar('Successfully swapped tokens.', {
           variant: 'success',
         });
@@ -210,6 +206,7 @@ export default function Swapper() {
       approvalOfTransfer,
       enqueueSnackbar,
       path,
+      reset,
       swapExactTokensForTokens,
       swapTokensForExactTokens,
     ]
