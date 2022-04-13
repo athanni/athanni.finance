@@ -65,6 +65,16 @@ export class TokenBalance {
   }
 
   /**
+   * Checks if the token balance is less than the given [number]. The number
+   * is in a major unit.
+   */
+  lt(major: BigNumber): boolean {
+    return new BigNumber(this.balance.toString()).lt(
+      major.multipliedBy(new BigNumber(10).pow(tokenMap[this.address].decimals))
+    );
+  }
+
+  /**
    * Format the token amount for user viewing.
    */
   toString(): string {

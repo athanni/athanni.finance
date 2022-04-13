@@ -1,6 +1,7 @@
 import { Paper, Stack, Typography } from '@mui/material';
 import { usePriceImpact, useSlippageAmount } from 'api/router';
 import { TokenBalance } from 'api/token';
+import BigNumber from 'bignumber.js';
 import { DEFAULT_SPLIPPAGE_RATE } from 'config/constants';
 import { tokenMap } from 'config/supportedTokens';
 import { Fragment } from 'react';
@@ -18,6 +19,12 @@ export default function SwapInfo({ path, swapDirection }: SwapInfoProps) {
   const impact = usePriceImpact(path);
   const [min, max] = useSlippageAmount(first, last);
 
+  const swapRate = last.dividedBy(first.inMajorUnit());
+  const minMaxSwapRate = swapDirection === 'in' ? max : min;
+  const minMaxSwapRateText = minMaxSwapRate.lt(new BigNumber('0.0001'))
+    ? '< 0.0001'
+    : minMaxSwapRate.toString();
+
   return (
     <Paper variant="outlined" sx={{ mt: 3, px: 2, py: 1, bgcolor: 'grey.100' }}>
       <Stack spacing={1}>
@@ -27,7 +34,9 @@ export default function SwapInfo({ path, swapDirection }: SwapInfoProps) {
           </Typography>
           <Typography fontWeight="medium">
             1 {tokenMap[first.address].ticker} ={' '}
-            {last.dividedBy(first.inMajorUnit()).toString()}{' '}
+            {swapRate.lt(new BigNumber('0.0001'))
+              ? '< 0.0001'
+              : swapRate.toString()}{' '}
             {tokenMap[last.address].ticker}
           </Typography>
         </Stack>
@@ -48,7 +57,7 @@ export default function SwapInfo({ path, swapDirection }: SwapInfoProps) {
                 }%)`}
           </Typography>
           <Typography fontWeight="medium">
-            {swapDirection === 'in' ? max.toString() : min.toString()}{' '}
+            {minMaxSwapRateText}{' '}
             {swapDirection === 'in' ? max.toTicker() : min.toTicker()}
           </Typography>
         </Stack>
