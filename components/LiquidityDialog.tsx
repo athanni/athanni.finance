@@ -14,6 +14,7 @@ import { usePairAddressForTokens, usePoolPair } from 'api/pairs';
 import { useAddLiquidity } from 'api/router';
 import { useApprovalOfTransfer } from 'api/token';
 import BigNumber from 'bignumber.js';
+import { explorerTransactionUrl } from 'config/config';
 import { DEFAULT_SPLIPPAGE_RATE } from 'config/constants';
 import supportedTokens, { tokenMap } from 'config/supportedTokens';
 import { ethers } from 'ethers';
@@ -157,6 +158,18 @@ export default function LiquidityDialog() {
 
         enqueueSnackbar('Successfully added liquidity.', {
           variant: 'success',
+          action: () =>
+            addTx ? (
+              <Button
+                component="a"
+                color="inherit"
+                href={explorerTransactionUrl(addTx.hash)}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                View Transaction
+              </Button>
+            ) : null,
         });
         toggleOpen(false);
       } catch (err) {
