@@ -47,7 +47,7 @@ export default function SwapInfo({ path, swapDirection }: SwapInfoProps) {
               }%)`}
         </Typography>
         <Typography fontWeight="medium">
-          {swapDirection === 'in' ? max.toString() : min.toString()}
+          {swapDirection === 'in' ? max.toString() : min.toString()}{' '}
           {swapDirection === 'in' ? max.toTicker() : min.toTicker()}
         </Typography>
       </Stack>
