@@ -1,4 +1,5 @@
 import {
+  Avatar,
   Box,
   IconButton,
   Menu,
@@ -7,6 +8,7 @@ import {
   Stack,
   Typography,
 } from '@mui/material';
+import { green, red } from '@mui/material/colors';
 import { PooledPairItem } from 'api/pairs';
 import { tokenMap } from 'config/supportedTokens';
 import { useCallback, useState } from 'react';
@@ -27,6 +29,9 @@ export default function PoolItem({ pair }: PoolItemProps) {
     setAnchorEl(null);
   }, [toggleRemoveOpen]);
 
+  const tokenA = tokenMap[pair.tokenA];
+  const tokenB = tokenMap[pair.tokenB];
+
   return (
     <>
       <Paper
@@ -38,15 +43,39 @@ export default function PoolItem({ pair }: PoolItemProps) {
           justifyContent="space-between"
           alignItems="center"
         >
-          <Box>
-            <Typography variant="h6">
-              {tokenMap[pair.tokenA].ticker}-{tokenMap[pair.tokenB].ticker}
-            </Typography>
+          <Stack
+            direction="row"
+            justifyContent="space-between"
+            alignItems="center"
+            spacing={4}
+          >
+            <Box position="relative">
+              {/* TODO: Use proper logos here. */}
+              <Avatar sx={{ bgcolor: green[300] }}>
+                {tokenA.ticker.substring(0, 1)}
+              </Avatar>
+              <Avatar
+                sx={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 20,
+                  bgcolor: red[200],
+                }}
+              >
+                {tokenB.ticker.substring(0, 1)}
+              </Avatar>
+            </Box>
 
-            <Typography color="textSecondary">
-              {pair.currentAccountBalance.toString()} LP
-            </Typography>
-          </Box>
+            <Box>
+              <Typography variant="h6">
+                {tokenA.ticker}-{tokenB.ticker}
+              </Typography>
+
+              <Typography color="textSecondary">
+                {pair.currentAccountBalance.toString()} LP
+              </Typography>
+            </Box>
+          </Stack>
 
           <IconButton onClick={(ev) => setAnchorEl(ev.currentTarget)}>
             <MdMoreVert />
