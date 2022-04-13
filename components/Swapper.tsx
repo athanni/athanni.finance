@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { LoadingButton } from '@mui/lab';
-import { IconButton, Paper, Stack, Typography } from '@mui/material';
+import { Button, IconButton, Paper, Stack, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core';
 import {
@@ -10,6 +10,7 @@ import {
 } from 'api/router';
 import { useApprovalOfTransfer } from 'api/token';
 import BigNumber from 'bignumber.js';
+import { explorerTransactionUrl } from 'config/config';
 import { DEFAULT_SPLIPPAGE_RATE } from 'config/constants';
 import { ethers } from 'ethers';
 import { useSnackbar } from 'notistack';
@@ -149,6 +150,8 @@ export default function Swapper() {
         const first = path[0];
         const last = path[path.length - 1];
 
+        let explorerUrl: string | undefined;
+
         // Source tokens are exact.
         if (editedToken === tokenA) {
           const amountOutMin = calculateSlippageMin(
@@ -169,6 +172,10 @@ export default function Swapper() {
             path: path.map((it) => it.address),
           });
           await swapTx?.wait();
+
+          if (swapTx) {
+            explorerUrl = explorerTransactionUrl(swapTx.hash);
+          }
         } else {
           // Destination tokens are exact.
           const amountInMax = calculateSlippageMax(
@@ -189,11 +196,27 @@ export default function Swapper() {
             path: path.map((it) => it.address),
           });
           await swapTx?.wait();
+
+          if (swapTx) {
+            explorerUrl = explorerTransactionUrl(swapTx.hash);
+          }
         }
 
         reset();
         enqueueSnackbar('Successfully swapped tokens.', {
           variant: 'success',
+          action: () =>
+            explorerUrl ? (
+              <Button
+                component="a"
+                color="inherit"
+                href={explorerUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                View Transaction
+              </Button>
+            ) : null,
         });
       } catch (err) {
         enqueueSnackbar('Failed to swap.', {

@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { LoadingButton } from '@mui/lab';
 import {
+  Button,
   Dialog,
   DialogContent,
   DialogTitle,
@@ -12,6 +13,7 @@ import { usePoolPair } from 'api/pairs';
 import { useRemoveLiquidity } from 'api/router';
 import { TokenBalance, useApprovalOfTransfer } from 'api/token';
 import BigNumber from 'bignumber.js';
+import { explorerTransactionUrl } from 'config/config';
 import { DEFAULT_SPLIPPAGE_RATE } from 'config/constants';
 import { tokenMap } from 'config/supportedTokens';
 import { ethers } from 'ethers';
@@ -152,6 +154,18 @@ export default function RemoveLiquidityDialog({
 
         enqueueSnackbar('Successfully withdrew liquidity.', {
           variant: 'success',
+          action: () =>
+            removeTx ? (
+              <Button
+                component="a"
+                color="inherit"
+                href={explorerTransactionUrl(removeTx.hash)}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                View Transaction
+              </Button>
+            ) : null,
         });
         onClose();
       } catch (err) {
