@@ -37,7 +37,7 @@ const injectedWallet = new InjectedConnector({
 
 export default function ConnectWallet({ buttonProps }: ConnectWalletProps) {
   const [open, toggleOpen] = useBoolean(false);
-  const { active, activate, account, error, chainId } = useWeb3React();
+  const { active, activate, account, error } = useWeb3React();
 
   const onConnectMetaMask = useCallback(async () => {
     await activate(injectedWallet);

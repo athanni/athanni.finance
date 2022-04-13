@@ -41,9 +41,7 @@ const schema = z.object({
 type SchemaType = z.infer<typeof schema>;
 
 export default function Swapper() {
-  const { active, error } = useWeb3React();
-  // It is connected even if wallet not on valid chain id.
-  const isConnected = active || error instanceof UnsupportedChainIdError;
+  const { active } = useWeb3React();
 
   const form = useForm({
     defaultValues: {
@@ -259,7 +257,7 @@ export default function Swapper() {
           {path && <SwapInfo path={path} swapDirection={swapDirection} />}
 
           <Box mt={3}>
-            {isConnected ? (
+            {active ? (
               <LoadingButton
                 type="submit"
                 variant="contained"

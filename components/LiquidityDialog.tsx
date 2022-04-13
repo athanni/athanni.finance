@@ -47,9 +47,7 @@ const schema = z.object({
 type SchemaType = z.infer<typeof schema>;
 
 export default function LiquidityDialog() {
-  const { active, error } = useWeb3React();
-  // It is connected even if wallet not on valid chain id.
-  const isConnected = active || error instanceof UnsupportedChainIdError;
+  const { active } = useWeb3React();
 
   const [open, toggleOpen] = useBoolean(false);
 
@@ -218,13 +216,13 @@ export default function LiquidityDialog() {
                   name="token0"
                   placeholder="First token"
                   tokens={tokenAOptions}
-                  disabled={!isConnected}
+                  disabled={!active}
                 />
                 <TokenSelect
                   name="token1"
                   placeholder="Second token"
                   tokens={tokenBOptions}
-                  disabled={!isConnected}
+                  disabled={!active}
                 />
               </Stack>
 
@@ -264,7 +262,7 @@ export default function LiquidityDialog() {
               </Box>
 
               <Box mt={4}>
-                {isConnected ? (
+                {active ? (
                   <LoadingButton
                     type="submit"
                     variant="contained"
