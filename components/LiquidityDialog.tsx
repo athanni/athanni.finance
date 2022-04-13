@@ -25,7 +25,7 @@ import { useBoolean } from 'react-use';
 import { calculateSlippageMin } from 'utils/slippage';
 import { z } from 'zod';
 import LiquidityAmountInput from './LiquidityAmountInput';
-import PoolRatio from './PoolRatio';
+import PoolInfo from './PoolInfo';
 import StartingPriceInput from './StartingPriceInput';
 import TokenSelect from './TokenSelect';
 
@@ -244,7 +244,7 @@ export default function LiquidityDialog() {
               )}
 
               {tokenA && tokenB && !isPairAddressLoading && pairAddress && (
-                <PoolRatio tokenA={tokenA} tokenB={tokenB} />
+                <PoolInfo tokenA={tokenA} tokenB={tokenB} />
               )}
 
               <Typography fontWeight="medium" mt={4}>
