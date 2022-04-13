@@ -4,7 +4,6 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
-  Paper,
   Slider,
   Stack,
   Typography,
@@ -22,6 +21,7 @@ import { Controller, useForm, useWatch } from 'react-hook-form';
 import { useQueryClient } from 'react-query';
 import { calculateSlippageMin } from 'utils/slippage';
 import { z } from 'zod';
+import LiquidityRemovalInfo from './LiquidityRemovalInfo';
 
 type RemoveLiquidityDialogProps = {
   pair: string;
@@ -207,56 +207,14 @@ export default function RemoveLiquidityDialog({
           </Stack>
 
           {!isPoolPairLoading && poolPair && (
-            <Paper variant="outlined" sx={{ px: 2, py: 1, bgcolor: 'grey.50' }}>
-              <Stack
-                direction="row"
-                alignItems="center"
-                justifyContent="space-between"
-              >
-                <Typography variant="body2">
-                  {token0.ticker} Received
-                </Typography>
-                <Typography fontWeight="medium">
-                  {tokenAAmount!.toString()}
-                </Typography>
-              </Stack>
-              <Stack
-                direction="row"
-                alignItems="center"
-                justifyContent="space-between"
-              >
-                <Typography variant="body2">
-                  {token1.ticker} Received
-                </Typography>
-                <Typography fontWeight="medium">
-                  {tokenBAmount!.toString()}
-                </Typography>
-              </Stack>
-              <Stack
-                direction="row"
-                alignItems="center"
-                justifyContent="space-between"
-              >
-                <Typography variant="body2">
-                  Minimum {token0.ticker} Received
-                </Typography>
-                <Typography fontWeight="medium">
-                  {tokenAMinAmount!.toString()}
-                </Typography>
-              </Stack>
-              <Stack
-                direction="row"
-                alignItems="center"
-                justifyContent="space-between"
-              >
-                <Typography variant="body2">
-                  Minimum {token1.ticker} Received
-                </Typography>
-                <Typography fontWeight="medium">
-                  {tokenBMinAmount!.toString()}
-                </Typography>
-              </Stack>
-            </Paper>
+            <LiquidityRemovalInfo
+              tokenA={token0}
+              tokenB={token1}
+              tokenAAmount={tokenAAmount!}
+              tokenBAmount={tokenBAmount!}
+              tokenAMinAmount={tokenAMinAmount!}
+              tokenBMinAmount={tokenBMinAmount!}
+            />
           )}
 
           <LoadingButton
