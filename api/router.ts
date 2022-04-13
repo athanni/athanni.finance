@@ -313,3 +313,67 @@ export function useSlippageAmount(
     ];
   }, [inAmount, outAmount]);
 }
+
+type SwapExactTokensForTokensArgs = {
+  amountIn: string;
+  amountOutMin: string;
+  path: string[];
+};
+
+/**
+ * Swaps the exact amount of tokens for tokens.
+ */
+export function useSwapExactTokensForTokens() {
+  const routerContract = useRouterContract();
+  const { account } = useWeb3React();
+
+  return useCallback(
+    async (args: SwapExactTokensForTokensArgs) => {
+      if (!routerContract || !account) {
+        return;
+      }
+
+      const deadline = deadlineFromNow();
+      return await routerContract.swapExactTokensForTokens(
+        args.amountIn,
+        args.amountOutMin,
+        args.path,
+        account,
+        deadline
+      );
+    },
+    [account, routerContract]
+  );
+}
+
+type SwapTokensForExactTokensArgs = {
+  amountOut: string;
+  amountInMax: string;
+  path: string[];
+};
+
+/**
+ * Swaps the exact amount of tokens for tokens.
+ */
+export function useSwapTokensForExactTokens() {
+  const routerContract = useRouterContract();
+  const { account } = useWeb3React();
+
+  return useCallback(
+    async (args: SwapTokensForExactTokensArgs) => {
+      if (!routerContract || !account) {
+        return;
+      }
+
+      const deadline = deadlineFromNow();
+      return await routerContract.swapTokensForExactTokens(
+        args.amountOut,
+        args.amountInMax,
+        args.path,
+        account,
+        deadline
+      );
+    },
+    [account, routerContract]
+  );
+}
