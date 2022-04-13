@@ -268,7 +268,13 @@ export default function Swapper() {
                 loading={isSubmitting}
                 disabled={isSwapAmountLoading}
               >
-                Swap
+                {!token0 || !token1 ? (
+                  'Select Token'
+                ) : (
+                  <>
+                    {!tokenAAmount || !tokenBAmount ? 'Input amount' : 'Swap'}
+                  </>
+                )}
               </LoadingButton>
             ) : (
               <ConnectWallet
