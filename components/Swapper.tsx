@@ -59,6 +59,7 @@ export default function Swapper() {
     handleSubmit,
     getValues,
     setValue,
+    reset,
     formState: { isSubmitting },
   } = form;
   const onSwitchInput = useCallback(() => {
@@ -144,7 +145,7 @@ export default function Swapper() {
       }
 
       try {
-        const { editedToken, tokenA } = state;
+        const { editedToken, tokenA } = state as SchemaType;
         const first = path[0];
         const last = path[path.length - 1];
 
@@ -190,6 +191,11 @@ export default function Swapper() {
           await swapTx?.wait();
         }
 
+        reset({
+          editedToken: '',
+          tokenAAmount: '',
+          tokenBAmount: '',
+        });
         enqueueSnackbar('Successfully swapped tokens.', {
           variant: 'success',
         });
