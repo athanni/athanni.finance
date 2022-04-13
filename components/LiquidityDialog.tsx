@@ -65,8 +65,10 @@ export default function LiquidityDialog() {
     formState: { isSubmitting },
   } = form;
 
-  const token0 = useWatch({ control: form.control, name: 'token0' });
-  const token1 = useWatch({ control: form.control, name: 'token1' });
+  const token0 = useWatch({ control, name: 'token0' });
+  const token1 = useWatch({ control, name: 'token1' });
+  const token0Deposit = useWatch({ control, name: 'token0Deposit' });
+  const token1Deposit = useWatch({ control, name: 'token1Deposit' });
 
   // Transform the token addresses to valid ones, removing '0x' references and setting
   // null instead.
@@ -262,7 +264,15 @@ export default function LiquidityDialog() {
                 loading={isSubmitting}
                 disabled={isPairAddressLoading}
               >
-                Add Liquidity
+                {!tokenA || !tokenB ? (
+                  'Select Token'
+                ) : (
+                  <>
+                    {!token0Deposit || !token1Deposit
+                      ? 'Input amount'
+                      : 'Add Liquidity'}
+                  </>
+                )}
               </LoadingButton>
             </FormProvider>
           </form>
