@@ -73,14 +73,14 @@ export default function LiquidityAmountInput({
                 if (priceRatio) {
                   handleAllowedInput(
                     e,
-                    (event) => {
-                      const v = new BigNumber(event.target.value);
+                    (value) => {
+                      const v = new BigNumber(value);
                       const pairValue = inverseRatio
                         ? v.dividedBy(priceRatio)
                         : v.multipliedBy(priceRatio);
                       setValue(
                         pairName,
-                        pairValue.isNaN() ? '0' : pairValue.toString()
+                        pairValue.isNaN() ? '0' : pairValue.toFixed()
                       );
                     },
                     field.value
