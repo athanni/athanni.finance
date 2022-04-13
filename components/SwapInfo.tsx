@@ -20,47 +20,51 @@ export default function SwapInfo({ path, swapDirection }: SwapInfoProps) {
 
   return (
     <Paper variant="outlined" sx={{ mt: 3, px: 2, py: 1, bgcolor: 'grey.100' }}>
-      <Stack direction="row" justifyContent="space-between" alignItems="center">
-        <Typography variant="body2">Swap rate</Typography>
-        <Typography fontWeight="medium">
-          1 {tokenMap[first.address].ticker} ={' '}
-          {last.dividedBy(first.inMajorUnit()).toString()}{' '}
-          {tokenMap[last.address].ticker}
-        </Typography>
-      </Stack>
-      {impact && (
-        <Stack
-          direction="row"
-          justifyContent="space-between"
-          alignItems="center"
-        >
-          <Typography variant="body2">Price impact</Typography>
-          <Typography fontWeight="medium">{impact}</Typography>
+      <Stack spacing={1}>
+        <Stack justifyContent="space-between" alignItems="center">
+          <Typography variant="body2" color="textSecondary">
+            Swap rate
+          </Typography>
+          <Typography fontWeight="medium">
+            1 {tokenMap[first.address].ticker} ={' '}
+            {last.dividedBy(first.inMajorUnit()).toString()}{' '}
+            {tokenMap[last.address].ticker}
+          </Typography>
         </Stack>
-      )}
-      <Stack direction="row" justifyContent="space-between" alignItems="center">
-        <Typography variant="body2">
-          {swapDirection === 'in'
-            ? `Maximum sent after slippage (${DEFAULT_SPLIPPAGE_RATE * 100}%)`
-            : `Minimum received after slippage (${
-                DEFAULT_SPLIPPAGE_RATE * 100
-              }%)`}
-        </Typography>
-        <Typography fontWeight="medium">
-          {swapDirection === 'in' ? max.toString() : min.toString()}{' '}
-          {swapDirection === 'in' ? max.toTicker() : min.toTicker()}
-        </Typography>
-      </Stack>
-      <Stack direction="row" justifyContent="space-between" alignItems="center">
-        <Typography variant="body2">Router</Typography>
-        <Typography fontWeight="medium" display="flex" alignItems="center">
-          {path.map((token, index) => (
-            <Fragment key={token.address}>
-              {tokenMap[token.address].ticker}
-              {index !== path.length - 1 ? <MdKeyboardArrowRight /> : null}
-            </Fragment>
-          ))}
-        </Typography>
+        {impact && (
+          <Stack justifyContent="space-between" alignItems="center">
+            <Typography variant="body2" color="textSecondary">
+              Price impact
+            </Typography>
+            <Typography fontWeight="medium">{impact}</Typography>
+          </Stack>
+        )}
+        <Stack justifyContent="space-between" alignItems="center">
+          <Typography variant="body2" color="textSecondary">
+            {swapDirection === 'in'
+              ? `Maximum sent after slippage (${DEFAULT_SPLIPPAGE_RATE * 100}%)`
+              : `Minimum received after slippage (${
+                  DEFAULT_SPLIPPAGE_RATE * 100
+                }%)`}
+          </Typography>
+          <Typography fontWeight="medium">
+            {swapDirection === 'in' ? max.toString() : min.toString()}{' '}
+            {swapDirection === 'in' ? max.toTicker() : min.toTicker()}
+          </Typography>
+        </Stack>
+        <Stack justifyContent="space-between" alignItems="center">
+          <Typography variant="body2" color="textSecondary">
+            Router
+          </Typography>
+          <Typography fontWeight="medium" display="flex" alignItems="center">
+            {path.map((token, index) => (
+              <Fragment key={token.address}>
+                {tokenMap[token.address].ticker}
+                {index !== path.length - 1 ? <MdKeyboardArrowRight /> : null}
+              </Fragment>
+            ))}
+          </Typography>
+        </Stack>
       </Stack>
     </Paper>
   );
