@@ -10,6 +10,7 @@ import {
   Stack,
   Typography,
 } from '@mui/material';
+import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core';
 import { usePairAddressForTokens, usePoolPair } from 'api/pairs';
 import { useAddLiquidity } from 'api/router';
 import { useApprovalOfTransfer } from 'api/token';
@@ -25,6 +26,7 @@ import { useQueryClient } from 'react-query';
 import { useBoolean } from 'react-use';
 import { calculateSlippageMin } from 'utils/slippage';
 import { z } from 'zod';
+import ConnectWallet from './ConnectWallet';
 import LiquidityAmountInput from './LiquidityAmountInput';
 import PoolInfo from './PoolInfo';
 import TokenSelect from './TokenSelect';
@@ -45,6 +47,10 @@ const schema = z.object({
 type SchemaType = z.infer<typeof schema>;
 
 export default function LiquidityDialog() {
+  const { active, error } = useWeb3React();
+  // It is connected even if wallet not on valid chain id.
+  const isConnected = active || error instanceof UnsupportedChainIdError;
+
   const [open, toggleOpen] = useBoolean(false);
 
   const form = useForm({
@@ -212,11 +218,13 @@ export default function LiquidityDialog() {
                   name="token0"
                   placeholder="First token"
                   tokens={tokenAOptions}
+                  disabled={!isConnected}
                 />
                 <TokenSelect
                   name="token1"
                   placeholder="Second token"
                   tokens={tokenBOptions}
+                  disabled={!isConnected}
                 />
               </Stack>
 
@@ -255,25 +263,35 @@ export default function LiquidityDialog() {
                 />
               </Box>
 
-              <LoadingButton
-                type="submit"
-                variant="contained"
-                fullWidth
-                size="large"
-                sx={{ mt: 4 }}
-                loading={isSubmitting}
-                disabled={isPairAddressLoading}
-              >
-                {!tokenA || !tokenB ? (
-                  'Select Token'
+              <Box mt={4}>
+                {isConnected ? (
+                  <LoadingButton
+                    type="submit"
+                    variant="contained"
+                    fullWidth
+                    size="large"
+                    loading={isSubmitting}
+                    disabled={isPairAddressLoading}
+                  >
+                    {!tokenA || !tokenB ? (
+                      'Select Token'
+                    ) : (
+                      <>
+                        {!token0Deposit || !token1Deposit
+                          ? 'Input amount'
+                          : 'Add Liquidity'}
+                      </>
+                    )}
+                  </LoadingButton>
                 ) : (
-                  <>
-                    {!token0Deposit || !token1Deposit
-                      ? 'Input amount'
-                      : 'Add Liquidity'}
-                  </>
+                  <ConnectWallet
+                    buttonProps={{
+                      size: 'large',
+                      fullWidth: true,
+                    }}
+                  />
                 )}
-              </LoadingButton>
+              </Box>
             </FormProvider>
           </form>
         </DialogContent>

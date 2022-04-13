@@ -6,12 +6,14 @@ type TokenSelectProps = {
   name: string;
   placeholder: string;
   tokens: Token[];
+  disabled?: boolean;
 };
 
 export default function TokenSelect({
   name,
   placeholder,
   tokens,
+  disabled,
 }: TokenSelectProps) {
   const { control } = useFormContext();
 
@@ -27,6 +29,7 @@ export default function TokenSelect({
           onChange={field.onChange}
           inputRef={field.ref}
           error={Boolean(fieldState.error)}
+          disabled={disabled}
         >
           <MenuItem value="0x">
             <Stack>
