@@ -1,5 +1,5 @@
 import { createTheme } from '@mui/material';
-import { indigo } from '@mui/material/colors';
+import { grey, indigo } from '@mui/material/colors';
 
 const fontFamily = 'Inter, "Helvetica", "Arial", sans-serif';
 
@@ -37,6 +37,25 @@ export default createTheme({
         color: 'secondary',
         disableElevation: true,
         disableRipple: true,
+      },
+    },
+    MuiMenu: {
+      defaultProps: {
+        elevation: 0,
+        anchorOrigin: {
+          horizontal: 'right',
+          vertical: 'bottom',
+        },
+        transformOrigin: {
+          horizontal: 'right',
+          vertical: 'top',
+        },
+      },
+      styleOverrides: {
+        paper: {
+          border: '1px solid',
+          borderColor: grey[300],
+        },
       },
     },
   },
