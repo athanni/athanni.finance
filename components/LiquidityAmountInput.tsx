@@ -5,7 +5,7 @@ import BigNumber from 'bignumber.js';
 import supportedTokens from 'config/supportedTokens';
 import { useMemo } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
-import { handleDecimalInput } from 'utils/numeric';
+import { decimalRegex, handleAllowedInput } from 'utils/numeric';
 
 type LiquidityAmountInputProps = {
   name: string;
@@ -64,18 +64,25 @@ export default function LiquidityAmountInput({
                 fontWeight: 'medium',
               }}
               {...field}
+              inputProps={{
+                pattern: decimalRegex,
+              }}
               onChange={(e) => {
-                handleDecimalInput(e, field.onChange);
-                handleDecimalInput(e, (event) => {
-                  const v = new BigNumber(e.target.value);
-                  const pairValue = inverseRatio
-                    ? v.dividedBy(priceRatio)
-                    : v.multipliedBy(priceRatio);
-                  setValue(
-                    pairName,
-                    pairValue.isNaN() ? '0' : pairValue.toString()
-                  );
-                });
+                handleAllowedInput(e, field.onChange, field.value);
+                handleAllowedInput(
+                  e,
+                  (event) => {
+                    const v = new BigNumber(e.target.value);
+                    const pairValue = inverseRatio
+                      ? v.dividedBy(priceRatio)
+                      : v.multipliedBy(priceRatio);
+                    setValue(
+                      pairName,
+                      pairValue.isNaN() ? '0' : pairValue.toString()
+                    );
+                  },
+                  field.value
+                );
               }}
               disabled={!token}
             />

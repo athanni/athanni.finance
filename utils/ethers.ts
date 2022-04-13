@@ -29,6 +29,22 @@ type RouterContract = ethers.Contract & {
     to: string,
     deadline: string
   ): Promise<ContractTransaction>;
+  getAmountsOut(amountIn: string, path: string[]): Promise<ethers.BigNumber[]>;
+  getAmountsIn(amountIn: string, path: string[]): Promise<ethers.BigNumber[]>;
+  swapExactTokensForTokens(
+    amountIn: string,
+    amountOutMin: string,
+    path: string[],
+    to: string,
+    deadline: string
+  ): Promise<ContractTransaction>;
+  swapTokensForExactTokens(
+    amountOut: string,
+    amountInMax: string,
+    path: string[],
+    to: string,
+    deadline: string
+  ): Promise<ContractTransaction>;
 };
 
 /**

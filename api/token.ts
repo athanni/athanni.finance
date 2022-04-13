@@ -1,9 +1,9 @@
 import { useWeb3React } from '@web3-react/core';
 import BigNumber from 'bignumber.js';
 import config from 'config/config';
-import supportedTokens from 'config/supportedTokens';
+import supportedTokens, { tokenMap } from 'config/supportedTokens';
 import { ethers } from 'ethers';
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 import { useQuery } from 'react-query';
 import { getERC20Contract, useERC20Contract } from 'utils/ethers';
 
@@ -49,13 +49,46 @@ export class TokenBalance {
     });
   }
 
-  toString() {
+  /**
+   * Divide the balance by a number.
+   */
+  dividedBy(num: BigNumber): TokenBalance {
+    return new TokenBalance(
+      this.address,
+      ethers.BigNumber.from(
+        new BigNumber(this.balance.toString())
+          .dividedBy(num)
+          .integerValue()
+          .toFixed()
+      )
+    );
+  }
+
+  /**
+   * Format the token amount for user viewing.
+   */
+  toString(): string {
     return this.inMajorUnit().toFormat(4, 1, {
       groupSize: 3,
       groupSeparator: ',',
       decimalSeparator: '.',
       fractionGroupSize: 1,
     });
+  }
+
+  /**
+   * Convert the number to string without any formatting limiting the output to
+   * 4 decimal places.
+   */
+  toPlainString(): string {
+    return this.inMajorUnit().toFixed(4, 1);
+  }
+
+  /**
+   * Gets the ticker of the token.
+   */
+  toTicker(): string {
+    return tokenMap[this.address].ticker;
   }
 }
 
@@ -66,25 +99,18 @@ export function useTokenBalance(token: string) {
   const { account } = useWeb3React();
   const erc20Contract = useERC20Contract(token);
 
-  const query = useQuery(
-    ['token-balance', token, account],
+  return useQuery(
+    ['token-balance', Boolean(erc20Contract), token, account],
     async () => {
       const balance = await erc20Contract!.balanceOf(account!);
       return new TokenBalance(token, balance);
     },
     {
-      enabled: Boolean(erc20Contract) && Boolean(account),
+      // Refetch the token balance after every 10 seconds.
+      refetchInterval: 10 * 1000,
+      enabled: Boolean(erc20Contract && account),
     }
   );
-
-  const { refetch } = query;
-  useEffect(() => {
-    if (account && erc20Contract) {
-      refetch();
-    }
-  }, [account, erc20Contract, refetch]);
-
-  return query;
 }
 
 /**
