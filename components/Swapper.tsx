@@ -8,8 +8,10 @@ import {
   useSwapExactTokensForTokens,
   useSwapTokensForExactTokens,
 } from 'api/router';
+import { useApprovalOfTransfer } from 'api/token';
 import BigNumber from 'bignumber.js';
 import { DEFAULT_SPLIPPAGE_RATE } from 'config/constants';
+import { ethers } from 'ethers';
 import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useMemo } from 'react';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
@@ -132,6 +134,7 @@ export default function Swapper() {
   }, [editedToken, path, setValue, token0, token1, tokenA, tokenB]);
 
   const { enqueueSnackbar } = useSnackbar();
+  const approvalOfTransfer = useApprovalOfTransfer();
   const swapExactTokensForTokens = useSwapExactTokensForTokens();
   const swapTokensForExactTokens = useSwapTokensForExactTokens();
   const onSubmit = useCallback(
@@ -152,6 +155,13 @@ export default function Swapper() {
             DEFAULT_SPLIPPAGE_RATE
           ).toFixed();
 
+          // Approve the amount that is to be swapped.
+          const approvalTx = await approvalOfTransfer(
+            first.address,
+            first.balance
+          );
+          await approvalTx?.wait();
+
           const swapTx = await swapExactTokensForTokens({
             amountIn: first.balance.toString(),
             amountOutMin,
@@ -164,6 +174,13 @@ export default function Swapper() {
             new BigNumber(first.balance.toString()),
             DEFAULT_SPLIPPAGE_RATE
           ).toFixed();
+
+          // Approve the maximum amount that can be swapped.
+          const approvalTx = await approvalOfTransfer(
+            first.address,
+            ethers.BigNumber.from(amountInMax)
+          );
+          await approvalTx?.wait();
 
           const swapTx = await swapTokensForExactTokens({
             amountOut: last.balance.toString(),
@@ -183,7 +200,13 @@ export default function Swapper() {
         throw err;
       }
     },
-    [enqueueSnackbar, path, swapExactTokensForTokens, swapTokensForExactTokens]
+    [
+      approvalOfTransfer,
+      enqueueSnackbar,
+      path,
+      swapExactTokensForTokens,
+      swapTokensForExactTokens,
+    ]
   );
 
   return (
