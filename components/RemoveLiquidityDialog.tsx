@@ -18,7 +18,7 @@ import { DEFAULT_SPLIPPAGE_RATE } from 'config/constants';
 import { tokenMap } from 'config/supportedTokens';
 import { ethers } from 'ethers';
 import { useSnackbar } from 'notistack';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { useQueryClient } from 'react-query';
 import { calculateSlippageMin } from 'utils/slippage';
@@ -122,73 +122,76 @@ export default function RemoveLiquidityDialog({
     };
   }, [amount, poolPair]);
 
+  const [txStatus, setTxStatus] = useState<string | null>(null);
   const queryClient = useQueryClient();
   const approvalOfTransfer = useApprovalOfTransfer();
   const { enqueueSnackbar } = useSnackbar();
   const removeLiquidity = useRemoveLiquidity();
-  const onSubmit = useCallback(
-    async (state: SchemaType) => {
-      if (!poolTokenAmount || !tokenAMinAmount || !tokenBMinAmount) {
-        return;
-      }
+  const onSubmit = useCallback(async () => {
+    if (!poolTokenAmount || !tokenAMinAmount || !tokenBMinAmount) {
+      return;
+    }
 
-      try {
-        const approvalTx = await approvalOfTransfer(
-          pair,
-          ethers.BigNumber.from(poolTokenAmount.toString())
-        );
-        await approvalTx?.wait();
+    setTxStatus('Approving Token Transfer');
+    try {
+      const approvalTx = await approvalOfTransfer(
+        pair,
+        ethers.BigNumber.from(poolTokenAmount.toString())
+      );
+      await approvalTx?.wait();
 
-        const removeTx = await removeLiquidity({
-          tokenA,
-          tokenB,
-          liquidity: poolTokenAmount.toString(),
-          amountAMin: tokenAMinAmount.balance.toString(),
-          amountBMin: tokenBMinAmount.balance.toString(),
-        });
-        await removeTx?.wait();
+      setTxStatus('Withdrawing Liquidity');
+      const removeTx = await removeLiquidity({
+        tokenA,
+        tokenB,
+        liquidity: poolTokenAmount.toString(),
+        amountAMin: tokenAMinAmount.balance.toString(),
+        amountBMin: tokenBMinAmount.balance.toString(),
+      });
 
+      enqueueSnackbar('Successfully withdrew liquidity.', {
+        variant: 'success',
+        action: () =>
+          removeTx ? (
+            <Button
+              component="a"
+              color="inherit"
+              href={explorerTransactionUrl(removeTx.hash)}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              View Transaction
+            </Button>
+          ) : null,
+      });
+      onClose();
+
+      removeTx?.wait().then(() => {
         // Refetch all the liquidity pairs.
         queryClient.invalidateQueries('all-pairs');
         queryClient.invalidateQueries('all-pooled-pairs');
-
-        enqueueSnackbar('Successfully withdrew liquidity.', {
-          variant: 'success',
-          action: () =>
-            removeTx ? (
-              <Button
-                component="a"
-                color="inherit"
-                href={explorerTransactionUrl(removeTx.hash)}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                View Transaction
-              </Button>
-            ) : null,
-        });
-        onClose();
-      } catch (err) {
-        enqueueSnackbar('Failed to withdraw liquidity.', {
-          variant: 'error',
-        });
-        throw err;
-      }
-    },
-    [
-      approvalOfTransfer,
-      enqueueSnackbar,
-      onClose,
-      pair,
-      poolTokenAmount,
-      queryClient,
-      removeLiquidity,
-      tokenA,
-      tokenAMinAmount,
-      tokenB,
-      tokenBMinAmount,
-    ]
-  );
+      });
+    } catch (err) {
+      enqueueSnackbar('Failed to withdraw liquidity.', {
+        variant: 'error',
+      });
+      throw err;
+    } finally {
+      setTxStatus(null);
+    }
+  }, [
+    approvalOfTransfer,
+    enqueueSnackbar,
+    onClose,
+    pair,
+    poolTokenAmount,
+    queryClient,
+    removeLiquidity,
+    tokenA,
+    tokenAMinAmount,
+    tokenB,
+    tokenBMinAmount,
+  ]);
 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
@@ -236,10 +239,11 @@ export default function RemoveLiquidityDialog({
             variant="contained"
             size="large"
             fullWidth
+            loadingPosition="start"
             loading={isSubmitting}
             disabled={isPoolPairLoading}
           >
-            Remove Liquidity
+            {txStatus || 'Remove Liquidity'}
           </LoadingButton>
         </Stack>
       </DialogContent>

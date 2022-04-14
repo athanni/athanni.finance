@@ -10,7 +10,7 @@ import {
   Stack,
   Typography,
 } from '@mui/material';
-import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core';
+import { useWeb3React } from '@web3-react/core';
 import { usePairAddressForTokens, usePoolPair } from 'api/pairs';
 import { useAddLiquidity } from 'api/router';
 import { useApprovalOfTransfer } from 'api/token';
@@ -20,7 +20,7 @@ import { DEFAULT_SPLIPPAGE_RATE } from 'config/constants';
 import supportedTokens, { tokenMap } from 'config/supportedTokens';
 import { ethers } from 'ethers';
 import { useSnackbar } from 'notistack';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { useQueryClient } from 'react-query';
 import { useBoolean } from 'react-use';
@@ -111,6 +111,7 @@ export default function LiquidityDialog() {
   const addLiquidity = useAddLiquidity();
   const queryClient = useQueryClient();
 
+  const [txStatus, setTxStatus] = useState<string | null>(null);
   const onSubmit = useCallback(
     async (state: any) => {
       try {
@@ -135,6 +136,8 @@ export default function LiquidityDialog() {
           DEFAULT_SPLIPPAGE_RATE
         ).toFixed();
 
+        setTxStatus('Approving Token Transfer');
+
         // Get the approval for token transfers to add liquidity.
         const approvalTxA = await approvalOfTransfer(
           token0,
@@ -148,6 +151,8 @@ export default function LiquidityDialog() {
         // Wait on the transaction to be confirmed before adding liquidity of the same.
         await Promise.all([approvalTxA?.wait(), approvalTxB?.wait()]);
 
+        setTxStatus('Adding Liquidity');
+
         const addTx = await addLiquidity({
           tokenA: token0,
           tokenB: token1,
@@ -156,11 +161,6 @@ export default function LiquidityDialog() {
           amountAMin,
           amountBMin,
         });
-        await addTx?.wait();
-
-        // Refetch all the liquidity pairs.
-        queryClient.invalidateQueries('all-pairs');
-        queryClient.invalidateQueries('all-pooled-pairs');
 
         enqueueSnackbar('Successfully added liquidity.', {
           variant: 'success',
@@ -177,12 +177,21 @@ export default function LiquidityDialog() {
               </Button>
             ) : null,
         });
+
         toggleOpen(false);
+
+        addTx?.wait().then(() => {
+          // Refetch all the liquidity pairs.
+          queryClient.invalidateQueries('all-pairs');
+          queryClient.invalidateQueries('all-pooled-pairs');
+        });
       } catch (err) {
         enqueueSnackbar('Failed to add liquidity.', {
           variant: 'error',
         });
         throw err;
+      } finally {
+        setTxStatus(null);
       }
     },
     [addLiquidity, approvalOfTransfer, enqueueSnackbar, queryClient, toggleOpen]
@@ -198,6 +207,9 @@ export default function LiquidityDialog() {
     () => (pair ? pair.reserveB.tokenRatioWith(pair.reserveA) : null),
     [pair]
   );
+
+  const selectToken = (!tokenA || !tokenB) && 'Select Token';
+  const inputAmount = (!token0Deposit || !token1Deposit) && 'Input amount';
 
   return (
     <>
@@ -268,18 +280,11 @@ export default function LiquidityDialog() {
                     variant="contained"
                     fullWidth
                     size="large"
+                    loadingPosition="start"
                     loading={isSubmitting}
                     disabled={isPairAddressLoading}
                   >
-                    {!tokenA || !tokenB ? (
-                      'Select Token'
-                    ) : (
-                      <>
-                        {!token0Deposit || !token1Deposit
-                          ? 'Input amount'
-                          : 'Add Liquidity'}
-                      </>
-                    )}
+                    {txStatus || selectToken || inputAmount || 'Add Liquidity'}
                   </LoadingButton>
                 ) : (
                   <ConnectWallet

@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { LoadingButton } from '@mui/lab';
 import { Button, IconButton, Paper, Stack, Typography } from '@mui/material';
 import { Box } from '@mui/system';
-import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core';
+import { useWeb3React } from '@web3-react/core';
 import {
   useBestSwapAmount,
   useSwapExactTokensForTokens,
@@ -14,7 +14,7 @@ import { explorerTransactionUrl } from 'config/config';
 import { DEFAULT_SPLIPPAGE_RATE } from 'config/constants';
 import { ethers } from 'ethers';
 import { useSnackbar } from 'notistack';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { MdSwapVert } from 'react-icons/md';
 import { convertAmountToBaseUnit } from 'utils/numeric';
@@ -128,6 +128,7 @@ export default function Swapper() {
     }
   }, [editedToken, path, setValue, token0, token1, tokenA, tokenB]);
 
+  const [txStatus, setTxStatus] = useState<string | null>(null);
   const { enqueueSnackbar } = useSnackbar();
   const approvalOfTransfer = useApprovalOfTransfer();
   const swapExactTokensForTokens = useSwapExactTokensForTokens();
@@ -145,6 +146,8 @@ export default function Swapper() {
 
         let explorerUrl: string | undefined;
 
+        setTxStatus('Approving Token Transfer');
+
         // Source tokens are exact.
         if (editedToken === tokenA) {
           const amountOutMin = calculateSlippageMin(
@@ -159,12 +162,13 @@ export default function Swapper() {
           );
           await approvalTx?.wait();
 
+          setTxStatus('Swapping Tokens');
+
           const swapTx = await swapExactTokensForTokens({
             amountIn: first.balance.toString(),
             amountOutMin,
             path: path.map((it) => it.address),
           });
-          await swapTx?.wait();
 
           if (swapTx) {
             explorerUrl = explorerTransactionUrl(swapTx.hash);
@@ -183,12 +187,13 @@ export default function Swapper() {
           );
           await approvalTx?.wait();
 
+          setTxStatus('Swapping Tokens');
+
           const swapTx = await swapTokensForExactTokens({
             amountOut: last.balance.toString(),
             amountInMax,
             path: path.map((it) => it.address),
           });
-          await swapTx?.wait();
 
           if (swapTx) {
             explorerUrl = explorerTransactionUrl(swapTx.hash);
@@ -216,6 +221,8 @@ export default function Swapper() {
           variant: 'error',
         });
         throw err;
+      } finally {
+        setTxStatus(null);
       }
     },
     [
@@ -227,6 +234,14 @@ export default function Swapper() {
       swapTokensForExactTokens,
     ]
   );
+
+  const selectToken = (!token0 || !token1) && 'Select Token';
+  const targetLarge =
+    !isSwapAmountLoading &&
+    !tokenAAmount &&
+    tokenBAmount &&
+    'Swap Target Very Large';
+  const inputAmount = (!tokenAAmount || !tokenBAmount) && 'Input amount';
 
   return (
     <Paper
@@ -258,28 +273,18 @@ export default function Swapper() {
                 variant="contained"
                 fullWidth
                 size="large"
+                loadingPosition="start"
                 loading={isSubmitting}
                 disabled={
                   isSwapAmountLoading ||
                   (!tokenAAmount && Boolean(tokenBAmount))
                 }
               >
-                {!token0 || !token1 ? (
-                  'Select Token'
-                ) : (
-                  <>
-                    {/* If the swap target value is very large compared to the liquidity pool. */}
-                    {!isSwapAmountLoading && !tokenAAmount && tokenBAmount ? (
-                      'Swap Target Very Large'
-                    ) : (
-                      <>
-                        {!tokenAAmount || !tokenBAmount
-                          ? 'Input amount'
-                          : 'Swap'}
-                      </>
-                    )}
-                  </>
-                )}
+                {txStatus ||
+                  selectToken ||
+                  targetLarge ||
+                  inputAmount ||
+                  'Swap'}
               </LoadingButton>
             ) : (
               <ConnectWallet
