@@ -10,7 +10,7 @@ import {
   Stack,
   Typography,
 } from '@mui/material';
-import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core';
+import { useWeb3React } from '@web3-react/core';
 import { usePairAddressForTokens, usePoolPair } from 'api/pairs';
 import { useAddLiquidity } from 'api/router';
 import { useApprovalOfTransfer } from 'api/token';
@@ -156,11 +156,6 @@ export default function LiquidityDialog() {
           amountAMin,
           amountBMin,
         });
-        await addTx?.wait();
-
-        // Refetch all the liquidity pairs.
-        queryClient.invalidateQueries('all-pairs');
-        queryClient.invalidateQueries('all-pooled-pairs');
 
         enqueueSnackbar('Successfully added liquidity.', {
           variant: 'success',
@@ -177,7 +172,14 @@ export default function LiquidityDialog() {
               </Button>
             ) : null,
         });
+
         toggleOpen(false);
+
+        addTx?.wait().then(() => {
+          // Refetch all the liquidity pairs.
+          queryClient.invalidateQueries('all-pairs');
+          queryClient.invalidateQueries('all-pooled-pairs');
+        });
       } catch (err) {
         enqueueSnackbar('Failed to add liquidity.', {
           variant: 'error',

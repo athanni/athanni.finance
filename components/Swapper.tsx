@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { LoadingButton } from '@mui/lab';
 import { Button, IconButton, Paper, Stack, Typography } from '@mui/material';
 import { Box } from '@mui/system';
-import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core';
+import { useWeb3React } from '@web3-react/core';
 import {
   useBestSwapAmount,
   useSwapExactTokensForTokens,
@@ -164,7 +164,6 @@ export default function Swapper() {
             amountOutMin,
             path: path.map((it) => it.address),
           });
-          await swapTx?.wait();
 
           if (swapTx) {
             explorerUrl = explorerTransactionUrl(swapTx.hash);
@@ -188,7 +187,6 @@ export default function Swapper() {
             amountInMax,
             path: path.map((it) => it.address),
           });
-          await swapTx?.wait();
 
           if (swapTx) {
             explorerUrl = explorerTransactionUrl(swapTx.hash);
