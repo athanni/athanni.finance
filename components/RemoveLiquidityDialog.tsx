@@ -18,7 +18,7 @@ import { DEFAULT_SPLIPPAGE_RATE } from 'config/constants';
 import { tokenMap } from 'config/supportedTokens';
 import { ethers } from 'ethers';
 import { useSnackbar } from 'notistack';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { useQueryClient } from 'react-query';
 import { calculateSlippageMin } from 'utils/slippage';
@@ -122,6 +122,7 @@ export default function RemoveLiquidityDialog({
     };
   }, [amount, poolPair]);
 
+  const [txStatus, setTxStatus] = useState<string | null>(null);
   const queryClient = useQueryClient();
   const approvalOfTransfer = useApprovalOfTransfer();
   const { enqueueSnackbar } = useSnackbar();
@@ -131,6 +132,7 @@ export default function RemoveLiquidityDialog({
       return;
     }
 
+    setTxStatus('Approving Token Transfer');
     try {
       const approvalTx = await approvalOfTransfer(
         pair,
@@ -138,6 +140,7 @@ export default function RemoveLiquidityDialog({
       );
       await approvalTx?.wait();
 
+      setTxStatus('Withdrawing Liquidity');
       const removeTx = await removeLiquidity({
         tokenA,
         tokenB,
@@ -173,6 +176,8 @@ export default function RemoveLiquidityDialog({
         variant: 'error',
       });
       throw err;
+    } finally {
+      setTxStatus(null);
     }
   }, [
     approvalOfTransfer,
@@ -234,10 +239,11 @@ export default function RemoveLiquidityDialog({
             variant="contained"
             size="large"
             fullWidth
+            loadingPosition="start"
             loading={isSubmitting}
             disabled={isPoolPairLoading}
           >
-            Remove Liquidity
+            {txStatus || 'Remove Liquidity'}
           </LoadingButton>
         </Stack>
       </DialogContent>
