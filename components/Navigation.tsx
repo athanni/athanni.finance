@@ -1,10 +1,8 @@
 import {
   AppBar,
-  Avatar,
   Box,
   Button,
   ButtonGroup,
-  IconButton,
   Stack,
   Toolbar,
 } from '@mui/material';
@@ -12,6 +10,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import ConnectedChain from './ConnectedChain';
 import ConnectWallet from './ConnectWallet';
+import Logo from './Logo';
 
 export default function Navigation() {
   const { pathname } = useRouter();
@@ -20,9 +19,7 @@ export default function Navigation() {
     <AppBar color="transparent" position="sticky" elevation={0}>
       <Toolbar sx={{ justifyContent: 'space-between' }}>
         <Box flex={1}>
-          <IconButton>
-            <Avatar>A</Avatar>
-          </IconButton>
+          <Logo />
         </Box>
 
         <Stack flex={1} alignItems="center">
