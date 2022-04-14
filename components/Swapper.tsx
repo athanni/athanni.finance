@@ -226,6 +226,14 @@ export default function Swapper() {
     ]
   );
 
+  const selectToken = (!token0 || !token1) && 'Select Token';
+  const targetLarge =
+    !isSwapAmountLoading &&
+    !tokenAAmount &&
+    tokenBAmount &&
+    'Swap Target Very Large';
+  const inputAmount = (!tokenAAmount || !tokenBAmount) && 'Input amount';
+
   return (
     <Paper
       variant="outlined"
@@ -262,22 +270,7 @@ export default function Swapper() {
                   (!tokenAAmount && Boolean(tokenBAmount))
                 }
               >
-                {!token0 || !token1 ? (
-                  'Select Token'
-                ) : (
-                  <>
-                    {/* If the swap target value is very large compared to the liquidity pool. */}
-                    {!isSwapAmountLoading && !tokenAAmount && tokenBAmount ? (
-                      'Swap Target Very Large'
-                    ) : (
-                      <>
-                        {!tokenAAmount || !tokenBAmount
-                          ? 'Input amount'
-                          : 'Swap'}
-                      </>
-                    )}
-                  </>
-                )}
+                {selectToken || targetLarge || inputAmount || 'Swap'}
               </LoadingButton>
             ) : (
               <ConnectWallet

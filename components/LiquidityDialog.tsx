@@ -201,6 +201,9 @@ export default function LiquidityDialog() {
     [pair]
   );
 
+  const selectToken = (!tokenA || !tokenB) && 'Select Token';
+  const inputAmount = (!token0Deposit || !token1Deposit) && 'Input amount';
+
   return (
     <>
       <Button variant="contained" onClick={toggleOpen}>
@@ -273,15 +276,7 @@ export default function LiquidityDialog() {
                     loading={isSubmitting}
                     disabled={isPairAddressLoading}
                   >
-                    {!tokenA || !tokenB ? (
-                      'Select Token'
-                    ) : (
-                      <>
-                        {!token0Deposit || !token1Deposit
-                          ? 'Input amount'
-                          : 'Add Liquidity'}
-                      </>
-                    )}
+                    {selectToken || inputAmount || 'Add Liquidity'}
                   </LoadingButton>
                 ) : (
                   <ConnectWallet
