@@ -1,13 +1,11 @@
-import {
-  Button,
-  ButtonGroup,
-  Paper,
-  Stack,
-  TextField,
-  Typography,
-} from '@mui/material';
+import { Button, ButtonGroup, Paper, Stack } from '@mui/material';
+import { useState } from 'react';
+import BridgeDeposit from './BridgeDeposit';
+import BridgeWithdraw from './BridgeWithdraw';
 
 export default function Bridger() {
+  const [index, setIndex] = useState(0);
+
   return (
     <Paper
       variant="outlined"
@@ -21,18 +19,25 @@ export default function Bridger() {
       <Stack spacing={2}>
         <Stack alignItems="center" mb={2}>
           <ButtonGroup variant="contained" color="inherit">
-            <Button color="secondary" sx={{ width: 120 }}>
+            <Button
+              color={index === 0 ? 'secondary' : undefined}
+              sx={{ width: 120 }}
+              onClick={() => setIndex(0)}
+            >
               Deposit
             </Button>
-            <Button sx={{ width: 120 }}>Withdraw</Button>
+            <Button
+              color={index === 1 ? 'secondary' : undefined}
+              sx={{ width: 120 }}
+              onClick={() => setIndex(1)}
+            >
+              Withdraw
+            </Button>
           </ButtonGroup>
         </Stack>
 
-        <TextField />
-        <TextField />
-        <Button variant="contained" size="large">
-          Deposit
-        </Button>
+        {index === 0 && <BridgeDeposit />}
+        {index === 1 && <BridgeWithdraw />}
       </Stack>
     </Paper>
   );
