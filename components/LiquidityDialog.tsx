@@ -26,7 +26,7 @@ import { useQueryClient } from 'react-query';
 import { useBoolean } from 'react-use';
 import { calculateSlippageMin } from 'utils/slippage';
 import { z } from 'zod';
-import ConnectWallet from './ConnectWallet';
+import ConnectWrapper from './ConnectWrapper';
 import LiquidityAmountInput from './LiquidityAmountInput';
 import PoolInfo from './PoolInfo';
 import TokenSelect from './TokenSelect';
@@ -47,9 +47,8 @@ const schema = z.object({
 type SchemaType = z.infer<typeof schema>;
 
 export default function LiquidityDialog() {
-  const { active } = useWeb3React();
-
   const [open, toggleOpen] = useBoolean(false);
+  const { isActive } = useWeb3React();
 
   const form = useForm({
     defaultValues: {
@@ -228,13 +227,13 @@ export default function LiquidityDialog() {
                   name="token0"
                   placeholder="First token"
                   tokens={tokenAOptions}
-                  disabled={!active}
+                  disabled={!isActive}
                 />
                 <TokenSelect
                   name="token1"
                   placeholder="Second token"
                   tokens={tokenBOptions}
-                  disabled={!active}
+                  disabled={!isActive}
                 />
               </Stack>
 
@@ -274,7 +273,7 @@ export default function LiquidityDialog() {
               </Box>
 
               <Box mt={4}>
-                {active ? (
+                <ConnectWrapper>
                   <LoadingButton
                     type="submit"
                     variant="contained"
@@ -286,14 +285,7 @@ export default function LiquidityDialog() {
                   >
                     {txStatus || selectToken || inputAmount || 'Add Liquidity'}
                   </LoadingButton>
-                ) : (
-                  <ConnectWallet
-                    buttonProps={{
-                      size: 'large',
-                      fullWidth: true,
-                    }}
-                  />
-                )}
+                </ConnectWrapper>
               </Box>
             </FormProvider>
           </form>

@@ -10,17 +10,11 @@ import {
   ListItemText,
   Typography,
 } from '@mui/material';
-import { UnsupportedChainIdError, useWeb3React } from '@web3-react/core';
-import { InjectedConnector } from '@web3-react/injected-connector';
+import { useWeb3React } from '@web3-react/core';
 import config from 'config/config';
-import {
-  Network,
-  POLYGON_TESTNET_CHAIN_ID,
-  THETA_MAINNET_CHAIN_ID,
-  THETA_TESTNET_CHAIN_ID,
-} from 'config/constants';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useBoolean } from 'react-use';
+import { metaMask } from 'utils/metamask';
 import { shorternAddress } from 'utils/string';
 import MetamaskIcon from './MetamaskIcon';
 
@@ -28,25 +22,28 @@ type ConnectWalletProps = {
   buttonProps?: ButtonProps;
 };
 
-const injectedWallet = new InjectedConnector({
-  supportedChainIds:
-    config.NETWORK === Network.Theta
-      ? [THETA_TESTNET_CHAIN_ID, THETA_MAINNET_CHAIN_ID]
-      : [POLYGON_TESTNET_CHAIN_ID],
-});
-
 export default function ConnectWallet({ buttonProps }: ConnectWalletProps) {
   const [open, toggleOpen] = useBoolean(false);
-  const { active, activate, account, error } = useWeb3React();
+  const { isActive, account, chainId } = useWeb3React();
 
   const onConnectMetaMask = useCallback(async () => {
-    await activate(injectedWallet);
+    await metaMask.activate(config.CHAIN_ID);
     toggleOpen(false);
-  }, [activate, toggleOpen]);
+  }, [toggleOpen]);
 
-  const isUnsupported = error instanceof UnsupportedChainIdError;
-  // It is connected even if wallet not on valid chain id.
-  const isConnected = active || isUnsupported;
+  // Check if really unsupported network selected.
+  const isUnsupported = isActive && chainId !== config.CHAIN_ID;
+  useEffect(() => {
+    // Whenever the network switches from unsupported to supported, it loses connection.
+    // This also causes the metamask to connect on load, if already given permission.
+    if (!isUnsupported) {
+      metaMask.connectEagerly();
+    }
+  }, [isUnsupported]);
+
+  const connectWallet = !account && !isUnsupported && 'Connect Wallet';
+  const wrongNetwork = isUnsupported && 'Wrong Network';
+  const address = isActive && account && shorternAddress(account);
 
   return (
     <>
@@ -54,16 +51,14 @@ export default function ConnectWallet({ buttonProps }: ConnectWalletProps) {
         variant="contained"
         color={isUnsupported ? 'error' : 'secondary'}
         {...buttonProps}
-        onClick={!active ? toggleOpen : undefined}
+        onClick={!isActive ? toggleOpen : undefined}
       >
-        {active && account && shorternAddress(account)}
-        {isUnsupported && 'Wrong Network'}
-        {!account && !isUnsupported && 'Connect Wallet'}
+        {connectWallet || wrongNetwork || address}
       </Button>
 
       {/* Show the dialog to connect wallet if its not connected. */}
       <Dialog
-        open={!isConnected && open}
+        open={!isActive && open}
         onClose={toggleOpen}
         fullWidth
         maxWidth="xs"

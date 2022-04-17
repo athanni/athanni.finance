@@ -25,7 +25,9 @@ export default function SwapInput({ isTokenA }: CurrencyInputProps) {
   const { control, setValue } = useFormContext();
 
   const tokenAddress = useWatch({ control, name: tokenName });
-  const { data: tokenBalance } = useTokenBalance(tokenAddress);
+  const tokenAddressSanitized: string | undefined =
+    tokenAddress !== '0x' ? tokenAddress : undefined;
+  const { data: tokenBalance } = useTokenBalance(tokenAddressSanitized);
 
   const pairTokenAddress = useWatch({ control, name: pairTokenName });
 
@@ -58,7 +60,7 @@ export default function SwapInput({ isTokenA }: CurrencyInputProps) {
                 fontSize: typography.h5.fontSize,
                 fontWeight: 'medium',
               }}
-              disabled={tokenAddress === '0x'}
+              disabled={!tokenAddressSanitized}
               {...field}
               inputProps={{
                 pattern: decimalRegex,

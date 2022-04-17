@@ -51,19 +51,19 @@ type RouterContract = ethers.Contract & {
  * Gets the router contract API using ethers.
  */
 export function useRouterContract(): RouterContract | null {
-  const { library } = useWeb3React();
+  const { provider } = useWeb3React();
   return useMemo(() => {
-    if (!library) {
+    if (!provider) {
       return null;
     }
 
-    const signer = library.getSigner();
+    const signer = (provider as any).getSigner();
     return new ethers.Contract(
       config.ROUTER_CONTRACT_ADDRESS,
       routerAbi,
       signer
     ) as RouterContract;
-  }, [library]);
+  }, [provider]);
 }
 
 type FactoryContract = ethers.Contract & {
@@ -76,7 +76,7 @@ type FactoryContract = ethers.Contract & {
  * Gets the factory contract API using ethers.
  */
 export function useFactoryContract(): FactoryContract | null {
-  const { library } = useWeb3React();
+  const { provider } = useWeb3React();
   const routerContract = useRouterContract();
 
   // The factory address is provided by the router itself. No need
@@ -90,17 +90,17 @@ export function useFactoryContract(): FactoryContract | null {
   }, [routerContract]);
 
   return useMemo(() => {
-    if (!library || !factoryAddress) {
+    if (!provider || !factoryAddress) {
       return null;
     }
 
-    const signer = library.getSigner();
+    const signer = (provider as any).getSigner();
     return new ethers.Contract(
       factoryAddress,
       factoryAbi,
       signer
     ) as FactoryContract;
-  }, [factoryAddress, library]);
+  }, [factoryAddress, provider]);
 }
 
 type ERC20Contract = ethers.Contract & {
@@ -115,23 +115,27 @@ type ERC20Contract = ethers.Contract & {
  * Gets the ERC20 contract API using ethers.
  */
 export function getERC20Contract(
-  library: any,
+  provider: any,
   address: string
 ): ERC20Contract | null {
-  if (!library) {
+  if (!provider) {
     return null;
   }
 
-  const signer = library.getSigner();
+  const signer = provider.getSigner();
   return new ethers.Contract(address, erc20Abi, signer) as ERC20Contract;
 }
 
 /**
  * Gets the ERC20 contract API using ethers.
  */
-export function useERC20Contract(address: string): ERC20Contract | null {
-  const { library } = useWeb3React();
-  return useMemo(() => getERC20Contract(library, address), [address, library]);
+export function useERC20Contract(address?: string): ERC20Contract | null {
+  const { provider } = useWeb3React();
+
+  return useMemo(
+    () => (address ? getERC20Contract(provider, address) : null),
+    [address, provider]
+  );
 }
 
 type UniswapV2PairContract = ERC20Contract & {
@@ -146,14 +150,14 @@ type UniswapV2PairContract = ERC20Contract & {
  * Gets the UniswapV2Pair contract API using ethers.
  */
 export function getUniswapV2PairContract(
-  library: any,
+  provider: any,
   address: string
 ): UniswapV2PairContract | null {
-  if (!library) {
+  if (!provider) {
     return null;
   }
 
-  const signer = library.getSigner();
+  const signer = provider.getSigner();
   return new ethers.Contract(
     address,
     uniswapV2PairAbi,
