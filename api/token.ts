@@ -105,7 +105,7 @@ export class TokenBalance {
 /**
  * Fetches the token balance of the user.
  */
-export function useTokenBalance(token: string) {
+export function useTokenBalance(token?: string) {
   const { account } = useWeb3React();
   const erc20Contract = useERC20Contract(token);
 
@@ -113,12 +113,12 @@ export function useTokenBalance(token: string) {
     ['token-balance', Boolean(erc20Contract), token, account],
     async () => {
       const balance = await erc20Contract!.balanceOf(account!);
-      return new TokenBalance(token, balance);
+      return new TokenBalance(token!, balance);
     },
     {
       // Refetch the token balance after every 10 seconds.
       refetchInterval: 10 * 1000,
-      enabled: Boolean(erc20Contract && account),
+      enabled: Boolean(erc20Contract && token && account),
     }
   );
 }

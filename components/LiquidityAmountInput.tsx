@@ -28,7 +28,7 @@ export default function LiquidityAmountInput({
     () => supportedTokens.find((token) => token.address === address),
     [address]
   );
-  const { data: tokenBalance } = useTokenBalance(address);
+  const { data: tokenBalance } = useTokenBalance(token?.address);
 
   const {
     control,

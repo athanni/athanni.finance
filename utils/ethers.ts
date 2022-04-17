@@ -115,24 +115,25 @@ type ERC20Contract = ethers.Contract & {
  * Gets the ERC20 contract API using ethers.
  */
 export function getERC20Contract(
-  library: any,
+  provider: any,
   address: string
 ): ERC20Contract | null {
-  if (!library) {
+  if (!provider) {
     return null;
   }
 
-  const signer = library.getSigner();
+  const signer = provider.getSigner();
   return new ethers.Contract(address, erc20Abi, signer) as ERC20Contract;
 }
 
 /**
  * Gets the ERC20 contract API using ethers.
  */
-export function useERC20Contract(address: string): ERC20Contract | null {
+export function useERC20Contract(address?: string): ERC20Contract | null {
   const { provider } = useWeb3React();
+
   return useMemo(
-    () => getERC20Contract(provider, address),
+    () => (address ? getERC20Contract(provider, address) : null),
     [address, provider]
   );
 }
