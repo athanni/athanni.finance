@@ -10,8 +10,6 @@ import { useWeb3React } from '@web3-react/core';
 import config from 'config/config';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useEffect } from 'react';
-import { metaMask } from 'utils/metamask';
 import ConnectedChain from './ConnectedChain';
 import ConnectWallet from './ConnectWallet';
 import Logo from './Logo';
@@ -19,16 +17,6 @@ import Logo from './Logo';
 export default function Navigation() {
   const { pathname } = useRouter();
   const { chainId } = useWeb3React();
-
-  useEffect(() => {
-    if (pathname === '/' || pathname === '/pool') {
-      // Only switch to Theta if it is already connected. Connect eagerly throws
-      // if not already connected.
-      metaMask.connectEagerly().then(async () => {
-        await metaMask.activate(config.CHAIN_ID);
-      });
-    }
-  }, [pathname]);
 
   return (
     <AppBar color="transparent" position="sticky" elevation={0}>
