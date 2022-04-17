@@ -128,15 +128,15 @@ export function useTokenBalance(token: string) {
  * then it is executed.
  */
 export function useApprovalOfTransfer() {
-  const { library, account } = useWeb3React();
+  const { provider, account } = useWeb3React();
 
   return useCallback(
     async (token: string, amount: ethers.BigNumber) => {
-      if (!library || !account) {
+      if (!provider || !account) {
         return;
       }
 
-      const contract = getERC20Contract(library, token);
+      const contract = getERC20Contract(provider, token);
       if (!contract) {
         return;
       }
@@ -156,6 +156,6 @@ export function useApprovalOfTransfer() {
         amount.toString()
       );
     },
-    [account, library]
+    [account, provider]
   );
 }

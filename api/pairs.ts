@@ -84,14 +84,14 @@ export type AllPooledPairsResponse = PooledPairItem[];
  */
 export function useAllPooledPairs() {
   const { data: allPairs } = useAllPairs();
-  const { account, library } = useWeb3React();
+  const { account, provider } = useWeb3React();
 
   return useQuery<AllPooledPairsResponse>(
-    ['all-pooled-pairs', Boolean(library), allPairs, account],
+    ['all-pooled-pairs', Boolean(provider), allPairs, account],
     async () =>
       Promise.all(
         allPairs!.map(async (pairAddress) => {
-          const pairContract = getUniswapV2PairContract(library, pairAddress)!;
+          const pairContract = getUniswapV2PairContract(provider, pairAddress)!;
           const [balance, tokenA, tokenB, [reserveA, reserveB]] =
             await Promise.all([
               pairContract.balanceOf(account!),
@@ -111,7 +111,7 @@ export function useAllPooledPairs() {
         })
       ),
     {
-      enabled: Boolean(library && account && allPairs),
+      enabled: Boolean(provider && account && allPairs),
     }
   );
 }
@@ -130,13 +130,14 @@ type PooledPairResponse = {
  * Get a pooled pair for a token pair.
  */
 export function usePoolPair(tokenA?: string, tokenB?: string) {
-  const { account, library } = useWeb3React();
+  const { account, provider } = useWeb3React();
   const { data: pairAddress } = usePairAddressForTokens(tokenA, tokenB);
+  console.log({ provider });
 
   return useQuery<PooledPairResponse>(
-    ['pooled-pair', Boolean(library), account, pairAddress],
+    ['pooled-pair', Boolean(provider), account, pairAddress],
     async () => {
-      const pairContract = getUniswapV2PairContract(library, pairAddress!)!;
+      const pairContract = getUniswapV2PairContract(provider, pairAddress!)!;
       const [balance, token0, [reserveA, reserveB], totalSupply] =
         await Promise.all([
           pairContract.balanceOf(account!),
@@ -162,7 +163,7 @@ export function usePoolPair(tokenA?: string, tokenB?: string) {
       };
     },
     {
-      enabled: Boolean(library && account && pairAddress),
+      enabled: Boolean(provider && account && pairAddress),
     }
   );
 }
