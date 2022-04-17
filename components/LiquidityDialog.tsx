@@ -280,6 +280,8 @@ export default function LiquidityDialog() {
                     fullWidth
                     size="large"
                     loadingPosition="start"
+                    // Just to shut the error.
+                    startIcon={<></>}
                     loading={isSubmitting}
                     disabled={isPairAddressLoading}
                   >

@@ -271,6 +271,8 @@ export default function Swapper() {
                 fullWidth
                 size="large"
                 loadingPosition="start"
+                // Just to shut the error.
+                startIcon={<></>}
                 loading={isSubmitting}
                 disabled={
                   isSwapAmountLoading ||
