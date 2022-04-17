@@ -1,14 +1,17 @@
 import { Container, Stack } from '@mui/material';
 import Bridger from 'components/Bridger';
+import BridgeWithdraw from 'components/BridgeWithdraw';
 import Navigation from 'components/Navigation';
 
-export default function Bridge() {
+export default function Deposit() {
   return (
     <>
       <Navigation />
       <Container>
         <Stack alignItems="center" mt={6}>
-          <Bridger />
+          <Bridger>
+            <BridgeWithdraw />
+          </Bridger>
         </Stack>
       </Container>
     </>
