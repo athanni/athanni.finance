@@ -240,6 +240,8 @@ export default function RemoveLiquidityDialog({
             size="large"
             fullWidth
             loadingPosition="start"
+            // Just to shut the error.
+            startIcon={<></>}
             loading={isSubmitting}
             disabled={isPoolPairLoading}
           >

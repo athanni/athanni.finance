@@ -23,11 +23,12 @@ export default function Navigation() {
         </Box>
 
         <Stack flex={1} alignItems="center">
-          <ButtonGroup variant="contained">
+          <ButtonGroup variant="contained" color="inherit">
             <Link href="/" passHref>
               <Button
                 component="a"
                 color={pathname === '/' ? 'secondary' : 'inherit'}
+                sx={{ width: 120 }}
               >
                 Swap
               </Button>
@@ -36,8 +37,18 @@ export default function Navigation() {
               <Button
                 component="a"
                 color={pathname === '/pool' ? 'secondary' : 'inherit'}
+                sx={{ width: 120 }}
               >
                 Pool
+              </Button>
+            </Link>
+            <Link href="/bridge" passHref>
+              <Button
+                component="a"
+                color={pathname === '/bridge' ? 'secondary' : 'inherit'}
+                sx={{ width: 120 }}
+              >
+                Bridge
               </Button>
             </Link>
           </ButtonGroup>
