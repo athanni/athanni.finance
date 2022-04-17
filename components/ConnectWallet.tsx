@@ -17,7 +17,7 @@ import {
   POLYGON_TESTNET_CHAIN_ID,
   THETA_TESTNET_CHAIN_ID,
 } from 'config/constants';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useBoolean } from 'react-use';
 import { metaMask } from 'utils/metamask';
 import { shorternAddress } from 'utils/string';
@@ -42,7 +42,14 @@ export default function ConnectWallet({ buttonProps }: ConnectWalletProps) {
   }, [toggleOpen]);
 
   // Check if really unsupported network selected.
-  const isUnsupported = chainId !== desiredChain;
+  const isUnsupported = isActive && chainId !== desiredChain;
+  useEffect(() => {
+    // Whenever the network switches from unsupported to supported, it loses connection.
+    // This also causes the metamask to connect on load, if already given permission.
+    if (!isUnsupported) {
+      metaMask.connectEagerly();
+    }
+  }, [isUnsupported]);
 
   const connectWallet = !account && !isUnsupported && 'Connect Wallet';
   const wrongNetwork = isUnsupported && 'Wrong Network';
