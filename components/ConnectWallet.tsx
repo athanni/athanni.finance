@@ -15,12 +15,11 @@ import config from 'config/config';
 import {
   Network,
   POLYGON_TESTNET_CHAIN_ID,
-  THETA_MAINNET_CHAIN_ID,
   THETA_TESTNET_CHAIN_ID,
 } from 'config/constants';
 import { useCallback } from 'react';
 import { useBoolean } from 'react-use';
-import { hooks, metaMask } from 'utils/metamask';
+import { metaMask } from 'utils/metamask';
 import { shorternAddress } from 'utils/string';
 import MetamaskIcon from './MetamaskIcon';
 
@@ -35,17 +34,19 @@ const desiredChain =
 
 export default function ConnectWallet({ buttonProps }: ConnectWalletProps) {
   const [open, toggleOpen] = useBoolean(false);
-  const { isActive, account, error } = useWeb3React();
+  const { isActive, account, chainId } = useWeb3React();
 
   const onConnectMetaMask = useCallback(async () => {
     await metaMask.activate(desiredChain);
     toggleOpen(false);
   }, [toggleOpen]);
 
-  // TODO: Check if really unsupported network selected.
-  const isUnsupported = Boolean(error);
-  // It is connected even if wallet not on valid chain id.
-  const isConnected = isActive || isUnsupported;
+  // Check if really unsupported network selected.
+  const isUnsupported = chainId !== desiredChain;
+
+  const connectWallet = !account && !isUnsupported && 'Connect Wallet';
+  const wrongNetwork = isUnsupported && 'Wrong Network';
+  const address = isActive && account && shorternAddress(account);
 
   return (
     <>
@@ -55,14 +56,12 @@ export default function ConnectWallet({ buttonProps }: ConnectWalletProps) {
         {...buttonProps}
         onClick={!isActive ? toggleOpen : undefined}
       >
-        {isActive && account && shorternAddress(account)}
-        {isUnsupported && 'Wrong Network'}
-        {!account && !isUnsupported && 'Connect Wallet'}
+        {connectWallet || wrongNetwork || address}
       </Button>
 
       {/* Show the dialog to connect wallet if its not connected. */}
       <Dialog
-        open={!isConnected && open}
+        open={!isActive && open}
         onClose={toggleOpen}
         fullWidth
         maxWidth="xs"
