@@ -1,9 +1,17 @@
-import { Network } from './constants';
+import {
+  Network,
+  POLYGON_TESTNET_CHAIN_ID,
+  THETA_TESTNET_CHAIN_ID,
+} from './constants';
 
 const NETWORK = process.env.NEXT_PUBLIC_NETWORK!;
 
 const config = {
   NETWORK,
+  CHAIN_ID:
+    NETWORK === Network.Theta
+      ? THETA_TESTNET_CHAIN_ID
+      : POLYGON_TESTNET_CHAIN_ID,
   EXPLORER_URL:
     NETWORK === Network.Theta
       ? 'https://testnet-explorer.thetatoken.org/'

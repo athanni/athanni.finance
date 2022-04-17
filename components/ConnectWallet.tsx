@@ -12,11 +12,6 @@ import {
 } from '@mui/material';
 import { useWeb3React } from '@web3-react/core';
 import config from 'config/config';
-import {
-  Network,
-  POLYGON_TESTNET_CHAIN_ID,
-  THETA_TESTNET_CHAIN_ID,
-} from 'config/constants';
 import { useCallback, useEffect } from 'react';
 import { useBoolean } from 'react-use';
 import { metaMask } from 'utils/metamask';
@@ -27,22 +22,17 @@ type ConnectWalletProps = {
   buttonProps?: ButtonProps;
 };
 
-const desiredChain =
-  config.NETWORK === Network.Theta
-    ? THETA_TESTNET_CHAIN_ID
-    : POLYGON_TESTNET_CHAIN_ID;
-
 export default function ConnectWallet({ buttonProps }: ConnectWalletProps) {
   const [open, toggleOpen] = useBoolean(false);
   const { isActive, account, chainId } = useWeb3React();
 
   const onConnectMetaMask = useCallback(async () => {
-    await metaMask.activate(desiredChain);
+    await metaMask.activate(config.CHAIN_ID);
     toggleOpen(false);
   }, [toggleOpen]);
 
   // Check if really unsupported network selected.
-  const isUnsupported = isActive && chainId !== desiredChain;
+  const isUnsupported = isActive && chainId !== config.CHAIN_ID;
   useEffect(() => {
     // Whenever the network switches from unsupported to supported, it loses connection.
     // This also causes the metamask to connect on load, if already given permission.

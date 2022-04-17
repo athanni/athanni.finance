@@ -2,7 +2,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { LoadingButton } from '@mui/lab';
 import { Button, IconButton, Paper, Stack, Typography } from '@mui/material';
 import { Box } from '@mui/system';
-import { useWeb3React } from '@web3-react/core';
 import {
   useBestSwapAmount,
   useSwapExactTokensForTokens,
@@ -20,7 +19,7 @@ import { MdSwapVert } from 'react-icons/md';
 import { convertAmountToBaseUnit } from 'utils/numeric';
 import { calculateSlippageMax, calculateSlippageMin } from 'utils/slippage';
 import { z } from 'zod';
-import ConnectWallet from './ConnectWallet';
+import ConnectWrapper from './ConnectWrapper';
 import SwapInfo from './SwapInfo';
 import SwapInput from './SwapInput';
 
@@ -41,8 +40,6 @@ const schema = z.object({
 type SchemaType = z.infer<typeof schema>;
 
 export default function Swapper() {
-  const { active } = useWeb3React();
-
   const form = useForm({
     defaultValues: {
       editedToken: '',
@@ -267,7 +264,7 @@ export default function Swapper() {
           {path && <SwapInfo path={path} swapDirection={swapDirection} />}
 
           <Box mt={3}>
-            {active ? (
+            <ConnectWrapper>
               <LoadingButton
                 type="submit"
                 variant="contained"
@@ -286,14 +283,7 @@ export default function Swapper() {
                   inputAmount ||
                   'Swap'}
               </LoadingButton>
-            ) : (
-              <ConnectWallet
-                buttonProps={{
-                  size: 'large',
-                  fullWidth: true,
-                }}
-              />
-            )}
+            </ConnectWrapper>
           </Box>
         </Stack>
       </FormProvider>
