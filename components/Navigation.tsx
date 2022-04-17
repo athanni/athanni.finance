@@ -6,6 +6,8 @@ import {
   Stack,
   Toolbar,
 } from '@mui/material';
+import { useWeb3React } from '@web3-react/core';
+import config from 'config/config';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import ConnectedChain from './ConnectedChain';
@@ -14,6 +16,7 @@ import Logo from './Logo';
 
 export default function Navigation() {
   const { pathname } = useRouter();
+  const { chainId } = useWeb3React();
 
   return (
     <AppBar color="transparent" position="sticky" elevation={0}>
@@ -29,6 +32,7 @@ export default function Navigation() {
                 component="a"
                 color={pathname === '/' ? 'secondary' : 'inherit'}
                 sx={{ width: 120 }}
+                // onClick={onSwitchTheta}
               >
                 Swap
               </Button>
@@ -38,14 +42,22 @@ export default function Navigation() {
                 component="a"
                 color={pathname === '/pool' ? 'secondary' : 'inherit'}
                 sx={{ width: 120 }}
+                // onClick={onSwitchTheta}
               >
                 Pool
               </Button>
             </Link>
-            <Link href="/bridge" passHref>
+            <Link
+              href={
+                chainId === config.CHAIN_ID
+                  ? '/bridge/withdraw'
+                  : '/bridge/deposit'
+              }
+              passHref
+            >
               <Button
                 component="a"
-                color={pathname === '/bridge' ? 'secondary' : 'inherit'}
+                color={pathname.startsWith('/bridge') ? 'secondary' : 'inherit'}
                 sx={{ width: 120 }}
               >
                 Bridge

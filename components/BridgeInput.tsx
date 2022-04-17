@@ -7,10 +7,13 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import { useFormContext } from 'react-hook-form';
 import { decimalRegex } from 'utils/numeric';
 
-export default function BridgeInput() {
+type BridgeInputProps = {
+  network: string;
+};
+
+export default function BridgeInput({ network }: BridgeInputProps) {
   const { typography } = useTheme();
 
   return (
@@ -61,7 +64,7 @@ export default function BridgeInput() {
       </Stack>
       <Stack direction="row" spacing={1} justifyContent="space-between">
         <Typography variant="body2" color="textSecondary">
-          Rinkeby
+          {network}
         </Typography>
         <Typography variant="body2" color="textSecondary">
           Balance: 5,000.3232

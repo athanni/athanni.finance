@@ -4,8 +4,8 @@ import BridgeInput from './BridgeInput';
 export default function BridgeDeposit() {
   return (
     <>
-      <BridgeInput />
-      <BridgeInput />
+      <BridgeInput network="Rinkeby" />
+      <BridgeInput network="Theta Testnet" />
       <Button variant="contained" size="large">
         Deposit
       </Button>

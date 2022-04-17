@@ -12,7 +12,10 @@ import {
 } from '@mui/material';
 import { useWeb3React } from '@web3-react/core';
 import config from 'config/config';
-import { useCallback, useEffect } from 'react';
+import { RINKEBY_CHAIN_ID } from 'config/constants';
+import { useRouter } from 'next/router';
+import { useCallback, useEffect, useMemo } from 'react';
+import { MdSwitchRight } from 'react-icons/md';
 import { useBoolean } from 'react-use';
 import { metaMask } from 'utils/metamask';
 import { shorternAddress } from 'utils/string';
@@ -23,16 +26,24 @@ type ConnectWalletProps = {
 };
 
 export default function ConnectWallet({ buttonProps }: ConnectWalletProps) {
+  const { pathname } = useRouter();
+  // The chain id to connect depends upon which page is open. If the bridge deposit
+  // page is open, then it must be connected to Rinkeby else Theta Testnet.
+  const correctChainId = useMemo(
+    () => (pathname === '/bridge/deposit' ? RINKEBY_CHAIN_ID : config.CHAIN_ID),
+    [pathname]
+  );
+
   const [open, toggleOpen] = useBoolean(false);
   const { isActive, account, chainId } = useWeb3React();
 
   const onConnectMetaMask = useCallback(async () => {
-    await metaMask.activate(config.CHAIN_ID);
+    await metaMask.activate(correctChainId);
     toggleOpen(false);
-  }, [toggleOpen]);
+  }, [correctChainId, toggleOpen]);
 
   // Check if really unsupported network selected.
-  const isUnsupported = isActive && chainId !== config.CHAIN_ID;
+  const isUnsupported = isActive && chainId !== correctChainId;
   useEffect(() => {
     // Whenever the network switches from unsupported to supported, it loses connection.
     // This also causes the metamask to connect on load, if already given permission.
@@ -42,16 +53,29 @@ export default function ConnectWallet({ buttonProps }: ConnectWalletProps) {
   }, [isUnsupported]);
 
   const connectWallet = !account && !isUnsupported && 'Connect Wallet';
-  const wrongNetwork = isUnsupported && 'Wrong Network';
+  const wrongNetwork =
+    isUnsupported &&
+    `Switch To ${
+      correctChainId === config.CHAIN_ID ? 'Theta Testnet' : 'Rinkeby'
+    }`;
   const address = isActive && account && shorternAddress(account);
+
+  const switchNetwork = useCallback(async () => {
+    await metaMask.activate(correctChainId);
+  }, [correctChainId]);
+
+  const onOpen = !isActive && toggleOpen;
+  const onSwitch = isUnsupported && switchNetwork;
+  const onClick = onOpen || onSwitch || undefined;
 
   return (
     <>
       <Button
         variant="contained"
-        color={isUnsupported ? 'error' : 'secondary'}
+        color={isUnsupported ? 'warning' : 'secondary'}
         {...buttonProps}
-        onClick={!isActive ? toggleOpen : undefined}
+        startIcon={isUnsupported ? <MdSwitchRight /> : null}
+        onClick={onClick}
       >
         {connectWallet || wrongNetwork || address}
       </Button>

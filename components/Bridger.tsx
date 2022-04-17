@@ -1,10 +1,14 @@
 import { Button, ButtonGroup, Paper, Stack } from '@mui/material';
-import { useState } from 'react';
-import BridgeDeposit from './BridgeDeposit';
-import BridgeWithdraw from './BridgeWithdraw';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { ReactNode } from 'react';
 
-export default function Bridger() {
-  const [index, setIndex] = useState(0);
+type BridgerProps = {
+  children?: ReactNode;
+};
+
+export default function Bridger({ children }: BridgerProps) {
+  const { pathname } = useRouter();
 
   return (
     <Paper
@@ -19,25 +23,30 @@ export default function Bridger() {
       <Stack spacing={2}>
         <Stack alignItems="center" mb={2}>
           <ButtonGroup variant="contained" color="inherit">
-            <Button
-              color={index === 0 ? 'secondary' : undefined}
-              sx={{ width: 120 }}
-              onClick={() => setIndex(0)}
-            >
-              Deposit
-            </Button>
-            <Button
-              color={index === 1 ? 'secondary' : undefined}
-              sx={{ width: 120 }}
-              onClick={() => setIndex(1)}
-            >
-              Withdraw
-            </Button>
+            <Link href="/bridge/deposit" passHref>
+              <Button
+                component="a"
+                color={pathname === '/bridge/deposit' ? 'secondary' : undefined}
+                sx={{ width: 120 }}
+              >
+                Deposit
+              </Button>
+            </Link>
+            <Link href="/bridge/withdraw" passHref>
+              <Button
+                component="a"
+                color={
+                  pathname === '/bridge/withdraw' ? 'secondary' : undefined
+                }
+                sx={{ width: 120 }}
+              >
+                Withdraw
+              </Button>
+            </Link>
           </ButtonGroup>
         </Stack>
 
-        {index === 0 && <BridgeDeposit />}
-        {index === 1 && <BridgeWithdraw />}
+        {children}
       </Stack>
     </Paper>
   );
