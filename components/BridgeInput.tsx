@@ -7,7 +7,6 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import { useFormContext } from 'react-hook-form';
 import { decimalRegex } from 'utils/numeric';
 
 export default function BridgeInput() {
