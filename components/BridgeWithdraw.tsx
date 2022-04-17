@@ -1,10 +1,11 @@
-import { Button, TextField } from '@mui/material';
+import { Button } from '@mui/material';
+import BridgeInput from './BridgeInput';
 
 export default function BridgeWithdraw() {
   return (
     <>
-      <TextField />
-      <TextField />
+      <BridgeInput />
+      <BridgeInput />
       <Button variant="contained" size="large">
         Withdraw
       </Button>
