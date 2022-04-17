@@ -1,6 +1,6 @@
 import { useWeb3React } from '@web3-react/core';
-import config from 'config/config';
 import { ReactNode } from 'react';
+import { useCorrectChainId } from 'utils/chain';
 import ConnectWallet from './ConnectWallet';
 
 type ConnectWrapperProps = {
@@ -9,7 +9,8 @@ type ConnectWrapperProps = {
 
 export default function ConnectWrapper({ children }: ConnectWrapperProps) {
   const { isActive, chainId } = useWeb3React();
-  const isCorrectChain = chainId === config.CHAIN_ID;
+  const correctChainId = useCorrectChainId();
+  const isCorrectChain = chainId === correctChainId;
 
   return (
     <>
