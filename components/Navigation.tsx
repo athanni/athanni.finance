@@ -6,10 +6,11 @@ import {
   Stack,
   Toolbar,
 } from '@mui/material';
+import { useWeb3React } from '@web3-react/core';
 import config from 'config/config';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useCallback, useEffect } from 'react';
+import { useEffect } from 'react';
 import { metaMask } from 'utils/metamask';
 import ConnectedChain from './ConnectedChain';
 import ConnectWallet from './ConnectWallet';
@@ -17,6 +18,7 @@ import Logo from './Logo';
 
 export default function Navigation() {
   const { pathname } = useRouter();
+  const { chainId } = useWeb3React();
 
   useEffect(() => {
     if (pathname === '/' || pathname === '/pool') {
@@ -57,10 +59,17 @@ export default function Navigation() {
                 Pool
               </Button>
             </Link>
-            <Link href="/bridge" passHref>
+            <Link
+              href={
+                chainId === config.CHAIN_ID
+                  ? '/bridge/withdraw'
+                  : '/bridge/deposit'
+              }
+              passHref
+            >
               <Button
                 component="a"
-                color={pathname === '/bridge' ? 'secondary' : 'inherit'}
+                color={pathname.startsWith('/bridge') ? 'secondary' : 'inherit'}
                 sx={{ width: 120 }}
               >
                 Bridge
