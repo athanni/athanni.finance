@@ -9,7 +9,7 @@ import {
 import config from 'config/config';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import { metaMask } from 'utils/metamask';
 import ConnectedChain from './ConnectedChain';
 import ConnectWallet from './ConnectWallet';
@@ -18,12 +18,15 @@ import Logo from './Logo';
 export default function Navigation() {
   const { pathname } = useRouter();
 
-  const onSwitchTheta = useCallback(async () => {
-    // Only switch to Theta if it is already connected. Connect eagerly throws
-    // if not already connected.
-    await metaMask.connectEagerly();
-    await metaMask.activate(config.CHAIN_ID);
-  }, []);
+  useEffect(() => {
+    if (pathname === '/' || pathname === '/pool') {
+      // Only switch to Theta if it is already connected. Connect eagerly throws
+      // if not already connected.
+      metaMask.connectEagerly().then(async () => {
+        await metaMask.activate(config.CHAIN_ID);
+      });
+    }
+  }, [pathname]);
 
   return (
     <AppBar color="transparent" position="sticky" elevation={0}>
@@ -39,7 +42,7 @@ export default function Navigation() {
                 component="a"
                 color={pathname === '/' ? 'secondary' : 'inherit'}
                 sx={{ width: 120 }}
-                onClick={onSwitchTheta}
+                // onClick={onSwitchTheta}
               >
                 Swap
               </Button>
@@ -49,7 +52,7 @@ export default function Navigation() {
                 component="a"
                 color={pathname === '/pool' ? 'secondary' : 'inherit'}
                 sx={{ width: 120 }}
-                onClick={onSwitchTheta}
+                // onClick={onSwitchTheta}
               >
                 Pool
               </Button>
