@@ -46,6 +46,14 @@ export default function ConnectWallet({ buttonProps }: ConnectWalletProps) {
   const wrongNetwork = isUnsupported && 'Switch Network';
   const address = isActive && account && shorternAddress(account);
 
+  const switchNetwork = useCallback(async () => {
+    await metaMask.activate(config.CHAIN_ID);
+  }, []);
+
+  const onOpen = !isActive && toggleOpen;
+  const onSwitch = isUnsupported && switchNetwork;
+  const onClick = onOpen || onSwitch || undefined;
+
   return (
     <>
       <Button
@@ -53,7 +61,7 @@ export default function ConnectWallet({ buttonProps }: ConnectWalletProps) {
         color={isUnsupported ? 'warning' : 'secondary'}
         {...buttonProps}
         startIcon={isUnsupported ? <MdSwitchRight /> : null}
-        onClick={!isActive ? toggleOpen : undefined}
+        onClick={onClick}
       >
         {connectWallet || wrongNetwork || address}
       </Button>
