@@ -53,7 +53,11 @@ export default function ConnectWallet({ buttonProps }: ConnectWalletProps) {
   }, [isUnsupported]);
 
   const connectWallet = !account && !isUnsupported && 'Connect Wallet';
-  const wrongNetwork = isUnsupported && 'Switch Network';
+  const wrongNetwork =
+    isUnsupported &&
+    `Switch To ${
+      correctChainId === config.CHAIN_ID ? 'Theta Testnet' : 'Rinkeby'
+    }`;
   const address = isActive && account && shorternAddress(account);
 
   const switchNetwork = useCallback(async () => {
