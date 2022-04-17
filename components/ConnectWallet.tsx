@@ -13,6 +13,7 @@ import {
 import { useWeb3React } from '@web3-react/core';
 import config from 'config/config';
 import { useCallback, useEffect } from 'react';
+import { MdSwitchRight } from 'react-icons/md';
 import { useBoolean } from 'react-use';
 import { metaMask } from 'utils/metamask';
 import { shorternAddress } from 'utils/string';
@@ -42,15 +43,16 @@ export default function ConnectWallet({ buttonProps }: ConnectWalletProps) {
   }, [isUnsupported]);
 
   const connectWallet = !account && !isUnsupported && 'Connect Wallet';
-  const wrongNetwork = isUnsupported && 'Wrong Network';
+  const wrongNetwork = isUnsupported && 'Switch Network';
   const address = isActive && account && shorternAddress(account);
 
   return (
     <>
       <Button
         variant="contained"
-        color={isUnsupported ? 'error' : 'secondary'}
+        color={isUnsupported ? 'warning' : 'secondary'}
         {...buttonProps}
+        startIcon={isUnsupported ? <MdSwitchRight /> : null}
         onClick={!isActive ? toggleOpen : undefined}
       >
         {connectWallet || wrongNetwork || address}
