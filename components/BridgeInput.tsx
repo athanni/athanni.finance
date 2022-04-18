@@ -21,8 +21,8 @@ export default function BridgeInput({ network, options }: BridgeInputProps) {
   const { typography } = useTheme();
   const { control } = useFormContext();
 
-  const token = useWatch({ control, name: 'token' });
-  const tokenAddress = token !== '0x' ? token : undefined;
+  const address = useWatch({ control, name: 'address' });
+  const tokenAddress = address !== '0x' ? address : undefined;
   const { data: balance } = useTokenBalance(tokenAddress);
 
   return (
