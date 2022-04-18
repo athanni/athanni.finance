@@ -1,5 +1,5 @@
-import rinkebyTokens from './rinkebyTokens.json';
-import thetaTestnetTokens from './thetaTestnetTokens.json';
+import ethereumTokens from './rinkebyTokens.json';
+import thetaTokens from './thetaTestnetTokens.json';
 
 /**
  * A token metadata type.
@@ -39,14 +39,20 @@ export enum Network {
   Rinkeby = 'rinkeby',
 }
 
+export const thetaTestnetTokens = thetaTokens.map((it) => ({
+  ...it,
+  network: Network.ThetaTestnet,
+}));
+export const rinkebyTokens = ethereumTokens.map((it) => ({
+  ...it,
+  network: Network.Rinkeby,
+}));
+
 /**
  * The tokens that are first party within the app.
  * Note: Do not expect that the tokens in two separate network will have same address.
  */
-const supportedTokens: Token[] = [
-  ...thetaTestnetTokens.map((it) => ({ ...it, network: Network.ThetaTestnet })),
-  ...rinkebyTokens.map((it) => ({ ...it, network: Network.Rinkeby })),
-];
+const supportedTokens: Token[] = [...thetaTestnetTokens, ...rinkebyTokens];
 
 /**
  * A map of all the supported tokens.
