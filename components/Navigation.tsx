@@ -7,7 +7,7 @@ import {
   Toolbar,
 } from '@mui/material';
 import { useWeb3React } from '@web3-react/core';
-import config from 'config/config';
+import { THETA_TESTNET_CHAIN_ID } from 'config/constants';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import ConnectedChain from './ConnectedChain';
@@ -49,7 +49,7 @@ export default function Navigation() {
             </Link>
             <Link
               href={
-                chainId === config.CHAIN_ID
+                chainId === THETA_TESTNET_CHAIN_ID
                   ? '/bridge/withdraw'
                   : '/bridge/deposit'
               }

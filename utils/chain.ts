@@ -1,5 +1,4 @@
-import config from 'config/config';
-import { RINKEBY_CHAIN_ID } from 'config/constants';
+import { RINKEBY_CHAIN_ID, THETA_TESTNET_CHAIN_ID } from 'config/constants';
 import { useRouter } from 'next/router';
 import { useMemo } from 'react';
 
@@ -11,7 +10,10 @@ export function useCorrectChainId() {
   // The chain id to connect depends upon which page is open. If the bridge deposit
   // page is open, then it must be connected to Rinkeby else Theta Testnet.
   return useMemo(
-    () => (pathname === '/bridge/deposit' ? RINKEBY_CHAIN_ID : config.CHAIN_ID),
+    () =>
+      pathname === '/bridge/deposit'
+        ? RINKEBY_CHAIN_ID
+        : THETA_TESTNET_CHAIN_ID,
     [pathname]
   );
 }

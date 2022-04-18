@@ -11,7 +11,7 @@ import {
   Typography,
 } from '@mui/material';
 import { useWeb3React } from '@web3-react/core';
-import config from 'config/config';
+import { THETA_TESTNET_CHAIN_ID } from 'config/constants';
 import { useCallback, useEffect } from 'react';
 import { MdSwitchRight } from 'react-icons/md';
 import { useBoolean } from 'react-use';
@@ -49,7 +49,7 @@ export default function ConnectWallet({ buttonProps }: ConnectWalletProps) {
   const wrongNetwork =
     isUnsupported &&
     `Switch To ${
-      correctChainId === config.CHAIN_ID ? 'Theta Testnet' : 'Rinkeby'
+      correctChainId === THETA_TESTNET_CHAIN_ID ? 'Theta Testnet' : 'Rinkeby'
     }`;
   const address = isActive && account && shorternAddress(account);
 

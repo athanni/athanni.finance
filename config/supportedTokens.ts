@@ -1,6 +1,3 @@
-import config from './config';
-import { Network } from './constants';
-import polygonTokens from './polygonTokens.json';
 import thetaTokens from './thetaTokens.json';
 
 /**
@@ -32,8 +29,7 @@ export type Token = {
 /**
  * The tokens that are first party within the app.
  */
-const supportedTokens: Token[] =
-  config.NETWORK === Network.Theta ? thetaTokens : polygonTokens;
+const supportedTokens: Token[] = thetaTokens;
 
 /**
  * A map of all the supported tokens.
