@@ -167,10 +167,14 @@ export function getUniswapV2PairContract(
   ) as UniswapV2PairContract;
 }
 
+type RootPortalContract = ethers.Contract & {
+  send(token: string, to: string, amount: string): Promise<ContractTransaction>;
+};
+
 /**
  * Gets the RootPortal contract API using ethers.
  */
-export function useRootPortalContract(): ethers.Contract | null {
+export function useRootPortalContract(): RootPortalContract | null {
   const { provider } = useWeb3React();
 
   return useMemo(() => {
@@ -183,14 +187,22 @@ export function useRootPortalContract(): ethers.Contract | null {
       config.ROOT_PORTAL_ADDRESS,
       rootPortalAbi,
       signer
-    );
+    ) as RootPortalContract;
   }, [provider]);
 }
+
+type ChildPortalContract = ethers.Contract & {
+  withdraw(
+    token: string,
+    to: string,
+    amount: string
+  ): Promise<ContractTransaction>;
+};
 
 /**
  * Gets the ChildPortal contract API using ethers.
  */
-export function useChildPortalContract(): ethers.Contract | null {
+export function useChildPortalContract(): ChildPortalContract | null {
   const { provider } = useWeb3React();
 
   return useMemo(() => {
@@ -203,6 +215,6 @@ export function useChildPortalContract(): ethers.Contract | null {
       config.CHILD_PORTAL_ADDRESS,
       childPortalAbi,
       signer
-    );
+    ) as ChildPortalContract;
   }, [provider]);
 }
