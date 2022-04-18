@@ -7,19 +7,25 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import { Token } from 'config/supportedTokens';
+import rinkebyTokens from 'config/rinkebyTokens.json';
+import { useMemo } from 'react';
+import { useFormContext, useWatch } from 'react-hook-form';
 import { decimalRegex } from 'utils/numeric';
 
 type BridgeInputProps = {
   network: string;
-  value?: Token;
 };
 
-export default function BridgeInputReadonly({
-  network,
-  value,
-}: BridgeInputProps) {
+export default function BridgeInputReadonly({ network }: BridgeInputProps) {
   const { typography } = useTheme();
+  const { control } = useFormContext();
+  const address = useWatch({ control, name: 'address' });
+  const amount = useWatch({ control, name: 'amount' });
+
+  const token = useMemo(
+    () => rinkebyTokens.find((it) => it.address === address),
+    [address]
+  );
 
   return (
     <Box
@@ -40,6 +46,8 @@ export default function BridgeInputReadonly({
           placeholder="0.0"
           disableUnderline
           fullWidth
+          disabled
+          value={amount}
           sx={{
             fontSize: typography.h5.fontSize,
             fontWeight: 'medium',
@@ -53,7 +61,7 @@ export default function BridgeInputReadonly({
           variant="standard"
           size="small"
           disableUnderline
-          value={value?.address ?? '0x'}
+          value={address}
           disabled
           sx={{
             '& .MuiSelect-select': {
@@ -67,21 +75,16 @@ export default function BridgeInputReadonly({
           <MenuItem value="0x">
             <Typography color="textSecondary">-</Typography>
           </MenuItem>
-          {value && (
-            <MenuItem value={value.address}>
-              <Typography color="textSecondary">{value.ticker}</Typography>
+          {token && (
+            <MenuItem value={token.address}>
+              <Typography color="textSecondary">{token.ticker}</Typography>
             </MenuItem>
           )}
         </Select>
       </Stack>
-      <Stack direction="row" spacing={1} justifyContent="space-between">
-        <Typography variant="body2" color="textSecondary">
-          {network}
-        </Typography>
-        <Typography variant="body2" color="textSecondary">
-          Balance: 5,000.3232
-        </Typography>
-      </Stack>
+      <Typography variant="body2" color="textSecondary">
+        {network}
+      </Typography>
     </Box>
   );
 }
