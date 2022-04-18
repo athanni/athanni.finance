@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { LoadingButton } from '@mui/lab';
 import {
   Button,
   Container,
@@ -32,7 +33,7 @@ export default function Faucet() {
     register,
     control,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
     reset,
   } = useForm({
     defaultValues: {
@@ -118,9 +119,14 @@ export default function Faucet() {
                 error={Boolean(errors.address)}
               />
 
-              <Button type="submit" variant="contained" size="large">
+              <LoadingButton
+                type="submit"
+                variant="contained"
+                size="large"
+                loading={isSubmitting}
+              >
                 Send Me {tok?.ticker && `100 ${tok.ticker}`}
-              </Button>
+              </LoadingButton>
             </Stack>
           </Paper>
         </Stack>

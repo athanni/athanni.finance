@@ -42,7 +42,6 @@ export default async function handler(
   }
 
   const { address, token } = req.body ?? {};
-  console.log({ address, token });
   if (
     typeof address !== 'string' ||
     typeof token !== 'string' ||
