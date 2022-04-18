@@ -2,6 +2,7 @@ import childPortalAbi from 'abi/ChildPortal.json';
 import rootPortalAbi from 'abi/RootPortal.json';
 import config from 'config/config';
 import { RINKEBY_CHAIN_RPC_URL, THETA_TESTNET_RPC_URL } from 'config/constants';
+import { bridgeMap } from 'config/supportedTokens';
 import { ethers } from 'ethers';
 import { NextApiRequest, NextApiResponse } from 'next';
 
@@ -77,10 +78,19 @@ export default async function handler(
       });
     }
 
+    // Get the address of the token in the other network.
+    const bridgeTokenAddress = bridgeMap[tokenAddress];
+    if (!bridgeTokenAddress) {
+      return res.status(400).json({
+        status: 400,
+        message: 'Bad Request',
+      });
+    }
+
     // Request the child portal to mint the same amount of tokens and send it to the
     // recipient address.
     const tx = await childPortal.send(
-      tokenAddress,
+      bridgeTokenAddress,
       bridgeRequestId,
       transferredBy,
       transferredTo,

@@ -62,4 +62,14 @@ export const tokenMap = supportedTokens.reduce((acc, cur) => {
   return acc;
 }, {} as { [key: string]: Token });
 
+/**
+ * A translation of tokens from one network to the other.
+ */
+export const bridgeMap = supportedTokens.reduce((acc, cur) => {
+  acc[cur.address] = supportedTokens.find(
+    (it) => it.ticker === cur.ticker && it.address !== cur.address
+  )!.address;
+  return acc;
+}, {} as { [key: string]: string });
+
 export default supportedTokens;
