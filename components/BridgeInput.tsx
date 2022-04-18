@@ -7,13 +7,15 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
+import { Token } from 'config/supportedTokens';
 import { decimalRegex } from 'utils/numeric';
 
 type BridgeInputProps = {
   network: string;
+  options: Token[];
 };
 
-export default function BridgeInput({ network }: BridgeInputProps) {
+export default function BridgeInput({ network, options }: BridgeInputProps) {
   const { typography } = useTheme();
 
   return (
@@ -60,6 +62,11 @@ export default function BridgeInput({ network }: BridgeInputProps) {
           <MenuItem value="0x">
             <Typography color="textSecondary">-</Typography>
           </MenuItem>
+          {options.map((opt) => (
+            <MenuItem key={opt.address} value={opt.address}>
+              {opt.ticker}
+            </MenuItem>
+          ))}
         </Select>
       </Stack>
       <Stack direction="row" spacing={1} justifyContent="space-between">
