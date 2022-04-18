@@ -8,8 +8,9 @@ import {
   useTheme,
 } from '@mui/material';
 import { Token } from 'config/supportedTokens';
-import { Controller, useFormContext } from 'react-hook-form';
+import { Controller, useFormContext, useWatch } from 'react-hook-form';
 import { decimalRegex, handleAllowedInput } from 'utils/numeric';
+import { useTokenBalance } from 'api/token';
 
 type BridgeInputProps = {
   network: string;
@@ -19,6 +20,10 @@ type BridgeInputProps = {
 export default function BridgeInput({ network, options }: BridgeInputProps) {
   const { typography } = useTheme();
   const { control } = useFormContext();
+
+  const token = useWatch({ control, name: 'token' });
+  const tokenAddress = token !== '0x' ? token : undefined;
+  const { data: balance } = useTokenBalance(tokenAddress);
 
   return (
     <Box
@@ -93,9 +98,11 @@ export default function BridgeInput({ network, options }: BridgeInputProps) {
         <Typography variant="body2" color="textSecondary">
           {network}
         </Typography>
-        <Typography variant="body2" color="textSecondary">
-          Balance: 5,000.3232
-        </Typography>
+        {balance && (
+          <Typography variant="body2" color="textSecondary">
+            Balance: {balance.toString()}
+          </Typography>
+        )}
       </Stack>
     </Box>
   );
