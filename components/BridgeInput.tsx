@@ -7,10 +7,10 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
+import { useTokenBalance } from 'api/token';
 import { Token } from 'config/supportedTokens';
 import { Controller, useFormContext, useWatch } from 'react-hook-form';
 import { decimalRegex, handleAllowedInput } from 'utils/numeric';
-import { useTokenBalance } from 'api/token';
 
 type BridgeInputProps = {
   network: string;
@@ -56,6 +56,7 @@ export default function BridgeInput({ network, options }: BridgeInputProps) {
                 pattern: decimalRegex,
               }}
               {...field}
+              disabled={!tokenAddress}
               onChange={(e) => {
                 handleAllowedInput(e, field.onChange, field.value);
               }}
