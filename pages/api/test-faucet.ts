@@ -1,6 +1,10 @@
+import atnt20Abi from 'abi/ATNT20.json';
+import { RINKEBY_CHAIN_RPC_URL } from 'config/constants';
+import { ethers } from 'ethers';
 import { NextApiRequest, NextApiResponse } from 'next';
 
-// These are the various ERC20 tokens.
+// These are the various ERC20 tokens that the faucet supports. These
+// are dummy tokens counterparts of USDT, WBTC, etc on Rinkeby.
 const supportedTokens = [
   '0x55B8778FdC6eB51E7A7B665E06E122551C434B62',
   '0x85998eb0214dc2364925c39F58Aef84e8E5FEDB8',
@@ -15,6 +19,10 @@ const supportedTokens = [
   '0x38B7bFcDb35Df80dC98Cd04c256B96cB262EA533',
 ];
 
+// The private key that is the owner of the faucet. This environment is only
+// accessible in the backend.
+const PRIVATE_KEY = process.env.PRIVATE_KEY;
+
 /**
  * Sends tokens on Rinkeby for a given token to the receiving address.
  */
@@ -22,6 +30,12 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
+  if (!PRIVATE_KEY) {
+    return res
+      .status(500)
+      .json({ status: 500, message: 'Internal Server Error' });
+  }
+
   if (req.method !== 'POST') {
     return res.status(404).json({ status: 404, message: 'Not Found' });
   }
@@ -30,14 +44,25 @@ export default async function handler(
   if (
     typeof address !== 'string' ||
     typeof token !== 'string' ||
-    !supportedTokens.includes(token)
+    !supportedTokens.includes(token) ||
+    !ethers.utils.isAddress(address)
   ) {
     return res.status(400).json({ status: 400, message: 'Bad Request' });
   }
 
-  // TODO: Mint token and send it to the given address.
+  const provider = new ethers.providers.JsonRpcProvider(RINKEBY_CHAIN_RPC_URL);
+  const signer = new ethers.Wallet(PRIVATE_KEY, provider);
+  const contract = new ethers.Contract(token, atnt20Abi, signer);
+
+  // Send 100 [TOKEN] where token is the major unit of the token.
+  const minted = await contract.mint(
+    address,
+    ethers.BigNumber.from(10).pow(20)
+  );
+
   return res.status(200).json({
     status: 200,
-    message: 'Ok',
+    message: 'OK',
+    hash: minted.hash,
   });
 }
