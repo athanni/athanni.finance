@@ -4,8 +4,9 @@ import { ethers } from 'ethers';
 import { NextApiRequest, NextApiResponse } from 'next';
 
 // These are the various ERC20 tokens that the faucet supports. These
-// are dummy tokens counterparts of USDT, WBTC, etc on Rinkeby.
+// are dummy tokens counterparts of WETH, USDT, WBTC, etc on Rinkeby.
 const supportedTokens = [
+  '0x51bc0f636b805bd5521495c1e03db62703ecc8f',
   '0x55B8778FdC6eB51E7A7B665E06E122551C434B62',
   '0x85998eb0214dc2364925c39F58Aef84e8E5FEDB8',
   '0xeA5DA40745dBE248f09a243Bc8a7d7A7eBfb7119',
@@ -40,7 +41,8 @@ export default async function handler(
     return res.status(404).json({ status: 404, message: 'Not Found' });
   }
 
-  const { address, token } = req.query;
+  const { address, token } = req.body ?? {};
+  console.log({ address, token });
   if (
     typeof address !== 'string' ||
     typeof token !== 'string' ||
