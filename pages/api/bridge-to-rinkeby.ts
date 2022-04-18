@@ -11,7 +11,7 @@ const CHILD_PORTAL_ADDRESS = process.env.CHILD_PORTAL_ADDRESS;
 const ROOT_PORTAL_ADDRESS = process.env.ROOT_PORTAL_ADDRESS;
 
 /**
- * Sends tokens on Rinkeby for a given token to the receiving address.
+ * Sends tokens from Theta tesnet to Rinkeby for a given token to the receiving address.
  */
 export default async function handler(
   req: NextApiRequest,
@@ -58,13 +58,13 @@ export default async function handler(
   try {
     const [tokenAddress, transferredBy, transferredTo, transferredAmount] =
       await Promise.all([
-        rootPortal.tokenAddress(bridgeRequestId),
-        rootPortal.transferredBy(bridgeRequestId),
-        rootPortal.transferredTo(bridgeRequestId),
-        rootPortal.transferredAmount(bridgeRequestId),
+        childPortal.tokenAddress(bridgeRequestId),
+        childPortal.transferredBy(bridgeRequestId),
+        childPortal.transferredTo(bridgeRequestId),
+        childPortal.transferredAmount(bridgeRequestId),
       ]);
 
-    // If there is no such bridge request id and its associated data on Rinkeby, then
+    // If there is no such bridge request id and its associated data on Theta Testnet, then
     // the bridge request is invalid.
     if (
       !ethers.utils.isAddress(tokenAddress) ||
@@ -78,9 +78,9 @@ export default async function handler(
       });
     }
 
-    // Request the child portal to mint the same amount of tokens and send it to the
+    // Request the root portal to withdraw the same amount of tokens and send it to the
     // recipient address.
-    const tx = await childPortal.send(
+    const tx = await rootPortal.withdraw(
       tokenAddress,
       bridgeRequestId,
       transferredBy,
