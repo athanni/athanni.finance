@@ -131,7 +131,11 @@ export function useApprovalOfTransfer() {
   const { provider, account } = useWeb3React();
 
   return useCallback(
-    async (token: string, amount: ethers.BigNumber) => {
+    async (
+      token: string,
+      amount: ethers.BigNumber,
+      spender: string = config.ROUTER_CONTRACT_ADDRESS
+    ) => {
       if (!provider || !account) {
         return;
       }
@@ -141,20 +145,14 @@ export function useApprovalOfTransfer() {
         return;
       }
 
-      const allowance = await contract.allowance(
-        account,
-        config.ROUTER_CONTRACT_ADDRESS
-      );
+      const allowance = await contract.allowance(account, spender);
 
       if (allowance.gte(amount)) {
         // No need of approval.
         return;
       }
 
-      return await contract.approve(
-        config.ROUTER_CONTRACT_ADDRESS,
-        amount.toString()
-      );
+      return await contract.approve(spender, amount.toString());
     },
     [account, provider]
   );

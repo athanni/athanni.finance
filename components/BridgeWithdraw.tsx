@@ -1,11 +1,14 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { LoadingButton } from '@mui/lab';
 import { Stack } from '@mui/material';
+import { useApprovalOfTransfer } from 'api/token';
 import BigNumber from 'bignumber.js';
+import config from 'config/config';
 import { thetaTestnetTokens } from 'config/supportedTokens';
 import { ethers } from 'ethers';
 import { useCallback } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
+import { convertAmountToBaseUnit } from 'utils/numeric';
 import { z } from 'zod';
 import BridgeInput from './BridgeInput';
 import BridgeInputReadonly from './BridgeInputReadonly';
@@ -36,10 +39,25 @@ export default function BridgeWithdraw() {
     formState: { isSubmitting },
   } = form;
 
-  const onSubmit = useCallback((state: any) => {
-    const { address, amount } = state as SchemaType;
-    console.log({ address, amount });
-  }, []);
+  const approvalOfTransfer = useApprovalOfTransfer();
+  const onSubmit = useCallback(
+    async (state: any) => {
+      const { address, amount } = state as SchemaType;
+      const baseAmount = convertAmountToBaseUnit(amount.toFixed(), address);
+
+      const approvalTx = await approvalOfTransfer(
+        address,
+        ethers.BigNumber.from(baseAmount),
+        config.CHILD_PORTAL_ADDRESS
+      );
+      await approvalTx?.wait();
+
+      if (!approvalTx) {
+        return;
+      }
+    },
+    [approvalOfTransfer]
+  );
 
   return (
     <FormProvider {...form}>
