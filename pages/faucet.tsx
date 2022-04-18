@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { LoadingButton } from '@mui/lab';
 import {
+  Box,
   Button,
   Container,
   MenuItem,
@@ -9,6 +10,7 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import { useWeb3React } from '@web3-react/core';
 import { useSendTokens } from 'api/faucet';
 import Navigation from 'components/Navigation';
 import rinkebyTokens from 'config/rinkebyTokens.json';
@@ -71,6 +73,26 @@ export default function Faucet() {
     [enqueueSnackbar, reset, sendTokens, tok]
   );
 
+  const { connector } = useWeb3React();
+  // Shows the token in the Metamask list.
+  const onAddToken = useCallback(async () => {
+    if (!connector) {
+      return;
+    }
+
+    await (connector.provider as any).request({
+      method: 'wallet_watchAsset',
+      params: {
+        type: 'ERC20',
+        options: {
+          address: tok!.address,
+          symbol: tok!.ticker,
+          decimals: tok!.decimals,
+        },
+      },
+    });
+  }, [connector, tok]);
+
   return (
     <>
       <Navigation />
@@ -90,26 +112,40 @@ export default function Faucet() {
             <Typography fontWeight="medium">Rinkeby Faucet</Typography>
 
             <Stack mt={4} spacing={2}>
-              <Controller
-                name="token"
-                control={control}
-                render={({ field }) => (
-                  <TextField
-                    label="Token"
-                    fullWidth
-                    select
-                    {...field}
-                    helperText={errors.token?.message}
-                    error={Boolean(errors.token)}
-                  >
-                    {rinkebyTokens.map((tok) => (
-                      <MenuItem key={tok.address} value={tok.address}>
-                        {tok.name}
-                      </MenuItem>
-                    ))}
-                  </TextField>
+              <Box>
+                <Controller
+                  name="token"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      label="Token"
+                      fullWidth
+                      select
+                      {...field}
+                      helperText={errors.token?.message}
+                      error={Boolean(errors.token)}
+                    >
+                      {rinkebyTokens.map((tok) => (
+                        <MenuItem key={tok.address} value={tok.address}>
+                          {tok.name}
+                        </MenuItem>
+                      ))}
+                    </TextField>
+                  )}
+                />
+                {tok && (
+                  <Stack alignItems="flex-end">
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      sx={{ mt: 0.5 }}
+                      onClick={onAddToken}
+                    >
+                      Add Token
+                    </Button>
+                  </Stack>
                 )}
-              />
+              </Box>
 
               <TextField
                 label="Your Address"
