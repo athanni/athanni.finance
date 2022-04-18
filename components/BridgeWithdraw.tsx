@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, Stack } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
+import { Stack } from '@mui/material';
 import BigNumber from 'bignumber.js';
 import { thetaTestnetTokens } from 'config/supportedTokens';
 import { ethers } from 'ethers';
@@ -30,7 +31,10 @@ export default function BridgeWithdraw() {
     },
     resolver: zodResolver(schema),
   });
-  const { handleSubmit } = form;
+  const {
+    handleSubmit,
+    formState: { isSubmitting },
+  } = form;
 
   const onSubmit = useCallback((state: any) => {
     const { address, amount } = state as SchemaType;
@@ -43,9 +47,17 @@ export default function BridgeWithdraw() {
         <BridgeInput network="Theta Testnet" options={thetaTestnetTokens} />
         <BridgeInputReadonly network="Rinkeby" />
         <ConnectWrapper>
-          <Button variant="contained" size="large">
-            Withdraw
-          </Button>
+          <LoadingButton
+            type="submit"
+            variant="contained"
+            size="large"
+            loading={isSubmitting}
+            loadingPosition="start"
+            // Just to shut the error.
+            startIcon={<></>}
+          >
+            Deposit
+          </LoadingButton>
         </ConnectWrapper>
       </Stack>
     </FormProvider>

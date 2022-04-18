@@ -1,4 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
+import { LoadingButton } from '@mui/lab';
 import { Button, Stack } from '@mui/material';
 import BigNumber from 'bignumber.js';
 import { rinkebyTokens } from 'config/supportedTokens';
@@ -30,7 +31,10 @@ export default function BridgeDeposit() {
     },
     resolver: zodResolver(schema),
   });
-  const { handleSubmit } = form;
+  const {
+    handleSubmit,
+    formState: { isSubmitting },
+  } = form;
 
   const onSubmit = useCallback((state: any) => {
     const { address, amount } = state as SchemaType;
@@ -43,9 +47,17 @@ export default function BridgeDeposit() {
         <BridgeInput network="Rinkeby" options={rinkebyTokens} />
         <BridgeInputReadonly network="Theta Testnet" />
         <ConnectWrapper>
-          <Button type="submit" variant="contained" size="large">
+          <LoadingButton
+            type="submit"
+            variant="contained"
+            size="large"
+            loading={isSubmitting}
+            loadingPosition="start"
+            // Just to shut the error.
+            startIcon={<></>}
+          >
             Deposit
-          </Button>
+          </LoadingButton>
         </ConnectWrapper>
       </Stack>
     </FormProvider>
