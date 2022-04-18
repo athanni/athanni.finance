@@ -1,5 +1,5 @@
 import { Button, Stack } from '@mui/material';
-import rinkebyTokens from 'config/rinkebyTokens.json';
+import { thetaTestnetTokens } from 'config/supportedTokens';
 import { FormProvider, useForm } from 'react-hook-form';
 import BridgeInput from './BridgeInput';
 import BridgeInputReadonly from './BridgeInputReadonly';
@@ -16,7 +16,7 @@ export default function BridgeWithdraw() {
   return (
     <FormProvider {...form}>
       <Stack component="form" spacing={2}>
-        <BridgeInput network="Theta Testnet" options={rinkebyTokens} />
+        <BridgeInput network="Theta Testnet" options={thetaTestnetTokens} />
         <BridgeInputReadonly network="Rinkeby" />
         <ConnectWrapper>
           <Button variant="contained" size="large">

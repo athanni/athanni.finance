@@ -1,5 +1,5 @@
 import { Button, Stack } from '@mui/material';
-import rinkebyTokens from 'config/rinkebyTokens.json';
+import { rinkebyTokens } from 'config/supportedTokens';
 import { FormProvider, useForm } from 'react-hook-form';
 import BridgeInput from './BridgeInput';
 import BridgeInputReadonly from './BridgeInputReadonly';
