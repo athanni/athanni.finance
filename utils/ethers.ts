@@ -1,5 +1,7 @@
 import { useWeb3React } from '@web3-react/core';
+import childPortalAbi from 'abi/ChildPortal.json';
 import erc20Abi from 'abi/ERC20.json';
+import rootPortalAbi from 'abi/RootPortal.json';
 import factoryAbi from 'abi/UniswapV2Factory.json';
 import uniswapV2PairAbi from 'abi/UniswapV2Pair.json';
 import routerAbi from 'abi/UniswapV2Router02.json';
@@ -163,4 +165,44 @@ export function getUniswapV2PairContract(
     uniswapV2PairAbi,
     signer
   ) as UniswapV2PairContract;
+}
+
+/**
+ * Gets the RootPortal contract API using ethers.
+ */
+export function useRootPortalContract(): ethers.Contract | null {
+  const { provider } = useWeb3React();
+
+  return useMemo(() => {
+    if (!provider) {
+      return null;
+    }
+
+    const signer = (provider as any).getSigner();
+    return new ethers.Contract(
+      config.ROOT_PORTAL_ADDRESS,
+      rootPortalAbi,
+      signer
+    );
+  }, [provider]);
+}
+
+/**
+ * Gets the ChildPortal contract API using ethers.
+ */
+export function useChildPortalContract(): ethers.Contract | null {
+  const { provider } = useWeb3React();
+
+  return useMemo(() => {
+    if (!provider) {
+      return null;
+    }
+
+    const signer = (provider as any).getSigner();
+    return new ethers.Contract(
+      config.CHILD_PORTAL_ADDRESS,
+      childPortalAbi,
+      signer
+    );
+  }, [provider]);
 }
