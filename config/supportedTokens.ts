@@ -1,4 +1,5 @@
-import thetaTokens from './thetaTokens.json';
+import rinkebyTokens from './rinkebyTokens.json';
+import thetaTestnetTokens from './thetaTestnetTokens.json';
 
 /**
  * A token metadata type.
@@ -24,12 +25,28 @@ export type Token = {
    * The logo of the token.
    */
   logoUrl: string;
+  /**
+   * The network of the token.
+   */
+  network: Network;
 };
 
 /**
- * The tokens that are first party within the app.
+ * The network of the token.
  */
-const supportedTokens: Token[] = thetaTokens;
+export enum Network {
+  ThetaTestnet = 'thetaTestnet',
+  Rinkeby = 'rinkeby',
+}
+
+/**
+ * The tokens that are first party within the app.
+ * Note: Do not expect that the tokens in two separate network will have same address.
+ */
+const supportedTokens: Token[] = [
+  ...thetaTestnetTokens.map((it) => ({ ...it, network: Network.ThetaTestnet })),
+  ...rinkebyTokens.map((it) => ({ ...it, network: Network.Rinkeby })),
+];
 
 /**
  * A map of all the supported tokens.
