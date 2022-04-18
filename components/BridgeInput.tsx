@@ -9,8 +9,7 @@ import {
 } from '@mui/material';
 import { Token } from 'config/supportedTokens';
 import { Controller, useFormContext } from 'react-hook-form';
-import { materialRegister } from 'utils/materialForm';
-import { decimalRegex } from 'utils/numeric';
+import { decimalRegex, handleAllowedInput } from 'utils/numeric';
 
 type BridgeInputProps = {
   network: string;
@@ -52,6 +51,9 @@ export default function BridgeInput({ network, options }: BridgeInputProps) {
                 pattern: decimalRegex,
               }}
               {...field}
+              onChange={(e) => {
+                handleAllowedInput(e, field.onChange, field.value);
+              }}
             />
           )}
         />
