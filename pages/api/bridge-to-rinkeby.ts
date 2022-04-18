@@ -1,5 +1,6 @@
 import childPortalAbi from 'abi/ChildPortal.json';
 import rootPortalAbi from 'abi/RootPortal.json';
+import config from 'config/config';
 import { RINKEBY_CHAIN_RPC_URL, THETA_TESTNET_RPC_URL } from 'config/constants';
 import { ethers } from 'ethers';
 import { NextApiRequest, NextApiResponse } from 'next';
@@ -7,8 +8,6 @@ import { NextApiRequest, NextApiResponse } from 'next';
 // The private key that is the owner of the bridge. This environment is only
 // accessible in the backend.
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
-const CHILD_PORTAL_ADDRESS = process.env.CHILD_PORTAL_ADDRESS;
-const ROOT_PORTAL_ADDRESS = process.env.ROOT_PORTAL_ADDRESS;
 
 /**
  * Sends tokens from Theta tesnet to Rinkeby for a given token to the receiving address.
@@ -17,7 +16,7 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  if (!PRIVATE_KEY || !CHILD_PORTAL_ADDRESS || !ROOT_PORTAL_ADDRESS) {
+  if (!PRIVATE_KEY) {
     return res
       .status(500)
       .json({ status: 500, message: 'Internal Server Error' });
@@ -45,12 +44,12 @@ export default async function handler(
   );
 
   const rootPortal = new ethers.Contract(
-    ROOT_PORTAL_ADDRESS,
+    config.ROOT_PORTAL_ADDRESS,
     rootPortalAbi,
     rinkebySigner
   );
   const childPortal = new ethers.Contract(
-    CHILD_PORTAL_ADDRESS,
+    config.CHILD_PORTAL_ADDRESS,
     childPortalAbi,
     thetaTestnetSigner
   );
