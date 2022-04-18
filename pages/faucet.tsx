@@ -8,9 +8,11 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
+import { useSendTokens } from 'api/faucet';
 import Navigation from 'components/Navigation';
 import rinkebyTokens from 'config/rinkebyTokens.json';
 import { ethers } from 'ethers';
+import { useSnackbar } from 'notistack';
 import { useCallback, useMemo } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { materialRegister } from 'utils/materialForm';
@@ -31,6 +33,7 @@ export default function Faucet() {
     control,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm({
     defaultValues: {
       token: '',
@@ -45,9 +48,27 @@ export default function Faucet() {
     [token]
   );
 
-  const onSubmit = useCallback((state: SchemaType) => {
-    console.log(state);
-  }, []);
+  const { enqueueSnackbar } = useSnackbar();
+  const sendTokens = useSendTokens();
+  const onSubmit = useCallback(
+    async (state: SchemaType) => {
+      try {
+        await sendTokens(state.address, state.token);
+        enqueueSnackbar(
+          `Successfully sent 100 ${tok!.ticker} to your address.`,
+          {
+            variant: 'success',
+          }
+        );
+        reset();
+      } catch (err) {
+        enqueueSnackbar(`Failed to send tokens.`, {
+          variant: 'error',
+        });
+      }
+    },
+    [enqueueSnackbar, reset, sendTokens, tok]
+  );
 
   return (
     <>
