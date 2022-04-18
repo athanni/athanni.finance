@@ -6,7 +6,7 @@ import { useChildPortalContract, useRootPortalContract } from 'utils/ethers';
 /**
  * Locks the amount in rinkeby.
  */
-export async function useLockAmountToRinkeby() {
+export function useLockAmountToRinkeby() {
   const { account } = useWeb3React();
   const rootPortal = useRootPortalContract();
 
@@ -35,7 +35,7 @@ export async function bridgeToTheta(bridgeRequestId: string) {
 /**
  * Burns the amount in Theta before unlocking it in Rinkeby.
  */
-export async function useBurnAmountInTheta() {
+export function useBurnAmountInTheta() {
   const { account } = useWeb3React();
   const childPortal = useChildPortalContract();
 

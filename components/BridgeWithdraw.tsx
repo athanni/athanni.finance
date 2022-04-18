@@ -1,6 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { LoadingButton } from '@mui/lab';
 import { Stack } from '@mui/material';
+import { bridgeToRinkeby, useBurnAmountInTheta } from 'api/bridge';
 import { useApprovalOfTransfer } from 'api/token';
 import BigNumber from 'bignumber.js';
 import config from 'config/config';
@@ -40,6 +41,7 @@ export default function BridgeWithdraw() {
   } = form;
 
   const approvalOfTransfer = useApprovalOfTransfer();
+  const burnAmountInTheta = useBurnAmountInTheta();
   const onSubmit = useCallback(
     async (state: any) => {
       const { address, amount } = state as SchemaType;
@@ -50,13 +52,21 @@ export default function BridgeWithdraw() {
         ethers.BigNumber.from(baseAmount),
         config.CHILD_PORTAL_ADDRESS
       );
-      await approvalTx?.wait();
-
       if (!approvalTx) {
         return;
       }
+      await approvalTx.wait();
+
+      const lockTx = await burnAmountInTheta(address, baseAmount);
+      if (!lockTx) {
+        return;
+      }
+      await lockTx.wait();
+      await bridgeToRinkeby(lockTx.hash);
+
+      // TODO: Show notification.
     },
-    [approvalOfTransfer]
+    [approvalOfTransfer, burnAmountInTheta]
   );
 
   return (

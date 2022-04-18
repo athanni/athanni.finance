@@ -1,10 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { LoadingButton } from '@mui/lab';
-import { Button, Stack } from '@mui/material';
+import { Stack } from '@mui/material';
+import { bridgeToTheta, useLockAmountToRinkeby } from 'api/bridge';
 import { useApprovalOfTransfer } from 'api/token';
 import BigNumber from 'bignumber.js';
 import config from 'config/config';
-import { rinkebyTokens, tokenMap } from 'config/supportedTokens';
+import { rinkebyTokens } from 'config/supportedTokens';
 import { ethers } from 'ethers';
 import { useCallback } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
@@ -40,6 +41,7 @@ export default function BridgeDeposit() {
   } = form;
 
   const approvalOfTransfer = useApprovalOfTransfer();
+  const lockAmountToRinkeby = useLockAmountToRinkeby();
   const onSubmit = useCallback(
     async (state: any) => {
       const { address, amount } = state as SchemaType;
@@ -50,13 +52,21 @@ export default function BridgeDeposit() {
         ethers.BigNumber.from(baseAmount),
         config.ROOT_PORTAL_ADDRESS
       );
-      await approvalTx?.wait();
-
       if (!approvalTx) {
         return;
       }
+      await approvalTx.wait();
+
+      const lockTx = await lockAmountToRinkeby(address, baseAmount);
+      if (!lockTx) {
+        return;
+      }
+      await lockTx.wait();
+      await bridgeToTheta(lockTx.hash);
+
+      // TODO: Show notification.
     },
-    [approvalOfTransfer]
+    [approvalOfTransfer, lockAmountToRinkeby]
   );
 
   return (
