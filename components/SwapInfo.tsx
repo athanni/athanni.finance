@@ -3,7 +3,7 @@ import { usePriceImpact, useSlippageAmount } from 'api/router';
 import { TokenBalance } from 'api/token';
 import BigNumber from 'bignumber.js';
 import { DEFAULT_SPLIPPAGE_RATE } from 'config/constants';
-import { tokenMap } from 'config/supportedTokens';
+import { resolveToken } from 'config/supportedTokens';
 import { Fragment } from 'react';
 import { MdKeyboardArrowRight } from 'react-icons/md';
 
@@ -33,11 +33,11 @@ export default function SwapInfo({ path, swapDirection }: SwapInfoProps) {
             Swap rate
           </Typography>
           <Typography fontWeight="medium">
-            1 {tokenMap[first.address].ticker} ={' '}
+            1 {resolveToken(first.address)!.ticker} ={' '}
             {swapRate.lt(new BigNumber('0.0001'))
               ? '< 0.0001'
               : swapRate.toString()}{' '}
-            {tokenMap[last.address].ticker}
+            {resolveToken(last.address)!.ticker}
           </Typography>
         </Stack>
         {impact && (
@@ -68,7 +68,7 @@ export default function SwapInfo({ path, swapDirection }: SwapInfoProps) {
           <Typography fontWeight="medium" display="flex" alignItems="center">
             {path.map((token, index) => (
               <Fragment key={token.address}>
-                {tokenMap[token.address].ticker}
+                {resolveToken(token.address)!.ticker}
                 {index !== path.length - 1 ? <MdKeyboardArrowRight /> : null}
               </Fragment>
             ))}

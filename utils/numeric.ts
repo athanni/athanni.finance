@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js';
-import { tokenMap } from 'config/supportedTokens';
+import { resolveToken } from 'config/supportedTokens';
 import { ethers } from 'ethers';
 import { ChangeEvent } from 'react';
 
@@ -26,7 +26,7 @@ export function handleAllowedInput(
  */
 export function convertAmountToBaseUnit(amount: string, token: string): string {
   const amt = new BigNumber(amount);
-  const multiplier = new BigNumber(10).pow(tokenMap[token].decimals);
+  const multiplier = new BigNumber(10).pow(resolveToken(token)!.decimals);
   return amt.multipliedBy(multiplier).integerValue().toFixed();
 }
 

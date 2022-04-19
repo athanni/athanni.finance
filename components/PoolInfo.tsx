@@ -1,6 +1,6 @@
 import { Paper, Stack, Typography } from '@mui/material';
 import { usePoolPair } from 'api/pairs';
-import { tokenMap } from 'config/supportedTokens';
+import { resolveToken } from 'config/supportedTokens';
 
 type PoolRatioProps = {
   tokenA: string;
@@ -9,8 +9,8 @@ type PoolRatioProps = {
 
 export default function PoolInfo({ tokenA, tokenB }: PoolRatioProps) {
   const { data: pair } = usePoolPair(tokenA, tokenB);
-  const token0 = tokenMap[tokenA];
-  const token1 = tokenMap[tokenB];
+  const token0 = resolveToken(tokenA)!;
+  const token1 = resolveToken(tokenB)!;
 
   return pair ? (
     <Paper variant="outlined" sx={{ mt: 2, px: 2, py: 1, bgcolor: 'grey.100' }}>

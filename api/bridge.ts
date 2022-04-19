@@ -1,6 +1,6 @@
 import { useWeb3React } from '@web3-react/core';
 import axios from 'axios';
-import { bridgeMap } from 'config/supportedTokens';
+import { resolveBridgeTokenAddress } from 'config/supportedTokens';
 import { ethers } from 'ethers';
 import { useCallback } from 'react';
 import { isValidAddress } from 'utils/address';
@@ -93,7 +93,7 @@ export async function getBridgeData(portal: PortalContract, bridgeId: string) {
   }
 
   // Get the address of the token in the other network.
-  const bridgeTokenAddress = bridgeMap[tokenAddress];
+  const bridgeTokenAddress = resolveBridgeTokenAddress(tokenAddress);
   if (!bridgeTokenAddress) {
     console.error('Token address not supported to be bridged.');
     return null;

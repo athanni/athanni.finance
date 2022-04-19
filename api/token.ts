@@ -1,7 +1,7 @@
 import { useWeb3React } from '@web3-react/core';
 import BigNumber from 'bignumber.js';
 import config from 'config/config';
-import supportedTokens, { tokenMap } from 'config/supportedTokens';
+import supportedTokens, { resolveToken } from 'config/supportedTokens';
 import { ethers } from 'ethers';
 import { useCallback } from 'react';
 import { useQuery } from 'react-query';
@@ -70,7 +70,9 @@ export class TokenBalance {
    */
   lt(major: BigNumber): boolean {
     return new BigNumber(this.balance.toString()).lt(
-      major.multipliedBy(new BigNumber(10).pow(tokenMap[this.address].decimals))
+      major.multipliedBy(
+        new BigNumber(10).pow(resolveToken(this.address)!.decimals)
+      )
     );
   }
 
@@ -98,7 +100,7 @@ export class TokenBalance {
    * Gets the ticker of the token.
    */
   toTicker(): string {
-    return tokenMap[this.address].ticker;
+    return resolveToken(this.address)!.ticker;
   }
 }
 

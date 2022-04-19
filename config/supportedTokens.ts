@@ -41,10 +41,12 @@ export enum Network {
 
 export const thetaTestnetTokens = thetaTokens.map((it) => ({
   ...it,
+  address: it.address.toLowerCase(),
   network: Network.ThetaTestnet,
 }));
 export const rinkebyTokens = ethereumTokens.map((it) => ({
   ...it,
+  address: it.address.toLowerCase(),
   network: Network.Rinkeby,
 }));
 
@@ -57,19 +59,33 @@ const supportedTokens: Token[] = [...thetaTestnetTokens, ...rinkebyTokens];
 /**
  * A map of all the supported tokens.
  */
-export const tokenMap = supportedTokens.reduce((acc, cur) => {
+const tokenMap = supportedTokens.reduce((acc, cur) => {
   acc[cur.address] = cur;
   return acc;
 }, {} as { [key: string]: Token });
 
 /**
+ * Gets the token from an address.
+ */
+export function resolveToken(address: string): Token | null {
+  return tokenMap[address.toLowerCase()] ?? null;
+}
+
+/**
  * A translation of tokens from one network to the other.
  */
-export const bridgeMap = supportedTokens.reduce((acc, cur) => {
+const bridgeMap = supportedTokens.reduce((acc, cur) => {
   acc[cur.address] = supportedTokens.find(
     (it) => it.ticker === cur.ticker && it.address !== cur.address
   )!.address;
   return acc;
 }, {} as { [key: string]: string });
+
+/**
+ * Resolves the token address on a different network after a token is bridged.
+ */
+export function resolveBridgeTokenAddress(address: string): string | null {
+  return bridgeMap[address.toLowerCase()] ?? null;
+}
 
 export default supportedTokens;
