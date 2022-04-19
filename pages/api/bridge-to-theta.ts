@@ -70,7 +70,7 @@ export default async function handler(
     }
 
     // Check if the transaction hash is from the correct smart contract.
-    if (receipt.contractAddress !== config.ROOT_PORTAL_ADDRESS) {
+    if (receipt.to !== config.ROOT_PORTAL_ADDRESS) {
       console.error('A transaction for a different contract was provided.');
       return res.status(400).json({
         status: 400,
