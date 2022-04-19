@@ -3,7 +3,6 @@ import rootPortalAbi from 'abi/RootPortal.json';
 import { getBridgeData } from 'api/bridge';
 import config from 'config/config';
 import { RINKEBY_CHAIN_RPC_URL, THETA_TESTNET_RPC_URL } from 'config/constants';
-import { bridgeMap } from 'config/supportedTokens';
 import { ethers } from 'ethers';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { ChildPortalContract, RootPortalContract } from 'utils/ethers';
@@ -82,14 +81,25 @@ export default async function handler(
 
     const bridgeId = decodeBrigeId(receipt);
     if (!bridgeId) {
-      console.error('Bridge id does not exist in transaction.');
+      console.error('Bridge request has already been submitted.');
       return res.status(400).json({
         status: 400,
         message: 'Bad Request',
       });
     }
 
-    const bridgeData = await getBridgeData(childPortal, bridgeId);
+    const [bridgeData, rootBridgeData] = await Promise.all([
+      getBridgeData(childPortal, bridgeId),
+      getBridgeData(rootPortal, bridgeId),
+    ]);
+
+    if (rootBridgeData) {
+      console.error('The bridge id was invalid.');
+      return res.status(400).json({
+        status: 400,
+        message: 'Bad Request',
+      });
+    }
 
     // If there is no such bridge id and its associated data on Theta Testnet, then
     // the bridge request is invalid.

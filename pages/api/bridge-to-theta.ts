@@ -88,7 +88,18 @@ export default async function handler(
       });
     }
 
-    const bridgeData = await getBridgeData(rootPortal, bridgeId);
+    const [bridgeData, childBridgeData] = await Promise.all([
+      getBridgeData(rootPortal, bridgeId),
+      getBridgeData(childPortal, bridgeId),
+    ]);
+
+    if (childBridgeData) {
+      console.error('Bridge request has already been submitted.');
+      return res.status(400).json({
+        status: 400,
+        message: 'Bad Request',
+      });
+    }
 
     // If there is no such bridge id and its associated data on Rinkeby, then
     // the bridge request is invalid.
