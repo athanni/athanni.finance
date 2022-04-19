@@ -6,9 +6,17 @@ import factoryAbi from 'abi/UniswapV2Factory.json';
 import uniswapV2PairAbi from 'abi/UniswapV2Pair.json';
 import routerAbi from 'abi/UniswapV2Router02.json';
 import config from 'config/config';
+import { RINKEBY_CHAIN_RPC_URL, THETA_TESTNET_RPC_URL } from 'config/constants';
 import { ContractTransaction, ethers } from 'ethers';
 import { useMemo } from 'react';
 import { useAsync } from 'react-use';
+
+export const rinkebyProvider = new ethers.providers.JsonRpcProvider(
+  RINKEBY_CHAIN_RPC_URL
+);
+export const thetaTestnetProvider = new ethers.providers.JsonRpcProvider(
+  THETA_TESTNET_RPC_URL
+);
 
 type RouterContract = ethers.Contract & {
   factory(): Promise<string>;

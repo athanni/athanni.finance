@@ -10,6 +10,7 @@ import { ethers } from 'ethers';
 import { useSnackbar } from 'notistack';
 import { useCallback } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
+import { rinkebyProvider } from 'utils/ethers';
 import { convertAmountToBaseUnit } from 'utils/numeric';
 import { z } from 'zod';
 import BridgeInput from './BridgeInput';
@@ -66,7 +67,8 @@ export default function BridgeWithdraw() {
           return;
         }
         await lockTx.wait();
-        await bridgeToRinkeby(lockTx.hash);
+        const bridgeHash = await bridgeToRinkeby(lockTx.hash);
+        await rinkebyProvider.waitForTransaction(bridgeHash);
 
         enqueueSnackbar('Successfully bridged your tokens.', {
           variant: 'error',

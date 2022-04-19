@@ -10,6 +10,7 @@ import { ethers } from 'ethers';
 import { useSnackbar } from 'notistack';
 import { useCallback } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
+import { thetaTestnetProvider } from 'utils/ethers';
 import { convertAmountToBaseUnit } from 'utils/numeric';
 import { z } from 'zod';
 import BridgeInput from './BridgeInput';
@@ -66,7 +67,8 @@ export default function BridgeDeposit() {
           return;
         }
         await lockTx.wait();
-        await bridgeToTheta(lockTx.hash);
+        const bridgeHash = await bridgeToTheta(lockTx.hash);
+        await thetaTestnetProvider.waitForTransaction(bridgeHash);
 
         enqueueSnackbar('Successfully bridged your tokens.', {
           variant: 'error',

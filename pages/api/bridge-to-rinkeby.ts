@@ -2,15 +2,25 @@ import childPortalAbi from 'abi/ChildPortal.json';
 import rootPortalAbi from 'abi/RootPortal.json';
 import { getBridgeData } from 'api/bridge';
 import config from 'config/config';
-import { RINKEBY_CHAIN_RPC_URL, THETA_TESTNET_RPC_URL } from 'config/constants';
 import { ethers } from 'ethers';
 import { NextApiRequest, NextApiResponse } from 'next';
-import { ChildPortalContract, RootPortalContract } from 'utils/ethers';
+import {
+  ChildPortalContract,
+  rinkebyProvider,
+  RootPortalContract,
+  thetaTestnetProvider,
+} from 'utils/ethers';
 import { decodeBrigeId } from 'utils/events';
 
 // The private key that is the owner of the bridge. This environment is only
 // accessible in the backend.
 const PRIVATE_KEY = process.env.PRIVATE_KEY;
+if (!PRIVATE_KEY) {
+  throw new Error('PRIVATE_KEY not provided');
+}
+
+const rinkebySigner = new ethers.Wallet(PRIVATE_KEY, rinkebyProvider);
+const thetaTestnetSigner = new ethers.Wallet(PRIVATE_KEY, thetaTestnetProvider);
 
 /**
  * Sends tokens from Theta tesnet to Rinkeby for a given token to the receiving address.
@@ -19,12 +29,6 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  if (!PRIVATE_KEY) {
-    return res
-      .status(500)
-      .json({ status: 500, message: 'Internal Server Error' });
-  }
-
   if (req.method !== 'POST') {
     return res.status(404).json({ status: 404, message: 'Not Found' });
   }
@@ -34,18 +38,6 @@ export default async function handler(
     console.error('No transaction hash provided.');
     return res.status(400).json({ status: 400, message: 'Bad Request' });
   }
-
-  const rinkebyProvider = new ethers.providers.JsonRpcProvider(
-    RINKEBY_CHAIN_RPC_URL
-  );
-  const rinkebySigner = new ethers.Wallet(PRIVATE_KEY, rinkebyProvider);
-  const thetaTestnetProvider = new ethers.providers.JsonRpcProvider(
-    THETA_TESTNET_RPC_URL
-  );
-  const thetaTestnetSigner = new ethers.Wallet(
-    PRIVATE_KEY,
-    thetaTestnetProvider
-  );
 
   const rootPortal = new ethers.Contract(
     config.ROOT_PORTAL_ADDRESS,
