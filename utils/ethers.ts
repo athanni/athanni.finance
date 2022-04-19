@@ -167,7 +167,14 @@ export function getUniswapV2PairContract(
   ) as UniswapV2PairContract;
 }
 
-type RootPortalContract = ethers.Contract & {
+export type PortalContract = ethers.Contract & {
+  tokenAddress(bridgeId: string): Promise<string>;
+  transferredBy(bridgeId: string): Promise<string>;
+  transferredTo(bridgeId: string): Promise<string>;
+  transferredAmount(bridgeId: string): Promise<ethers.BigNumber>;
+};
+
+export type RootPortalContract = PortalContract & {
   send(token: string, to: string, amount: string): Promise<ContractTransaction>;
 };
 
@@ -191,7 +198,7 @@ export function useRootPortalContract(): RootPortalContract | null {
   }, [provider]);
 }
 
-type ChildPortalContract = ethers.Contract & {
+export type ChildPortalContract = PortalContract & {
   withdraw(
     token: string,
     to: string,

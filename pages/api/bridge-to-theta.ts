@@ -1,10 +1,12 @@
 import childPortalAbi from 'abi/ChildPortal.json';
 import rootPortalAbi from 'abi/RootPortal.json';
+import { getBridgeData } from 'api/bridge';
 import config from 'config/config';
 import { RINKEBY_CHAIN_RPC_URL, THETA_TESTNET_RPC_URL } from 'config/constants';
 import { bridgeMap } from 'config/supportedTokens';
 import { ethers } from 'ethers';
 import { NextApiRequest, NextApiResponse } from 'next';
+import { ChildPortalContract, RootPortalContract } from 'utils/ethers';
 import { decodeBrigeId } from 'utils/events';
 
 // The private key that is the owner of the bridge. This environment is only
@@ -50,12 +52,12 @@ export default async function handler(
     config.ROOT_PORTAL_ADDRESS,
     rootPortalAbi,
     rinkebySigner
-  );
+  ) as RootPortalContract;
   const childPortal = new ethers.Contract(
     config.CHILD_PORTAL_ADDRESS,
     childPortalAbi,
     thetaTestnetSigner
-  );
+  ) as ChildPortalContract;
 
   try {
     const receipt = await rinkebyProvider.getTransactionReceipt(
@@ -87,13 +89,8 @@ export default async function handler(
       });
     }
 
-    const [tokenAddress, transferredBy, transferredTo, transferredAmount] =
-      await Promise.all([
-        rootPortal.tokenAddress(bridgeId),
-        rootPortal.transferredBy(bridgeId),
-        rootPortal.transferredTo(bridgeId),
-        rootPortal.transferredAmount(bridgeId),
-      ]);
+    const { tokenAddress, transferredBy, transferredTo, transferredAmount } =
+      await getBridgeData(rootPortal, bridgeId);
 
     // If there is no such bridge request id and its associated data on Rinkeby, then
     // the bridge request is invalid.

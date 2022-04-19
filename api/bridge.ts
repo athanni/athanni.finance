@@ -1,7 +1,11 @@
 import { useWeb3React } from '@web3-react/core';
 import axios from 'axios';
 import { useCallback } from 'react';
-import { useChildPortalContract, useRootPortalContract } from 'utils/ethers';
+import {
+  PortalContract,
+  useChildPortalContract,
+  useRootPortalContract,
+} from 'utils/ethers';
 
 /**
  * Locks the amount in rinkeby.
@@ -59,4 +63,24 @@ export async function bridgeToRinkeby(transactionHash: string) {
     transactionHash,
   });
   return response.data.hash;
+}
+
+/**
+ * Gets the bridge data for a given id.
+ */
+export async function getBridgeData(portal: PortalContract, bridgeId: string) {
+  const [tokenAddress, transferredBy, transferredTo, transferredAmount] =
+    await Promise.all([
+      portal.tokenAddress(bridgeId),
+      portal.transferredBy(bridgeId),
+      portal.transferredTo(bridgeId),
+      portal.transferredAmount(bridgeId),
+    ]);
+
+  return {
+    tokenAddress,
+    transferredBy,
+    transferredTo,
+    transferredAmount,
+  };
 }
