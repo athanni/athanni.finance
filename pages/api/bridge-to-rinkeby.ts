@@ -129,7 +129,6 @@ export default async function handler(
       transferredTo,
       transferredAmount
     );
-    await tx.wait();
 
     return res.status(200).json({
       status: 200,
