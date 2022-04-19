@@ -7,7 +7,7 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import rinkebyTokens from 'config/rinkebyTokens.json';
+import supportedTokens from 'config/supportedTokens';
 import { useMemo } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 import { decimalRegex } from 'utils/numeric';
@@ -23,7 +23,7 @@ export default function BridgeInputReadonly({ network }: BridgeInputProps) {
   const amount = useWatch({ control, name: 'amount' });
 
   const token = useMemo(
-    () => rinkebyTokens.find((it) => it.address === address),
+    () => supportedTokens.find((it) => it.address === address),
     [address]
   );
 
