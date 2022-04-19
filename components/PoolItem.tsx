@@ -10,7 +10,7 @@ import {
 } from '@mui/material';
 import { green, red } from '@mui/material/colors';
 import { PooledPairItem } from 'api/pairs';
-import { tokenMap } from 'config/supportedTokens';
+import { resolveToken } from 'config/supportedTokens';
 import { useCallback, useState } from 'react';
 import { MdMoreVert } from 'react-icons/md';
 import { useBoolean } from 'react-use';
@@ -29,8 +29,8 @@ export default function PoolItem({ pair }: PoolItemProps) {
     setAnchorEl(null);
   }, [toggleRemoveOpen]);
 
-  const tokenA = tokenMap[pair.tokenA];
-  const tokenB = tokenMap[pair.tokenB];
+  const tokenA = resolveToken(pair.tokenA)!;
+  const tokenB = resolveToken(pair.tokenB)!;
 
   return (
     <>

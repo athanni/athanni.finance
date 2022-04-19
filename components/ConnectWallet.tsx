@@ -11,12 +11,11 @@ import {
   Typography,
 } from '@mui/material';
 import { useWeb3React } from '@web3-react/core';
-import config from 'config/config';
-import { RINKEBY_CHAIN_ID } from 'config/constants';
-import { useRouter } from 'next/router';
-import { useCallback, useEffect, useMemo } from 'react';
+import { THETA_TESTNET_CHAIN_ID } from 'config/constants';
+import { useCallback, useEffect } from 'react';
 import { MdSwitchRight } from 'react-icons/md';
 import { useBoolean } from 'react-use';
+import { useCorrectChainId } from 'utils/chain';
 import { metaMask } from 'utils/metamask';
 import { shorternAddress } from 'utils/string';
 import MetamaskIcon from './MetamaskIcon';
@@ -26,13 +25,7 @@ type ConnectWalletProps = {
 };
 
 export default function ConnectWallet({ buttonProps }: ConnectWalletProps) {
-  const { pathname } = useRouter();
-  // The chain id to connect depends upon which page is open. If the bridge deposit
-  // page is open, then it must be connected to Rinkeby else Theta Testnet.
-  const correctChainId = useMemo(
-    () => (pathname === '/bridge/deposit' ? RINKEBY_CHAIN_ID : config.CHAIN_ID),
-    [pathname]
-  );
+  const correctChainId = useCorrectChainId();
 
   const [open, toggleOpen] = useBoolean(false);
   const { isActive, account, chainId } = useWeb3React();
@@ -56,7 +49,7 @@ export default function ConnectWallet({ buttonProps }: ConnectWalletProps) {
   const wrongNetwork =
     isUnsupported &&
     `Switch To ${
-      correctChainId === config.CHAIN_ID ? 'Theta Testnet' : 'Rinkeby'
+      correctChainId === THETA_TESTNET_CHAIN_ID ? 'Theta Testnet' : 'Rinkeby'
     }`;
   const address = isActive && account && shorternAddress(account);
 

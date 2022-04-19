@@ -11,7 +11,7 @@ import {
   Typography,
 } from '@mui/material';
 import { useWeb3React } from '@web3-react/core';
-import { useSendTokens } from 'api/faucet';
+import { sendTokens } from 'api/faucet';
 import Navigation from 'components/Navigation';
 import rinkebyTokens from 'config/rinkebyTokens.json';
 import { ethers } from 'ethers';
@@ -52,7 +52,6 @@ export default function Faucet() {
   );
 
   const { enqueueSnackbar } = useSnackbar();
-  const sendTokens = useSendTokens();
   const onSubmit = useCallback(
     async (state: SchemaType) => {
       try {
@@ -70,7 +69,7 @@ export default function Faucet() {
         });
       }
     },
-    [enqueueSnackbar, reset, sendTokens, tok]
+    [enqueueSnackbar, reset, tok]
   );
 
   const { connector } = useWeb3React();
@@ -80,6 +79,7 @@ export default function Faucet() {
       return;
     }
 
+    // TODO: Depending upon the network add the proper address.
     await (connector.provider as any).request({
       method: 'wallet_watchAsset',
       params: {

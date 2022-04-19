@@ -17,7 +17,7 @@ import { useApprovalOfTransfer } from 'api/token';
 import BigNumber from 'bignumber.js';
 import { explorerTransactionUrl } from 'config/config';
 import { DEFAULT_SPLIPPAGE_RATE } from 'config/constants';
-import supportedTokens, { tokenMap } from 'config/supportedTokens';
+import { resolveToken, thetaTestnetTokens } from 'config/supportedTokens';
 import { ethers } from 'ethers';
 import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -79,11 +79,11 @@ export default function LiquidityDialog() {
   const tokenB = token1 !== '0x' ? token1 : undefined;
 
   const tokenAOptions = useMemo(
-    () => supportedTokens.filter((it) => it.address !== tokenB),
+    () => thetaTestnetTokens.filter((it) => it.address !== tokenB),
     [tokenB]
   );
   const tokenBOptions = useMemo(
-    () => supportedTokens.filter((it) => it.address !== tokenA),
+    () => thetaTestnetTokens.filter((it) => it.address !== tokenA),
     [tokenA]
   );
 
@@ -117,8 +117,8 @@ export default function LiquidityDialog() {
         const { token0, token1, token0Deposit, token1Deposit } =
           state as SchemaType;
 
-        const decimalsA = tokenMap[token0];
-        const decimalsB = tokenMap[token1];
+        const decimalsA = resolveToken(token0)!;
+        const decimalsB = resolveToken(token1)!;
 
         const tokenADeposit = token0Deposit
           .multipliedBy(new BigNumber(10).pow(decimalsA.decimals))

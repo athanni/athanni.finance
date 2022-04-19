@@ -1,12 +1,22 @@
 import { useWeb3React } from '@web3-react/core';
+import childPortalAbi from 'abi/ChildPortal.json';
 import erc20Abi from 'abi/ERC20.json';
+import rootPortalAbi from 'abi/RootPortal.json';
 import factoryAbi from 'abi/UniswapV2Factory.json';
 import uniswapV2PairAbi from 'abi/UniswapV2Pair.json';
 import routerAbi from 'abi/UniswapV2Router02.json';
 import config from 'config/config';
+import { RINKEBY_CHAIN_RPC_URL, THETA_TESTNET_RPC_URL } from 'config/constants';
 import { ContractTransaction, ethers } from 'ethers';
 import { useMemo } from 'react';
 import { useAsync } from 'react-use';
+
+export const rinkebyProvider = new ethers.providers.JsonRpcProvider(
+  RINKEBY_CHAIN_RPC_URL
+);
+export const thetaTestnetProvider = new ethers.providers.JsonRpcProvider(
+  THETA_TESTNET_RPC_URL
+);
 
 type RouterContract = ethers.Contract & {
   factory(): Promise<string>;
@@ -163,4 +173,63 @@ export function getUniswapV2PairContract(
     uniswapV2PairAbi,
     signer
   ) as UniswapV2PairContract;
+}
+
+export type PortalContract = ethers.Contract & {
+  tokenAddress(bridgeId: string): Promise<string>;
+  transferredBy(bridgeId: string): Promise<string>;
+  transferredTo(bridgeId: string): Promise<string>;
+  transferredAmount(bridgeId: string): Promise<ethers.BigNumber>;
+};
+
+export type RootPortalContract = PortalContract & {
+  send(token: string, to: string, amount: string): Promise<ContractTransaction>;
+};
+
+/**
+ * Gets the RootPortal contract API using ethers.
+ */
+export function useRootPortalContract(): RootPortalContract | null {
+  const { provider } = useWeb3React();
+
+  return useMemo(() => {
+    if (!provider) {
+      return null;
+    }
+
+    const signer = (provider as any).getSigner();
+    return new ethers.Contract(
+      config.ROOT_PORTAL_ADDRESS,
+      rootPortalAbi,
+      signer
+    ) as RootPortalContract;
+  }, [provider]);
+}
+
+export type ChildPortalContract = PortalContract & {
+  withdraw(
+    token: string,
+    to: string,
+    amount: string
+  ): Promise<ContractTransaction>;
+};
+
+/**
+ * Gets the ChildPortal contract API using ethers.
+ */
+export function useChildPortalContract(): ChildPortalContract | null {
+  const { provider } = useWeb3React();
+
+  return useMemo(() => {
+    if (!provider) {
+      return null;
+    }
+
+    const signer = (provider as any).getSigner();
+    return new ethers.Contract(
+      config.CHILD_PORTAL_ADDRESS,
+      childPortalAbi,
+      signer
+    ) as ChildPortalContract;
+  }, [provider]);
 }

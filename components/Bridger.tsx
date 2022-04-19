@@ -20,34 +20,30 @@ export default function Bridger({ children }: BridgerProps) {
         maxWidth: 500,
       }}
     >
-      <Stack spacing={2}>
-        <Stack alignItems="center" mb={2}>
-          <ButtonGroup variant="contained" color="inherit">
-            <Link href="/bridge/deposit" passHref>
-              <Button
-                component="a"
-                color={pathname === '/bridge/deposit' ? 'secondary' : undefined}
-                sx={{ width: 120 }}
-              >
-                Deposit
-              </Button>
-            </Link>
-            <Link href="/bridge/withdraw" passHref>
-              <Button
-                component="a"
-                color={
-                  pathname === '/bridge/withdraw' ? 'secondary' : undefined
-                }
-                sx={{ width: 120 }}
-              >
-                Withdraw
-              </Button>
-            </Link>
-          </ButtonGroup>
-        </Stack>
-
-        {children}
+      <Stack alignItems="center" mb={4}>
+        <ButtonGroup variant="contained" color="inherit">
+          <Link href="/bridge/deposit" passHref>
+            <Button
+              component="a"
+              color={pathname === '/bridge/deposit' ? 'secondary' : undefined}
+              sx={{ width: 120 }}
+            >
+              Deposit
+            </Button>
+          </Link>
+          <Link href="/bridge/withdraw" passHref>
+            <Button
+              component="a"
+              color={pathname === '/bridge/withdraw' ? 'secondary' : undefined}
+              sx={{ width: 120 }}
+            >
+              Withdraw
+            </Button>
+          </Link>
+        </ButtonGroup>
       </Stack>
+
+      {children}
     </Paper>
   );
 }

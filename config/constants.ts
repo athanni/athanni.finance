@@ -1,18 +1,11 @@
 /**
  * Theta network connection details.
  */
-export const THETA_MAINNET_CHAIN_ID = 361;
-export const THETA_MAINNET_RPC_URL = 'https://eth-rpc-api.thetatoken.org/rpc';
 export const THETA_TESTNET_CHAIN_ID = 365;
 export const THETA_TESTNET_RPC_URL =
   'https://eth-rpc-api-testnet.thetatoken.org/rpc';
-
-/**
- * Polygon network connection details.
- */
-export const POLYGON_TESTNET_CHAIN_ID = 80001;
-export const POLYGON_TESTNET_RPC_URL =
-  'https://matic-mumbai.chainstacklabs.com';
+export const THETA_TESTNET_EXPLORER_URL =
+  'https://testnet-explorer.thetatoken.org/';
 
 /**
  * Ethereum Rinkeby network connection details.
@@ -35,11 +28,3 @@ export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
  * The default price splippage rate of 0.5%.
  */
 export const DEFAULT_SPLIPPAGE_RATE = 0.005;
-
-/**
- * The network with which the app can interact.
- */
-export enum Network {
-  Theta = 'theta',
-  Polygon = 'polygon',
-}

@@ -1,5 +1,6 @@
 import BigNumber from 'bignumber.js';
-import { tokenMap } from 'config/supportedTokens';
+import { resolveToken } from 'config/supportedTokens';
+import { ethers } from 'ethers';
 import { ChangeEvent } from 'react';
 
 /**
@@ -25,6 +26,15 @@ export function handleAllowedInput(
  */
 export function convertAmountToBaseUnit(amount: string, token: string): string {
   const amt = new BigNumber(amount);
-  const multiplier = new BigNumber(10).pow(tokenMap[token].decimals);
+  const multiplier = new BigNumber(10).pow(resolveToken(token)!.decimals);
   return amt.multipliedBy(multiplier).integerValue().toFixed();
+}
+
+/**
+ * Gets the parition number of a given bridge id.
+ */
+export function partitionOfBridgeId(bridgeId: string): string {
+  return ethers.BigNumber.from(bridgeId)
+    .add(ethers.BigNumber.from(1).shl(255))
+    .toString();
 }

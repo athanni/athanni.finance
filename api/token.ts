@@ -1,7 +1,7 @@
 import { useWeb3React } from '@web3-react/core';
 import BigNumber from 'bignumber.js';
 import config from 'config/config';
-import supportedTokens, { tokenMap } from 'config/supportedTokens';
+import supportedTokens, { resolveToken } from 'config/supportedTokens';
 import { ethers } from 'ethers';
 import { useCallback } from 'react';
 import { useQuery } from 'react-query';
@@ -70,7 +70,9 @@ export class TokenBalance {
    */
   lt(major: BigNumber): boolean {
     return new BigNumber(this.balance.toString()).lt(
-      major.multipliedBy(new BigNumber(10).pow(tokenMap[this.address].decimals))
+      major.multipliedBy(
+        new BigNumber(10).pow(resolveToken(this.address)!.decimals)
+      )
     );
   }
 
@@ -98,7 +100,7 @@ export class TokenBalance {
    * Gets the ticker of the token.
    */
   toTicker(): string {
-    return tokenMap[this.address].ticker;
+    return resolveToken(this.address)!.ticker;
   }
 }
 
@@ -131,7 +133,11 @@ export function useApprovalOfTransfer() {
   const { provider, account } = useWeb3React();
 
   return useCallback(
-    async (token: string, amount: ethers.BigNumber) => {
+    async (
+      token: string,
+      amount: ethers.BigNumber,
+      spender: string = config.ROUTER_CONTRACT_ADDRESS
+    ) => {
       if (!provider || !account) {
         return;
       }
@@ -141,20 +147,14 @@ export function useApprovalOfTransfer() {
         return;
       }
 
-      const allowance = await contract.allowance(
-        account,
-        config.ROUTER_CONTRACT_ADDRESS
-      );
+      const allowance = await contract.allowance(account, spender);
 
       if (allowance.gte(amount)) {
         // No need of approval.
         return;
       }
 
-      return await contract.approve(
-        config.ROUTER_CONTRACT_ADDRESS,
-        amount.toString()
-      );
+      return await contract.approve(spender, amount.toString());
     },
     [account, provider]
   );

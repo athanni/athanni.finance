@@ -15,7 +15,7 @@ import { TokenBalance, useApprovalOfTransfer } from 'api/token';
 import BigNumber from 'bignumber.js';
 import { explorerTransactionUrl } from 'config/config';
 import { DEFAULT_SPLIPPAGE_RATE } from 'config/constants';
-import { tokenMap } from 'config/supportedTokens';
+import { resolveToken } from 'config/supportedTokens';
 import { ethers } from 'ethers';
 import { useSnackbar } from 'notistack';
 import { useCallback, useMemo, useState } from 'react';
@@ -37,8 +37,6 @@ const schema = z.object({
   amount: z.number().gt(0, 'Required'),
 });
 
-type SchemaType = z.infer<typeof schema>;
-
 export default function RemoveLiquidityDialog({
   pair,
   tokenA,
@@ -46,8 +44,8 @@ export default function RemoveLiquidityDialog({
   open,
   onClose,
 }: RemoveLiquidityDialogProps) {
-  const token0 = tokenMap[tokenA];
-  const token1 = tokenMap[tokenB];
+  const token0 = resolveToken(tokenA)!;
+  const token1 = resolveToken(tokenB)!;
 
   const {
     control,
