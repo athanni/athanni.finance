@@ -87,7 +87,7 @@ export default async function handler(
     ]);
 
     if (rootBridgeData) {
-      console.error('The bridge id was invalid.');
+      console.error('Bridge request has already been submitted.');
       return res.status(400).json({
         status: 400,
         message: 'Bad Request',
@@ -97,7 +97,6 @@ export default async function handler(
     // If there is no such bridge id and its associated data on Theta Testnet, then
     // the bridge request is invalid.
     if (!bridgeData) {
-      console.error('The bridge id was invalid.');
       return res.status(400).json({
         status: 400,
         message: 'Bad Request',

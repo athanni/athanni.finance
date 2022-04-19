@@ -3,6 +3,7 @@ import axios from 'axios';
 import { bridgeMap } from 'config/supportedTokens';
 import { ethers } from 'ethers';
 import { useCallback } from 'react';
+import { isValidAddress } from 'utils/address';
 import {
   PortalContract,
   useChildPortalContract,
@@ -82,12 +83,12 @@ export async function getBridgeData(portal: PortalContract, bridgeId: string) {
   // If there is no such bridge request id and its associated data on Rinkeby, then
   // the bridge request is invalid.
   if (
-    !ethers.utils.isAddress(tokenAddress) ||
-    !ethers.utils.isAddress(transferredBy) ||
-    !ethers.utils.isAddress(transferredTo) ||
+    !isValidAddress(tokenAddress) ||
+    !isValidAddress(transferredBy) ||
+    !isValidAddress(transferredTo) ||
     !ethers.BigNumber.from(transferredAmount).isZero
   ) {
-    console.error('The bridge id was invalid.');
+    console.error('The bridge id not found.');
     return null;
   }
 
