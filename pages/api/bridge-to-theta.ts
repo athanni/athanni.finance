@@ -3,7 +3,6 @@ import rootPortalAbi from 'abi/RootPortal.json';
 import { getBridgeData } from 'api/bridge';
 import config from 'config/config';
 import { RINKEBY_CHAIN_RPC_URL, THETA_TESTNET_RPC_URL } from 'config/constants';
-import { bridgeMap } from 'config/supportedTokens';
 import { ethers } from 'ethers';
 import { NextApiRequest, NextApiResponse } from 'next';
 import { ChildPortalContract, RootPortalContract } from 'utils/ethers';
@@ -89,33 +88,23 @@ export default async function handler(
       });
     }
 
-    const { tokenAddress, transferredBy, transferredTo, transferredAmount } =
-      await getBridgeData(rootPortal, bridgeId);
+    const bridgeData = await getBridgeData(rootPortal, bridgeId);
 
-    // If there is no such bridge request id and its associated data on Rinkeby, then
+    // If there is no such bridge id and its associated data on Rinkeby, then
     // the bridge request is invalid.
-    if (
-      !ethers.utils.isAddress(tokenAddress) ||
-      !ethers.utils.isAddress(transferredBy) ||
-      !ethers.utils.isAddress(transferredTo) ||
-      !ethers.BigNumber.from(transferredAmount).isZero
-    ) {
-      console.error('The bridge id was invalid.');
+    if (!bridgeData) {
       return res.status(400).json({
         status: 400,
         message: 'Bad Request',
       });
     }
 
-    // Get the address of the token in the other network.
-    const bridgeTokenAddress = bridgeMap[tokenAddress];
-    if (!bridgeTokenAddress) {
-      console.error('Token address not supported to be bridged.');
-      return res.status(400).json({
-        status: 400,
-        message: 'Bad Request',
-      });
-    }
+    const {
+      bridgeTokenAddress,
+      transferredBy,
+      transferredTo,
+      transferredAmount,
+    } = bridgeData;
 
     // Request the child portal to mint the same amount of tokens and send it to the
     // recipient address.

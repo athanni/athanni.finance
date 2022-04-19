@@ -89,17 +89,11 @@ export default async function handler(
       });
     }
 
-    const { tokenAddress, transferredBy, transferredTo, transferredAmount } =
-      await getBridgeData(childPortal, bridgeId);
+    const bridgeData = await getBridgeData(childPortal, bridgeId);
 
-    // If there is no such bridge request id and its associated data on Theta Testnet, then
+    // If there is no such bridge id and its associated data on Theta Testnet, then
     // the bridge request is invalid.
-    if (
-      !ethers.utils.isAddress(tokenAddress) ||
-      !ethers.utils.isAddress(transferredBy) ||
-      !ethers.utils.isAddress(transferredTo) ||
-      !ethers.BigNumber.from(transferredAmount).isZero
-    ) {
+    if (!bridgeData) {
       console.error('The bridge id was invalid.');
       return res.status(400).json({
         status: 400,
@@ -107,15 +101,12 @@ export default async function handler(
       });
     }
 
-    // Get the address of the token in the other network.
-    const bridgeTokenAddress = bridgeMap[tokenAddress];
-    if (!bridgeTokenAddress) {
-      console.error('Token address not supported to be bridged.');
-      return res.status(400).json({
-        status: 400,
-        message: 'Bad Request',
-      });
-    }
+    const {
+      bridgeTokenAddress,
+      transferredBy,
+      transferredTo,
+      transferredAmount,
+    } = bridgeData;
 
     // Request the root portal to withdraw the same amount of tokens and send it to the
     // recipient address.

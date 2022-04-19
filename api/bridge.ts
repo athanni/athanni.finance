@@ -1,5 +1,7 @@
 import { useWeb3React } from '@web3-react/core';
 import axios from 'axios';
+import { bridgeMap } from 'config/supportedTokens';
+import { ethers } from 'ethers';
 import { useCallback } from 'react';
 import {
   PortalContract,
@@ -77,10 +79,30 @@ export async function getBridgeData(portal: PortalContract, bridgeId: string) {
       portal.transferredAmount(bridgeId),
     ]);
 
+  // If there is no such bridge request id and its associated data on Rinkeby, then
+  // the bridge request is invalid.
+  if (
+    !ethers.utils.isAddress(tokenAddress) ||
+    !ethers.utils.isAddress(transferredBy) ||
+    !ethers.utils.isAddress(transferredTo) ||
+    !ethers.BigNumber.from(transferredAmount).isZero
+  ) {
+    console.error('The bridge id was invalid.');
+    return null;
+  }
+
+  // Get the address of the token in the other network.
+  const bridgeTokenAddress = bridgeMap[tokenAddress];
+  if (!bridgeTokenAddress) {
+    console.error('Token address not supported to be bridged.');
+    return null;
+  }
+
   return {
     tokenAddress,
     transferredBy,
     transferredTo,
     transferredAmount,
+    bridgeTokenAddress,
   };
 }
