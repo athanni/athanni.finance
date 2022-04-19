@@ -11,6 +11,7 @@ import {
   thetaTestnetProvider,
 } from 'utils/ethers';
 import { decodeBrigeId } from 'utils/events';
+import { partitionOfBridgeId } from 'utils/numeric';
 
 // The private key that is the owner of the bridge. This environment is only
 // accessible in the backend.
@@ -82,7 +83,7 @@ export default async function handler(
 
     const [bridgeData, childBridgeData] = await Promise.all([
       getBridgeData(rootPortal, bridgeId),
-      getBridgeData(childPortal, bridgeId),
+      getBridgeData(childPortal, partitionOfBridgeId(bridgeId)),
     ]);
 
     if (childBridgeData) {
