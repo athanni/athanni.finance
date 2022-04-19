@@ -71,7 +71,7 @@ export default function BridgeDeposit() {
         await thetaTestnetProvider.waitForTransaction(bridgeHash);
 
         enqueueSnackbar('Successfully bridged your tokens.', {
-          variant: 'error',
+          variant: 'success',
         });
         reset();
       } catch (err) {

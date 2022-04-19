@@ -71,7 +71,7 @@ export default function BridgeWithdraw() {
         await rinkebyProvider.waitForTransaction(bridgeHash);
 
         enqueueSnackbar('Successfully bridged your tokens.', {
-          variant: 'error',
+          variant: 'success',
         });
         reset();
       } catch (err) {
