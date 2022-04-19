@@ -7,6 +7,7 @@ import BigNumber from 'bignumber.js';
 import config from 'config/config';
 import { rinkebyTokens } from 'config/supportedTokens';
 import { ethers } from 'ethers';
+import { useSnackbar } from 'notistack';
 import { useCallback } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { convertAmountToBaseUnit } from 'utils/numeric';
@@ -38,8 +39,10 @@ export default function BridgeDeposit() {
   const {
     handleSubmit,
     formState: { isSubmitting },
+    reset,
   } = form;
 
+  const { enqueueSnackbar } = useSnackbar();
   const approvalOfTransfer = useApprovalOfTransfer();
   const lockAmountToRinkeby = useLockAmountToRinkeby();
   const onSubmit = useCallback(
@@ -47,26 +50,37 @@ export default function BridgeDeposit() {
       const { address, amount } = state as SchemaType;
       const baseAmount = convertAmountToBaseUnit(amount.toFixed(), address);
 
-      const approvalTx = await approvalOfTransfer(
-        address,
-        ethers.BigNumber.from(baseAmount),
-        config.ROOT_PORTAL_ADDRESS
-      );
-      if (!approvalTx) {
-        return;
-      }
-      await approvalTx.wait();
+      try {
+        const approvalTx = await approvalOfTransfer(
+          address,
+          ethers.BigNumber.from(baseAmount),
+          config.ROOT_PORTAL_ADDRESS
+        );
+        if (!approvalTx) {
+          return;
+        }
+        await approvalTx.wait();
 
-      const lockTx = await lockAmountToRinkeby(address, baseAmount);
-      if (!lockTx) {
-        return;
-      }
-      await lockTx.wait();
-      await bridgeToTheta(lockTx.hash);
+        const lockTx = await lockAmountToRinkeby(address, baseAmount);
+        if (!lockTx) {
+          return;
+        }
+        await lockTx.wait();
+        await bridgeToTheta(lockTx.hash);
 
-      // TODO: Show notification.
+        enqueueSnackbar('Successfully bridged your tokens.', {
+          variant: 'error',
+        });
+        reset();
+      } catch (err) {
+        enqueueSnackbar('Failed to bridge tokens.', {
+          variant: 'error',
+        });
+
+        throw err;
+      }
     },
-    [approvalOfTransfer, lockAmountToRinkeby]
+    [approvalOfTransfer, enqueueSnackbar, lockAmountToRinkeby, reset]
   );
 
   return (

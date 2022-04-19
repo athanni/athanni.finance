@@ -79,6 +79,7 @@ export default function Faucet() {
       return;
     }
 
+    // TODO: Depending upon the network add the proper address.
     await (connector.provider as any).request({
       method: 'wallet_watchAsset',
       params: {
