@@ -30,6 +30,7 @@ export default async function handler(
 
   const { transactionHash } = req.body ?? {};
   if (!transactionHash) {
+    console.error('No transaction hash provided.');
     return res.status(400).json({ status: 400, message: 'Bad Request' });
   }
 
@@ -61,6 +62,7 @@ export default async function handler(
       transactionHash
     );
     if (!receipt) {
+      console.error('An invalid transaction was provided.');
       return res.status(400).json({
         status: 400,
         message: 'Bad Request',
@@ -69,6 +71,7 @@ export default async function handler(
 
     // Check if the transaction hash is from the correct smart contract.
     if (receipt.contractAddress !== config.ROOT_PORTAL_ADDRESS) {
+      console.error('A transaction for a different contract was provided.');
       return res.status(400).json({
         status: 400,
         message: 'Bad Request',
@@ -77,6 +80,7 @@ export default async function handler(
 
     const bridgeId = decodeBrigeId(receipt);
     if (!bridgeId) {
+      console.error('Bridge id does not exist in transaction.');
       return res.status(400).json({
         status: 400,
         message: 'Bad Request',
@@ -99,6 +103,7 @@ export default async function handler(
       !ethers.utils.isAddress(transferredTo) ||
       !ethers.BigNumber.from(transferredAmount).isZero
     ) {
+      console.error('The bridge id was invalid.');
       return res.status(400).json({
         status: 400,
         message: 'Bad Request',
@@ -108,6 +113,7 @@ export default async function handler(
     // Get the address of the token in the other network.
     const bridgeTokenAddress = bridgeMap[tokenAddress];
     if (!bridgeTokenAddress) {
+      console.error('Token address not supported to be bridged.');
       return res.status(400).json({
         status: 400,
         message: 'Bad Request',

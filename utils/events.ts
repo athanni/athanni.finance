@@ -4,13 +4,17 @@ import { ethers } from 'ethers';
  * The send event and its hash to make sense of the log.
  */
 const sendEvent = 'TokenSent(uint256)';
-const sendEventHash = ethers.utils.keccak256(sendEvent);
+const sendEventHash = ethers.utils.keccak256(
+  ethers.utils.toUtf8Bytes(sendEvent)
+);
 
 /**
  * The withdraw event and its hash to make sense of the log.
  */
 const withdrawEvent = 'TokenWithdrawn(uint256)';
-const withdrawEventHash = ethers.utils.keccak256(withdrawEvent);
+const withdrawEventHash = ethers.utils.keccak256(
+  ethers.utils.toUtf8Bytes(withdrawEvent)
+);
 
 /**
  * Decodes the bridge id from the executed transaction.
