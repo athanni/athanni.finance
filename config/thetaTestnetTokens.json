@@ -1,83 +1,83 @@
 [
   {
-    "address": "0x7be48f04e23ae1abd4b5d7e5656a43d55eecb543",
+    "address": "0x2dcb1e0f04d70556e44fc808a76916fe77d41555",
     "name": "Wrapped Ether",
     "ticker": "WETH",
     "decimals": 18,
     "logoUrl": ""
   },
   {
-    "address": "0x2ae799a8a8980930e55a873bf59ed5ace44a5ce8",
+    "address": "0x4ec00fac91958257b34b4fdcf5bd7b3da95d04ba",
     "name": "Tether USD",
     "ticker": "USDT",
     "decimals": 18,
     "logoUrl": ""
   },
   {
-    "address": "0xc9a6c644e0758c94f38659a480c1c3af3f58aa78",
+    "address": "0x468921281f1789bb3ec383655ba37185c58479b0",
     "name": "Doge Coin",
     "ticker": "DOGE",
     "decimals": 18,
     "logoUrl": ""
   },
   {
-    "address": "0x38e7e56afd8633aa0c216b032d70f05f88269370",
+    "address": "0x68ff0f74cfd6f4dd3b764cba44e77b6c07c3dce7",
     "name": "Solana",
     "ticker": "SOL",
     "decimals": 18,
     "logoUrl": ""
   },
   {
-    "address": "0xdb204eb50340472bd6ffb7b293464bf52372ee5b",
+    "address": "0xc96e9cc05d92fe3b749ce6870bf27a828c939bce",
     "name": "Shiba Inu",
     "ticker": "SHIB",
     "decimals": 18,
     "logoUrl": ""
   },
   {
-    "address": "0x872031bd31f27279ec9d9010892fc0ccfe605978",
+    "address": "0x5be3d1c24aa1c248eeba9b87cddafa5396ad67c2",
     "name": "Wrapped Bitcoin",
     "ticker": "BTC",
     "decimals": 18,
     "logoUrl": ""
   },
   {
-    "address": "0x915688d1f92299137be569c96274601b9560334e",
+    "address": "0x441b3f07906d390846c0cae5ccc52ad874d59830",
     "name": "ChainLink",
     "ticker": "LINK",
     "decimals": 18,
     "logoUrl": ""
   },
   {
-    "address": "0x46c62fce53752fc7f795b23326d5976404aabd2c",
+    "address": "0x2c40371ba9f09635ab8635f2f98801df6cfdf247",
     "name": "Fantom",
     "ticker": "FTM",
     "decimals": 18,
     "logoUrl": ""
   },
   {
-    "address": "0xba99d5a227195891afd7af75d50a2ce49a75be35",
+    "address": "0x3039d88f7f65b98cf9378f1a2f3602ca83e71232",
     "name": "Binance Coin",
     "ticker": "BNB",
     "decimals": 18,
     "logoUrl": ""
   },
   {
-    "address": "0x7215f990c9dbc36398555e223ccc6dc25b03abbd",
+    "address": "0x3ad8ac0ab6cf38553d8e2564a49cb1c07913032a",
     "name": "USD Coin",
     "ticker": "USDC",
     "decimals": 18,
     "logoUrl": ""
   },
   {
-    "address": "0xf2a20ec845a6f398d8e083c99e710ee737c49389",
+    "address": "0x39412de5cadfc05d304d8c28e9a9aaf2df170deb",
     "name": "Matic",
     "ticker": "MATIC",
     "decimals": 18,
     "logoUrl": ""
   },
   {
-    "address": "0x23f6568213036af9b52617c3ed54e597fadddde9",
+    "address": "0xea977bb0187de485d4c6c2f362e5b32d5737b347",
     "name": "Basic Attention Token",
     "ticker": "BAT",
     "decimals": 18,
