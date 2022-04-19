@@ -5,6 +5,7 @@ import { RINKEBY_CHAIN_RPC_URL, THETA_TESTNET_RPC_URL } from 'config/constants';
 import { bridgeMap } from 'config/supportedTokens';
 import { ethers } from 'ethers';
 import { NextApiRequest, NextApiResponse } from 'next';
+import { decodeBrigeId } from 'utils/events';
 
 // The private key that is the owner of the bridge. This environment is only
 // accessible in the backend.
@@ -27,8 +28,8 @@ export default async function handler(
     return res.status(404).json({ status: 404, message: 'Not Found' });
   }
 
-  const { bridgeRequestId } = req.body ?? {};
-  if (!bridgeRequestId) {
+  const { transactionHash } = req.body ?? {};
+  if (!transactionHash) {
     return res.status(400).json({ status: 400, message: 'Bad Request' });
   }
 
@@ -56,12 +57,30 @@ export default async function handler(
   );
 
   try {
+    const receipt = await rinkebyProvider.getTransactionReceipt(
+      transactionHash
+    );
+    if (!receipt) {
+      return res.status(400).json({
+        status: 400,
+        message: 'Bad Request',
+      });
+    }
+
+    const bridgeId = decodeBrigeId(receipt);
+    if (!bridgeId) {
+      return res.status(400).json({
+        status: 400,
+        message: 'Bad Request',
+      });
+    }
+
     const [tokenAddress, transferredBy, transferredTo, transferredAmount] =
       await Promise.all([
-        rootPortal.tokenAddress(bridgeRequestId),
-        rootPortal.transferredBy(bridgeRequestId),
-        rootPortal.transferredTo(bridgeRequestId),
-        rootPortal.transferredAmount(bridgeRequestId),
+        rootPortal.tokenAddress(bridgeId),
+        rootPortal.transferredBy(bridgeId),
+        rootPortal.transferredTo(bridgeId),
+        rootPortal.transferredAmount(bridgeId),
       ]);
 
     // If there is no such bridge request id and its associated data on Rinkeby, then
@@ -91,7 +110,7 @@ export default async function handler(
     // recipient address.
     const tx = await childPortal.send(
       bridgeTokenAddress,
-      bridgeRequestId,
+      bridgeId,
       transferredBy,
       transferredTo,
       transferredAmount

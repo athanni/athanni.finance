@@ -25,9 +25,9 @@ export function useLockAmountToRinkeby() {
 /**
  * Brigdes the token that has been locked at Rinkeby to Theta Testnet.
  */
-export async function bridgeToTheta(bridgeRequestId: string) {
+export async function bridgeToTheta(transactionHash: string) {
   const response = await axios.post('/api/bridge-to-theta', {
-    bridgeRequestId,
+    transactionHash,
   });
   return response.data.hash;
 }
@@ -54,9 +54,9 @@ export function useBurnAmountInTheta() {
 /**
  * Brigdes the token that has been burnt at Theta Testnet to Rinkeby.
  */
-export async function bridgeToRinkeby(bridgeRequestId: string) {
+export async function bridgeToRinkeby(transactionHash: string) {
   const response = await axios.post('/api/bridge-to-rinkeby', {
-    bridgeRequestId,
+    transactionHash,
   });
   return response.data.hash;
 }
