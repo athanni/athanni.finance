@@ -29,9 +29,9 @@ export default function SwapInput({ isTokenA }: CurrencyInputProps) {
   const tokenList = useMemo(
     () =>
       swappableTokens
-        .filter((token) => token !== pairTokenAddress)
         .map((token) => resolveToken(token))
-        .filter((token) => Boolean(token)),
+        .filter((token) => Boolean(token))
+        .filter((token) => token!.address !== pairTokenAddress),
     [pairTokenAddress, swappableTokens]
   ) as Token[];
 
