@@ -9,7 +9,7 @@ import { rinkebyTokens } from 'config/supportedTokens';
 import { ethers } from 'ethers';
 import { useSnackbar } from 'notistack';
 import { useCallback, useState } from 'react';
-import { FormProvider, useForm } from 'react-hook-form';
+import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { thetaTestnetProvider } from 'utils/ethers';
 import { convertAmountToBaseUnit } from 'utils/numeric';
 import { z } from 'zod';
@@ -38,6 +38,7 @@ export default function BridgeDeposit() {
     resolver: zodResolver(schema),
   });
   const {
+    control,
     handleSubmit,
     formState: { isSubmitting },
     reset,
@@ -93,6 +94,11 @@ export default function BridgeDeposit() {
     [approvalOfTransfer, enqueueSnackbar, lockAmountToRinkeby, reset]
   );
 
+  const address = useWatch({ control, name: 'address' });
+  const amount = useWatch({ control, name: 'amount' });
+  const tokenSelect = address === '0x' && 'Select Token';
+  const inputAmount = !amount && 'Input Amount';
+
   return (
     <FormProvider {...form}>
       <Stack component="form" spacing={2} onSubmit={handleSubmit(onSubmit)}>
@@ -108,7 +114,7 @@ export default function BridgeDeposit() {
             // Just to shut the error.
             startIcon={<></>}
           >
-            {txStatus || 'Deposit'}
+            {txStatus || tokenSelect || inputAmount || 'Deposit'}
           </LoadingButton>
         </ConnectWrapper>
       </Stack>

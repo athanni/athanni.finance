@@ -208,7 +208,7 @@ export default function LiquidityDialog() {
   );
 
   const selectToken = (!tokenA || !tokenB) && 'Select Token';
-  const inputAmount = (!token0Deposit || !token1Deposit) && 'Input amount';
+  const inputAmount = (!token0Deposit || !token1Deposit) && 'Input Amount';
 
   return (
     <>

@@ -238,7 +238,7 @@ export default function Swapper() {
     !tokenAAmount &&
     tokenBAmount &&
     'Swap Target Very Large';
-  const inputAmount = (!tokenAAmount || !tokenBAmount) && 'Input amount';
+  const inputAmount = (!tokenAAmount || !tokenBAmount) && 'Input Amount';
 
   return (
     <Paper
