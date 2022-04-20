@@ -8,7 +8,7 @@ import config from 'config/config';
 import { thetaTestnetTokens } from 'config/supportedTokens';
 import { ethers } from 'ethers';
 import { useSnackbar } from 'notistack';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { rinkebyProvider } from 'utils/ethers';
 import { convertAmountToBaseUnit } from 'utils/numeric';
@@ -43,6 +43,7 @@ export default function BridgeWithdraw() {
     reset,
   } = form;
 
+  const [txStatus, setTxStatus] = useState<string | null>(null);
   const { enqueueSnackbar } = useSnackbar();
   const approvalOfTransfer = useApprovalOfTransfer();
   const burnAmountInTheta = useBurnAmountInTheta();
@@ -52,6 +53,8 @@ export default function BridgeWithdraw() {
       const baseAmount = convertAmountToBaseUnit(amount.toFixed(), address);
 
       try {
+        setTxStatus('Approving Token Transfer');
+
         const approvalTx = await approvalOfTransfer(
           address,
           ethers.BigNumber.from(baseAmount),
@@ -62,12 +65,15 @@ export default function BridgeWithdraw() {
         }
         await approvalTx.wait();
 
+        setTxStatus('Bridging Your Tokens');
         const lockTx = await burnAmountInTheta(address, baseAmount);
         if (!lockTx) {
           return;
         }
         await lockTx.wait();
         const bridgeHash = await bridgeToRinkeby(lockTx.hash);
+
+        setTxStatus('Verifying Transfer');
         await rinkebyProvider.waitForTransaction(bridgeHash);
 
         enqueueSnackbar('Successfully bridged your tokens.', {
@@ -80,6 +86,8 @@ export default function BridgeWithdraw() {
         });
 
         throw err;
+      } finally {
+        setTxStatus(null);
       }
     },
     [approvalOfTransfer, burnAmountInTheta, enqueueSnackbar, reset]
@@ -100,7 +108,7 @@ export default function BridgeWithdraw() {
             // Just to shut the error.
             startIcon={<></>}
           >
-            Withdraw
+            {txStatus || 'Withdraw'}
           </LoadingButton>
         </ConnectWrapper>
       </Stack>

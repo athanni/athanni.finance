@@ -8,7 +8,7 @@ import config from 'config/config';
 import { rinkebyTokens } from 'config/supportedTokens';
 import { ethers } from 'ethers';
 import { useSnackbar } from 'notistack';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import { thetaTestnetProvider } from 'utils/ethers';
 import { convertAmountToBaseUnit } from 'utils/numeric';
@@ -43,6 +43,7 @@ export default function BridgeDeposit() {
     reset,
   } = form;
 
+  const [txStatus, setTxStatus] = useState<string | null>(null);
   const { enqueueSnackbar } = useSnackbar();
   const approvalOfTransfer = useApprovalOfTransfer();
   const lockAmountToRinkeby = useLockAmountToRinkeby();
@@ -52,6 +53,8 @@ export default function BridgeDeposit() {
       const baseAmount = convertAmountToBaseUnit(amount.toFixed(), address);
 
       try {
+        setTxStatus('Approving Token Transfer');
+
         const approvalTx = await approvalOfTransfer(
           address,
           ethers.BigNumber.from(baseAmount),
@@ -62,12 +65,15 @@ export default function BridgeDeposit() {
         }
         await approvalTx.wait();
 
+        setTxStatus('Bridging Your Tokens');
         const lockTx = await lockAmountToRinkeby(address, baseAmount);
         if (!lockTx) {
           return;
         }
         await lockTx.wait();
         const bridgeHash = await bridgeToTheta(lockTx.hash);
+
+        setTxStatus('Verifying Transfer');
         await thetaTestnetProvider.waitForTransaction(bridgeHash);
 
         enqueueSnackbar('Successfully bridged your tokens.', {
@@ -80,6 +86,8 @@ export default function BridgeDeposit() {
         });
 
         throw err;
+      } finally {
+        setTxStatus(null);
       }
     },
     [approvalOfTransfer, enqueueSnackbar, lockAmountToRinkeby, reset]
@@ -100,7 +108,7 @@ export default function BridgeDeposit() {
             // Just to shut the error.
             startIcon={<></>}
           >
-            Deposit
+            {txStatus || 'Deposit'}
           </LoadingButton>
         </ConnectWrapper>
       </Stack>
