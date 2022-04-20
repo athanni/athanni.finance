@@ -1,5 +1,4 @@
 import {
-  Avatar,
   Box,
   IconButton,
   Menu,
@@ -8,7 +7,6 @@ import {
   Stack,
   Typography,
 } from '@mui/material';
-import { green, red } from '@mui/material/colors';
 import { PooledPairItem } from 'api/pairs';
 import { resolveToken } from 'config/supportedTokens';
 import { useCallback, useState } from 'react';
@@ -49,22 +47,25 @@ export default function PoolItem({ pair }: PoolItemProps) {
             alignItems="center"
             spacing={4}
           >
-            <Box position="relative">
-              {/* TODO: Use proper logos here. */}
-              <Avatar sx={{ bgcolor: green[300] }}>
-                {tokenA.ticker.substring(0, 1)}
-              </Avatar>
-              <Avatar
-                sx={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 20,
-                  bgcolor: red[200],
-                }}
-              >
-                {tokenB.ticker.substring(0, 1)}
-              </Avatar>
-            </Box>
+            <Stack justifyContent="center" position="relative">
+              <Box
+                component="img"
+                src={tokenA.logoUrl}
+                alt={`${tokenA.name}`}
+                width={48}
+                height={48}
+              />
+              <Box
+                component="img"
+                src={tokenB.logoUrl}
+                alt={`${tokenB.name}`}
+                width={48}
+                height={48}
+                position="absolute"
+                top={0}
+                left={20}
+              />
+            </Stack>
 
             <Box>
               <Typography variant="h6">

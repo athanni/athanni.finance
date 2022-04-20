@@ -4,83 +4,83 @@
     "name": "Wrapped Ether",
     "ticker": "WETH",
     "decimals": 18,
-    "logoUrl": ""
+    "logoUrl": "assets/ETH.png"
   },
   {
     "address": "0x4ec00fac91958257b34b4fdcf5bd7b3da95d04ba",
     "name": "Tether USD",
     "ticker": "USDT",
     "decimals": 18,
-    "logoUrl": ""
+    "logoUrl": "assets/USDT.png"
   },
   {
     "address": "0x468921281f1789bb3ec383655ba37185c58479b0",
     "name": "Doge Coin",
     "ticker": "DOGE",
     "decimals": 18,
-    "logoUrl": ""
+    "logoUrl": "assets/DOGE.png"
   },
   {
     "address": "0x68ff0f74cfd6f4dd3b764cba44e77b6c07c3dce7",
     "name": "Solana",
     "ticker": "SOL",
     "decimals": 18,
-    "logoUrl": ""
+    "logoUrl": "assets/SOL.png"
   },
   {
     "address": "0xc96e9cc05d92fe3b749ce6870bf27a828c939bce",
     "name": "Shiba Inu",
     "ticker": "SHIB",
     "decimals": 18,
-    "logoUrl": ""
+    "logoUrl": "assets/SHIB.png"
   },
   {
     "address": "0x5be3d1c24aa1c248eeba9b87cddafa5396ad67c2",
     "name": "Wrapped Bitcoin",
     "ticker": "BTC",
     "decimals": 18,
-    "logoUrl": ""
+    "logoUrl": "assets/BTC.png"
   },
   {
     "address": "0x441b3f07906d390846c0cae5ccc52ad874d59830",
     "name": "ChainLink",
     "ticker": "LINK",
     "decimals": 18,
-    "logoUrl": ""
+    "logoUrl": "assets/LINK.png"
   },
   {
     "address": "0x2c40371ba9f09635ab8635f2f98801df6cfdf247",
     "name": "Fantom",
     "ticker": "FTM",
     "decimals": 18,
-    "logoUrl": ""
+    "logoUrl": "assets/FTM.png"
   },
   {
     "address": "0x3039d88f7f65b98cf9378f1a2f3602ca83e71232",
     "name": "Binance Coin",
     "ticker": "BNB",
     "decimals": 18,
-    "logoUrl": ""
+    "logoUrl": "assets/BNB.png"
   },
   {
     "address": "0x3ad8ac0ab6cf38553d8e2564a49cb1c07913032a",
     "name": "USD Coin",
     "ticker": "USDC",
     "decimals": 18,
-    "logoUrl": ""
+    "logoUrl": "assets/USDC.png"
   },
   {
     "address": "0x39412de5cadfc05d304d8c28e9a9aaf2df170deb",
     "name": "Matic",
     "ticker": "MATIC",
     "decimals": 18,
-    "logoUrl": ""
+    "logoUrl": "assets/MATIC.png"
   },
   {
     "address": "0xea977bb0187de485d4c6c2f362e5b32d5737b347",
     "name": "Basic Attention Token",
     "ticker": "BAT",
     "decimals": 18,
-    "logoUrl": ""
+    "logoUrl": "assets/BAT.png"
   }
 ]
