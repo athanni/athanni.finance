@@ -87,5 +87,3 @@ const bridgeMap = supportedTokens.reduce((acc, cur) => {
 export function resolveBridgeTokenAddress(address: string): string | null {
   return bridgeMap[address.toLowerCase()] ?? null;
 }
-
-export default supportedTokens;

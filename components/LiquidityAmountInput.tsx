@@ -2,7 +2,7 @@ import { Box, Button, Input, Stack, Typography, useTheme } from '@mui/material';
 import { red } from '@mui/material/colors';
 import { useTokenBalance } from 'api/token';
 import BigNumber from 'bignumber.js';
-import supportedTokens from 'config/supportedTokens';
+import { resolveToken } from 'config/supportedTokens';
 import { useMemo } from 'react';
 import { Controller, useFormContext } from 'react-hook-form';
 import { decimalRegex, handleAllowedInput } from 'utils/numeric';
@@ -23,11 +23,7 @@ export default function LiquidityAmountInput({
   address,
 }: LiquidityAmountInputProps) {
   const { typography } = useTheme();
-
-  const token = useMemo(
-    () => supportedTokens.find((token) => token.address === address),
-    [address]
-  );
+  const token = useMemo(() => resolveToken(address), [address]);
   const { data: tokenBalance } = useTokenBalance(token?.address);
 
   const {

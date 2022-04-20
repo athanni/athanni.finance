@@ -7,7 +7,7 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import supportedTokens from 'config/supportedTokens';
+import { resolveToken } from 'config/supportedTokens';
 import { useMemo } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 import { decimalRegex } from 'utils/numeric';
@@ -21,11 +21,7 @@ export default function BridgeInputReadonly({ network }: BridgeInputProps) {
   const { control } = useFormContext();
   const address = useWatch({ control, name: 'address' });
   const amount = useWatch({ control, name: 'amount' });
-
-  const token = useMemo(
-    () => supportedTokens.find((it) => it.address === address),
-    [address]
-  );
+  const token = useMemo(() => resolveToken(address), [address]);
 
   return (
     <Box
