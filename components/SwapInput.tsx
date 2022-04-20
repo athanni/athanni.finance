@@ -1,17 +1,11 @@
-import {
-  Box,
-  Input,
-  MenuItem,
-  Select,
-  Stack,
-  Typography,
-  useTheme,
-} from '@mui/material';
+import { Box, Input, Stack, Typography, useTheme } from '@mui/material';
 import { useSwappableTokens } from 'api/pairs';
 import { useTokenBalance } from 'api/token';
-import { resolveToken } from 'config/supportedTokens';
+import { resolveToken, Token } from 'config/supportedTokens';
+import { useMemo } from 'react';
 import { Controller, useFormContext, useWatch } from 'react-hook-form';
-import { handleAllowedInput, decimalRegex } from 'utils/numeric';
+import { decimalRegex, handleAllowedInput } from 'utils/numeric';
+import TokenInput from './TokenInput';
 
 type CurrencyInputProps = {
   isTokenA: boolean;
@@ -32,6 +26,14 @@ export default function SwapInput({ isTokenA }: CurrencyInputProps) {
   const pairTokenAddress = useWatch({ control, name: pairTokenName });
 
   const { data: swappableTokens } = useSwappableTokens();
+  const tokenList = useMemo(
+    () =>
+      swappableTokens
+        .filter((token) => token !== pairTokenAddress)
+        .map((token) => resolveToken(token))
+        .filter((token) => Boolean(token)),
+    [pairTokenAddress, swappableTokens]
+  ) as Token[];
 
   return (
     <Box
@@ -77,33 +79,11 @@ export default function SwapInput({ isTokenA }: CurrencyInputProps) {
           name={tokenName}
           control={control}
           render={({ field }) => (
-            <Select
-              variant="standard"
-              size="small"
-              disableUnderline
-              sx={{
-                '& .MuiSelect-select': {
-                  bgcolor: 'grey.200',
-                  px: 2,
-                  py: 1,
-                  borderRadius: 1.5,
-                },
-              }}
+            <TokenInput
+              tokens={tokenList}
               value={field.value}
               onChange={field.onChange}
-            >
-              <MenuItem value="0x">
-                <Typography color="textSecondary">-</Typography>
-              </MenuItem>
-              {swappableTokens
-                .filter((token) => token !== pairTokenAddress)
-                .filter((token) => Boolean(resolveToken(token)))
-                .map((token) => (
-                  <MenuItem key={token} value={token}>
-                    {resolveToken(token)!.ticker}
-                  </MenuItem>
-                ))}
-            </Select>
+            />
           )}
         />
       </Stack>
