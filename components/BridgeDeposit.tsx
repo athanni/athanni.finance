@@ -8,8 +8,8 @@ import config from 'config/config';
 import { rinkebyTokens } from 'config/supportedTokens';
 import { ethers } from 'ethers';
 import { useSnackbar } from 'notistack';
-import { useCallback } from 'react';
-import { FormProvider, useForm } from 'react-hook-form';
+import { useCallback, useState } from 'react';
+import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { thetaTestnetProvider } from 'utils/ethers';
 import { convertAmountToBaseUnit } from 'utils/numeric';
 import { z } from 'zod';
@@ -38,11 +38,13 @@ export default function BridgeDeposit() {
     resolver: zodResolver(schema),
   });
   const {
+    control,
     handleSubmit,
     formState: { isSubmitting },
     reset,
   } = form;
 
+  const [txStatus, setTxStatus] = useState<string | null>(null);
   const { enqueueSnackbar } = useSnackbar();
   const approvalOfTransfer = useApprovalOfTransfer();
   const lockAmountToRinkeby = useLockAmountToRinkeby();
@@ -52,6 +54,8 @@ export default function BridgeDeposit() {
       const baseAmount = convertAmountToBaseUnit(amount.toFixed(), address);
 
       try {
+        setTxStatus('Approving Token Transfer');
+
         const approvalTx = await approvalOfTransfer(
           address,
           ethers.BigNumber.from(baseAmount),
@@ -62,12 +66,15 @@ export default function BridgeDeposit() {
         }
         await approvalTx.wait();
 
+        setTxStatus('Bridging Your Tokens');
         const lockTx = await lockAmountToRinkeby(address, baseAmount);
         if (!lockTx) {
           return;
         }
         await lockTx.wait();
         const bridgeHash = await bridgeToTheta(lockTx.hash);
+
+        setTxStatus('Verifying Transfer');
         await thetaTestnetProvider.waitForTransaction(bridgeHash);
 
         enqueueSnackbar('Successfully bridged your tokens.', {
@@ -80,10 +87,17 @@ export default function BridgeDeposit() {
         });
 
         throw err;
+      } finally {
+        setTxStatus(null);
       }
     },
     [approvalOfTransfer, enqueueSnackbar, lockAmountToRinkeby, reset]
   );
+
+  const address = useWatch({ control, name: 'address' });
+  const amount = useWatch({ control, name: 'amount' });
+  const tokenSelect = address === '0x' && 'Select Token';
+  const inputAmount = !amount && 'Input Amount';
 
   return (
     <FormProvider {...form}>
@@ -100,7 +114,7 @@ export default function BridgeDeposit() {
             // Just to shut the error.
             startIcon={<></>}
           >
-            Deposit
+            {txStatus || tokenSelect || inputAmount || 'Deposit'}
           </LoadingButton>
         </ConnectWrapper>
       </Stack>
