@@ -100,7 +100,7 @@ export default function BridgeWithdraw() {
             // Just to shut the error.
             startIcon={<></>}
           >
-            Deposit
+            Withdraw
           </LoadingButton>
         </ConnectWrapper>
       </Stack>
