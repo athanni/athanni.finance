@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  ButtonProps,
   Dialog,
   DialogContent,
   DialogTitle,
@@ -11,7 +12,7 @@ import {
   Typography,
 } from '@mui/material';
 import { resolveToken, Token } from 'config/supportedTokens';
-import { useMemo } from 'react';
+import { ReactNode, useMemo } from 'react';
 import { useBoolean } from 'react-use';
 
 type TokenInputProps = {
@@ -19,6 +20,8 @@ type TokenInputProps = {
   value: string;
   disabled?: boolean;
   onChange?: (value: string) => void;
+  ButtonProps?: ButtonProps;
+  render?: (value: Token | null) => ReactNode;
 };
 
 export default function TokenInput({
@@ -26,6 +29,8 @@ export default function TokenInput({
   value,
   disabled,
   onChange,
+  ButtonProps,
+  render,
 }: TokenInputProps) {
   const [open, toggleOpen] = useBoolean(false);
   const token = useMemo(() => (value ? resolveToken(value) : null), [value]);
@@ -37,8 +42,9 @@ export default function TokenInput({
         color="inherit"
         onClick={toggleOpen}
         disabled={disabled}
+        {...(ButtonProps ?? {})}
       >
-        {token?.ticker ?? 'Token'}
+        {render ? render(token) : token?.ticker ?? 'Token'}
       </Button>
 
       <Dialog open={open} onClose={toggleOpen} fullWidth maxWidth="xs">

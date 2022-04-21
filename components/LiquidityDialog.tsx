@@ -21,7 +21,7 @@ import { resolveToken, thetaTestnetTokens } from 'config/supportedTokens';
 import { ethers } from 'ethers';
 import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { FormProvider, useForm, useWatch } from 'react-hook-form';
+import { Controller, FormProvider, useForm, useWatch } from 'react-hook-form';
 import { useQueryClient } from 'react-query';
 import { useBoolean } from 'react-use';
 import { calculateSlippageMin } from 'utils/slippage';
@@ -29,7 +29,7 @@ import { z } from 'zod';
 import ConnectWrapper from './ConnectWrapper';
 import LiquidityAmountInput from './LiquidityAmountInput';
 import PoolInfo from './PoolInfo';
-import TokenSelect from './TokenSelect';
+import TokenInput from './TokenInput';
 
 const schema = z.object({
   token0: z.string().refine((v) => v !== '0x', 'Required'),
@@ -223,17 +223,58 @@ export default function LiquidityDialog() {
             <FormProvider {...form}>
               <Typography fontWeight="medium">Select Pair</Typography>
               <Stack direction="row" spacing={2} mt={2}>
-                <TokenSelect
+                <Controller
                   name="token0"
-                  placeholder="First token"
-                  tokens={tokenAOptions}
-                  disabled={!isActive}
+                  control={control}
+                  render={({ field }) => (
+                    <TokenInput
+                      tokens={tokenAOptions}
+                      value={field.value}
+                      onChange={field.onChange}
+                      disabled={!isActive}
+                      ButtonProps={{
+                        fullWidth: true,
+                        size: 'large',
+                      }}
+                      render={(token) => (
+                        <Box>
+                          <Typography fontWeight="medium">
+                            {token?.ticker ?? 'Select a Token'}
+                          </Typography>
+                          <Typography variant="body2" color="textSecondary">
+                            {token?.name ?? 'First Token'}
+                          </Typography>
+                        </Box>
+                      )}
+                    />
+                  )}
                 />
-                <TokenSelect
+
+                <Controller
                   name="token1"
-                  placeholder="Second token"
-                  tokens={tokenBOptions}
-                  disabled={!isActive}
+                  control={control}
+                  render={({ field }) => (
+                    <TokenInput
+                      tokens={tokenBOptions}
+                      value={field.value}
+                      onChange={field.onChange}
+                      disabled={!isActive}
+                      ButtonProps={{
+                        fullWidth: true,
+                        size: 'large',
+                      }}
+                      render={(token) => (
+                        <Box>
+                          <Typography fontWeight="medium">
+                            {token?.ticker ?? 'Select a Token'}
+                          </Typography>
+                          <Typography variant="body2" color="textSecondary">
+                            {token?.name ?? 'Second Token'}
+                          </Typography>
+                        </Box>
+                      )}
+                    />
+                  )}
                 />
               </Stack>
 
