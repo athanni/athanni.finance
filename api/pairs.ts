@@ -151,22 +151,21 @@ export function usePoolPair(tokenA?: string, tokenB?: string) {
           pairContract.totalSupply(),
         ]);
 
-      const tokenALowercase = tokenA!.toLowerCase();
-      const tokenBLowercase = tokenB!.toLowerCase();
+      const token0Lowercase = token0.toLowerCase();
 
       return {
         address: pairAddress!,
         currentAccountBalance: new LiquidPoolTokenBalance(balance),
         totalSupply: new LiquidPoolTokenBalance(totalSupply),
-        tokenA: tokenALowercase,
-        tokenB: tokenBLowercase,
+        tokenA: tokenA!,
+        tokenB: tokenB!,
         reserveA: new TokenBalance(
-          tokenALowercase,
-          tokenALowercase === token0 ? reserveA : reserveB
+          tokenA!,
+          tokenA === token0Lowercase ? reserveA : reserveB
         ),
         reserveB: new TokenBalance(
-          tokenBLowercase,
-          tokenBLowercase === token0 ? reserveA : reserveB
+          tokenB!,
+          tokenB === token0Lowercase ? reserveA : reserveB
         ),
       };
     },
