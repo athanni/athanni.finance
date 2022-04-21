@@ -1,7 +1,7 @@
 import { useWeb3React } from '@web3-react/core';
 import BigNumber from 'bignumber.js';
 import config from 'config/config';
-import supportedTokens, { resolveToken } from 'config/supportedTokens';
+import { resolveToken } from 'config/supportedTokens';
 import { ethers } from 'ethers';
 import { useCallback } from 'react';
 import { useQuery } from 'react-query';
@@ -21,7 +21,7 @@ export class TokenBalance {
    */
   inMajorUnit(): BigNumber {
     const bal = new BigNumber(this.balance.toString());
-    const token = supportedTokens.find((it) => it.address === this.address);
+    const token = resolveToken(this.address);
     if (!token) {
       throw new Error('unsupported token used');
     }

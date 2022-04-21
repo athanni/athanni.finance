@@ -1,16 +1,9 @@
-import {
-  Box,
-  Input,
-  MenuItem,
-  Select,
-  Stack,
-  Typography,
-  useTheme,
-} from '@mui/material';
-import supportedTokens from 'config/supportedTokens';
+import { Box, Input, Stack, Typography, useTheme } from '@mui/material';
+import { resolveToken } from 'config/supportedTokens';
 import { useMemo } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 import { decimalRegex } from 'utils/numeric';
+import TokenInput from './TokenInput';
 
 type BridgeInputProps = {
   network: string;
@@ -21,11 +14,7 @@ export default function BridgeInputReadonly({ network }: BridgeInputProps) {
   const { control } = useFormContext();
   const address = useWatch({ control, name: 'address' });
   const amount = useWatch({ control, name: 'amount' });
-
-  const token = useMemo(
-    () => supportedTokens.find((it) => it.address === address),
-    [address]
-  );
+  const token = useMemo(() => resolveToken(address), [address]);
 
   return (
     <Box
@@ -57,30 +46,12 @@ export default function BridgeInputReadonly({ network }: BridgeInputProps) {
           }}
         />
 
-        <Select
-          variant="standard"
-          size="small"
-          disableUnderline
-          value={address}
+        <TokenInput
+          tokens={token ? [token] : []}
+          value={token?.address ?? ''}
           disabled
-          sx={{
-            '& .MuiSelect-select': {
-              bgcolor: 'grey.200',
-              px: 2,
-              py: 1,
-              borderRadius: 1.5,
-            },
-          }}
-        >
-          <MenuItem value="0x">
-            <Typography color="textSecondary">-</Typography>
-          </MenuItem>
-          {token && (
-            <MenuItem value={token.address}>
-              <Typography color="textSecondary">{token.ticker}</Typography>
-            </MenuItem>
-          )}
-        </Select>
+          disableLogo
+        />
       </Stack>
       <Typography variant="body2" color="textSecondary">
         {network}

@@ -7,6 +7,7 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
+  IconButton,
   Stack,
   Typography,
 } from '@mui/material';
@@ -21,7 +22,8 @@ import { resolveToken, thetaTestnetTokens } from 'config/supportedTokens';
 import { ethers } from 'ethers';
 import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { FormProvider, useForm, useWatch } from 'react-hook-form';
+import { Controller, FormProvider, useForm, useWatch } from 'react-hook-form';
+import { MdSwapHoriz } from 'react-icons/md';
 import { useQueryClient } from 'react-query';
 import { useBoolean } from 'react-use';
 import { calculateSlippageMin } from 'utils/slippage';
@@ -29,7 +31,7 @@ import { z } from 'zod';
 import ConnectWrapper from './ConnectWrapper';
 import LiquidityAmountInput from './LiquidityAmountInput';
 import PoolInfo from './PoolInfo';
-import TokenSelect from './TokenSelect';
+import TokenInput from './TokenInput';
 
 const schema = z.object({
   token0: z.string().refine((v) => v !== '0x', 'Required'),
@@ -66,6 +68,7 @@ export default function LiquidityDialog() {
     setValue,
     handleSubmit,
     formState: { isSubmitting },
+    getValues,
   } = form;
 
   const token0 = useWatch({ control, name: 'token0' });
@@ -196,6 +199,14 @@ export default function LiquidityDialog() {
     [addLiquidity, approvalOfTransfer, enqueueSnackbar, queryClient, toggleOpen]
   );
 
+  const onSwapTokenInputs = useCallback(() => {
+    const values = getValues();
+    setValue('token0', values.token1);
+    setValue('token1', values.token0);
+    setValue('token0Deposit', '');
+    setValue('token1Deposit', '');
+  }, [getValues, setValue]);
+
   const { data: pair, isLoading: isPoolPairLoading } = usePoolPair(
     tokenA,
     tokenB
@@ -222,18 +233,66 @@ export default function LiquidityDialog() {
           <form onSubmit={handleSubmit(onSubmit)}>
             <FormProvider {...form}>
               <Typography fontWeight="medium">Select Pair</Typography>
-              <Stack direction="row" spacing={2} mt={2}>
-                <TokenSelect
+              <Stack direction="row" spacing={1} mt={2} alignItems="center">
+                <Controller
                   name="token0"
-                  placeholder="First token"
-                  tokens={tokenAOptions}
-                  disabled={!isActive}
+                  control={control}
+                  render={({ field }) => (
+                    <TokenInput
+                      tokens={tokenAOptions}
+                      value={field.value}
+                      onChange={field.onChange}
+                      disabled={!isActive}
+                      ButtonProps={{
+                        fullWidth: true,
+                        size: 'large',
+                      }}
+                      render={(token) => (
+                        <>
+                          <Typography fontWeight="medium">
+                            {token?.ticker ?? 'Select a Token'}
+                          </Typography>
+                          <Typography variant="body2" color="textSecondary">
+                            {token?.name ?? 'First Token'}
+                          </Typography>
+                        </>
+                      )}
+                    />
+                  )}
                 />
-                <TokenSelect
+
+                <IconButton
+                  sx={{ width: 56, height: 56 }}
+                  onClick={onSwapTokenInputs}
+                >
+                  <MdSwapHoriz />
+                </IconButton>
+
+                <Controller
                   name="token1"
-                  placeholder="Second token"
-                  tokens={tokenBOptions}
-                  disabled={!isActive}
+                  control={control}
+                  render={({ field }) => (
+                    <TokenInput
+                      tokens={tokenBOptions}
+                      value={field.value}
+                      onChange={field.onChange}
+                      disabled={!isActive}
+                      ButtonProps={{
+                        fullWidth: true,
+                        size: 'large',
+                      }}
+                      render={(token) => (
+                        <>
+                          <Typography fontWeight="medium">
+                            {token?.ticker ?? 'Select a Token'}
+                          </Typography>
+                          <Typography variant="body2" color="textSecondary">
+                            {token?.name ?? 'Second Token'}
+                          </Typography>
+                        </>
+                      )}
+                    />
+                  )}
                 />
               </Stack>
 
