@@ -19,6 +19,7 @@ import { resolveToken, Token } from 'config/supportedTokens';
 import { ReactNode, useCallback, useMemo } from 'react';
 import { MdAdd, MdArrowDropDown } from 'react-icons/md';
 import { useBoolean } from 'react-use';
+import { useCorrectChainId } from 'utils/chain';
 
 type TokenInputProps = {
   tokens: Token[];
@@ -108,7 +109,11 @@ type TokenInputOptionProps = {
 };
 
 function TokenInputOption({ token, onClick }: TokenInputOptionProps) {
-  const { connector } = useWeb3React();
+  const { connector, chainId } = useWeb3React();
+  const correctChainId = useCorrectChainId();
+
+  const isCorrectChain = correctChainId === chainId;
+
   // Shows the token in the Metamask list.
   const onAddToken = useCallback(async () => {
     if (!connector || !token) {
@@ -146,13 +151,15 @@ function TokenInputOption({ token, onClick }: TokenInputOptionProps) {
           {token.name}
         </Typography>
       </ListItemText>
-      <ListItemSecondaryAction>
-        <Tooltip title="Add To MetaMask">
-          <IconButton size="small" onClick={onAddToken}>
-            <MdAdd />
-          </IconButton>
-        </Tooltip>
-      </ListItemSecondaryAction>
+      {isCorrectChain && (
+        <ListItemSecondaryAction>
+          <Tooltip title="Add To MetaMask">
+            <IconButton size="small" onClick={onAddToken}>
+              <MdAdd />
+            </IconButton>
+          </Tooltip>
+        </ListItemSecondaryAction>
+      )}
     </ListItem>
   );
 }
