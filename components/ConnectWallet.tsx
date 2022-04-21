@@ -13,7 +13,7 @@ import {
 } from '@mui/material';
 import { useWeb3React } from '@web3-react/core';
 import { THETA_TESTNET_CHAIN_ID } from 'config/constants';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { MdSwitchRight } from 'react-icons/md';
 import { useBoolean } from 'react-use';
 import { useCorrectChainId } from 'utils/chain';
@@ -29,7 +29,15 @@ export default function ConnectWallet({ buttonProps }: ConnectWalletProps) {
   const correctChainId = useCorrectChainId();
 
   const [open, toggleOpen] = useBoolean(false);
-  const { isActive, account, chainId } = useWeb3React();
+  const { isActive, account, chainId, connector } = useWeb3React();
+  const isMetaMaskInstalled = useMemo(
+    () => Boolean(connector.provider),
+    [connector.provider]
+  );
+
+  const onInstallMetaMask = useCallback(() => {
+    window.open('https://metamask.io/', '_blank', 'noopener noreferrer');
+  }, []);
 
   const onConnectMetaMask = useCallback(async () => {
     await metaMask.activate(correctChainId);
@@ -90,11 +98,18 @@ export default function ConnectWallet({ buttonProps }: ConnectWalletProps) {
         <DialogTitle>Connect Wallet</DialogTitle>
         <DialogContent>
           <List>
-            <ListItem button onClick={onConnectMetaMask}>
+            <ListItem
+              button
+              onClick={
+                isMetaMaskInstalled ? onConnectMetaMask : onInstallMetaMask
+              }
+            >
               <ListItemIcon>
                 <MetamaskIcon />
               </ListItemIcon>
-              <ListItemText>MetaMask</ListItemText>
+              <ListItemText>
+                {isMetaMaskInstalled ? 'MetaMask' : 'Install MetaMask'}
+              </ListItemText>
             </ListItem>
           </List>
         </DialogContent>
