@@ -23,7 +23,7 @@ import { ethers } from 'ethers';
 import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Controller, FormProvider, useForm, useWatch } from 'react-hook-form';
-import { MdSwapHoriz } from 'react-icons/md';
+import { MdSwapHoriz, MdSwapVert } from 'react-icons/md';
 import { useQueryClient } from 'react-query';
 import { useBoolean } from 'react-use';
 import { calculateSlippageMin } from 'utils/slippage';
@@ -233,7 +233,12 @@ export default function LiquidityDialog() {
           <form onSubmit={handleSubmit(onSubmit)}>
             <FormProvider {...form}>
               <Typography fontWeight="medium">Select Pair</Typography>
-              <Stack direction="row" spacing={1} mt={2} alignItems="center">
+              <Stack
+                direction={{ xs: 'column', md: 'row' }}
+                spacing={1}
+                mt={2}
+                alignItems="center"
+              >
                 <Controller
                   name="token0"
                   control={control}
@@ -262,10 +267,25 @@ export default function LiquidityDialog() {
                 />
 
                 <IconButton
-                  sx={{ width: 56, height: 56 }}
+                  sx={{
+                    display: { xs: 'none', md: 'flex' },
+                    width: 56,
+                    height: 56,
+                  }}
                   onClick={onSwapTokenInputs}
                 >
                   <MdSwapHoriz />
+                </IconButton>
+
+                <IconButton
+                  sx={{
+                    display: { xs: 'flex', md: 'none' },
+                    width: 56,
+                    height: 56,
+                  }}
+                  onClick={onSwapTokenInputs}
+                >
+                  <MdSwapVert />
                 </IconButton>
 
                 <Controller
