@@ -13,6 +13,7 @@ import {
 } from '@mui/material';
 import { resolveToken, Token } from 'config/supportedTokens';
 import { ReactNode, useMemo } from 'react';
+import { MdArrowDropDown } from 'react-icons/md';
 import { useBoolean } from 'react-use';
 
 type TokenInputProps = {
@@ -42,9 +43,25 @@ export default function TokenInput({
         color="inherit"
         onClick={toggleOpen}
         disabled={disabled}
+        sx={{
+          justifyContent: 'space-between',
+        }}
         {...(ButtonProps ?? {})}
       >
-        {render ? render(token) : token?.ticker ?? 'Token'}
+        {token ? (
+          <Box
+            component="img"
+            src={token.logoUrl}
+            alt={token.name}
+            width={38}
+            height={38}
+            borderRadius="100%"
+          />
+        ) : (
+          <Box width={38} height={38} />
+        )}
+        <Box flex={1}>{render ? render(token) : token?.ticker ?? 'Token'}</Box>
+        <Box component={MdArrowDropDown} sx={{ width: 24, height: 24 }} />
       </Button>
 
       <Dialog open={open} onClose={toggleOpen} fullWidth maxWidth="xs">

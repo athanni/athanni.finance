@@ -237,14 +237,14 @@ export default function LiquidityDialog() {
                         size: 'large',
                       }}
                       render={(token) => (
-                        <Box>
+                        <>
                           <Typography fontWeight="medium">
                             {token?.ticker ?? 'Select a Token'}
                           </Typography>
                           <Typography variant="body2" color="textSecondary">
                             {token?.name ?? 'First Token'}
                           </Typography>
-                        </Box>
+                        </>
                       )}
                     />
                   )}
@@ -264,14 +264,14 @@ export default function LiquidityDialog() {
                         size: 'large',
                       }}
                       render={(token) => (
-                        <Box>
+                        <>
                           <Typography fontWeight="medium">
                             {token?.ticker ?? 'Select a Token'}
                           </Typography>
                           <Typography variant="body2" color="textSecondary">
                             {token?.name ?? 'Second Token'}
                           </Typography>
-                        </Box>
+                        </>
                       )}
                     />
                   )}
