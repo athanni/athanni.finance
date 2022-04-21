@@ -24,7 +24,7 @@ import SwapInfo from './SwapInfo';
 import SwapInput from './SwapInput';
 
 const schema = z.object({
-  editedToken: z.string(),
+  editedToken: z.enum(['token0', 'token1']),
   tokenA: z.string().refine((v) => v !== '0x', 'Required'),
   tokenB: z.string().refine((v) => v !== '0x', 'Required'),
   tokenAAmount: z
@@ -97,33 +97,33 @@ export default function Swapper() {
     [token1, tokenBAmount]
   );
 
-  const swapDirection = editedToken === token0 ? 'out' : 'in';
+  const swapDirection = editedToken === 'token0' ? 'out' : 'in';
   const { data: path, isLoading: isSwapAmountLoading } = useBestSwapAmount(
     token0,
     token1,
-    editedToken === token0 ? tokenABaseUnit : tokenBBaseUnit,
+    editedToken === 'token0' ? tokenABaseUnit : tokenBBaseUnit,
     swapDirection
   );
 
   // Whenever the input or the swap amount changes update the non-edited field.
   useEffect(() => {
     if (!path) {
-      setValue(editedToken === token0 ? 'tokenBAmount' : 'tokenAAmount', '');
+      setValue(editedToken === 'token0' ? 'tokenBAmount' : 'tokenAAmount', '');
       return;
     }
 
     const first = path[0];
     const last = path[path.length - 1];
 
-    if (editedToken === token0) {
+    if (editedToken === 'token0') {
       setValue('tokenBAmount', last.toPlainString());
       return;
     }
 
-    if (editedToken === token1) {
+    if (editedToken === 'token1') {
       setValue('tokenAAmount', first.toPlainString());
     }
-  }, [editedToken, path, setValue, token0, token1, tokenA, tokenB]);
+  }, [editedToken, path, setValue]);
 
   const [txStatus, setTxStatus] = useState<string | null>(null);
   const { enqueueSnackbar } = useSnackbar();
@@ -137,7 +137,7 @@ export default function Swapper() {
       }
 
       try {
-        const { editedToken, tokenA } = state as SchemaType;
+        const { editedToken } = state as SchemaType;
         const first = path[0];
         const last = path[path.length - 1];
 
@@ -146,7 +146,7 @@ export default function Swapper() {
         setTxStatus('Approving Token Transfer');
 
         // Source tokens are exact.
-        if (editedToken === tokenA) {
+        if (editedToken === 'token0') {
           const amountOutMin = calculateSlippageMin(
             new BigNumber(last.balance.toString()),
             DEFAULT_SPLIPPAGE_RATE

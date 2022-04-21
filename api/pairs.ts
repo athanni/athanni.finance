@@ -17,7 +17,7 @@ export function usePairAddressForTokens(tokenA?: string, tokenB?: string) {
     ['pair-address-token', Boolean(factoryContract), tokenA, tokenB],
     async () => {
       const pairAddress = await factoryContract!.getPair(tokenA!, tokenB!);
-      return pairAddress !== ZERO_ADDRESS ? pairAddress : null;
+      return pairAddress !== ZERO_ADDRESS ? pairAddress.toLowerCase() : null;
     },
     {
       enabled: Boolean(factoryContract && tokenA && tokenB),
@@ -38,7 +38,10 @@ export function useAllPairs() {
       return await Promise.all(
         Array(length.toNumber())
           .fill(0)
-          .map((_, index) => factoryContract!.allPairs(index))
+          .map(async (_, index) => {
+            const pairs = await factoryContract!.allPairs(index);
+            return pairs.toLowerCase();
+          })
       );
     },
     { enabled: Boolean(factoryContract) }
@@ -100,13 +103,16 @@ export function useAllPooledPairs() {
               pairContract.getReserves(),
             ]);
 
+          const tokenALowercase = tokenA.toLowerCase();
+          const tokenBLowercase = tokenB.toLowerCase();
+
           return {
             address: pairAddress,
             currentAccountBalance: new LiquidPoolTokenBalance(balance),
-            tokenA,
-            tokenB,
-            reserveA: new TokenBalance(tokenA, reserveA),
-            reserveB: new TokenBalance(tokenB, reserveB),
+            tokenA: tokenALowercase,
+            tokenB: tokenBLowercase,
+            reserveA: new TokenBalance(tokenALowercase, reserveA),
+            reserveB: new TokenBalance(tokenBLowercase, reserveB),
           };
         })
       ),
@@ -134,7 +140,8 @@ export function usePoolPair(tokenA?: string, tokenB?: string) {
   const { data: pairAddress } = usePairAddressForTokens(tokenA, tokenB);
 
   return useQuery<PooledPairResponse>(
-    ['pooled-pair', Boolean(provider), account, pairAddress],
+    // Depend on the tokenA and tokenB because order of the tokens matter.
+    ['pooled-pair', Boolean(provider), account, pairAddress, tokenA, tokenB],
     async () => {
       const pairContract = getUniswapV2PairContract(provider, pairAddress!)!;
       const [balance, token0, [reserveA, reserveB], totalSupply] =
@@ -145,6 +152,8 @@ export function usePoolPair(tokenA?: string, tokenB?: string) {
           pairContract.totalSupply(),
         ]);
 
+      const token0Lowercase = token0.toLowerCase();
+
       return {
         address: pairAddress!,
         currentAccountBalance: new LiquidPoolTokenBalance(balance),
@@ -153,11 +162,11 @@ export function usePoolPair(tokenA?: string, tokenB?: string) {
         tokenB: tokenB!,
         reserveA: new TokenBalance(
           tokenA!,
-          tokenA === token0 ? reserveA : reserveB
+          tokenA === token0Lowercase ? reserveA : reserveB
         ),
         reserveB: new TokenBalance(
           tokenB!,
-          tokenB === token0 ? reserveA : reserveB
+          tokenB === token0Lowercase ? reserveA : reserveB
         ),
       };
     },

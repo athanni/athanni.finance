@@ -69,7 +69,10 @@ export default function SwapInput({ isTokenA }: CurrencyInputProps) {
               }}
               onChange={(e) => {
                 handleAllowedInput(e, field.onChange, field.value);
-                setValue('editedToken', tokenAddress);
+                setValue(
+                  'editedToken',
+                  name === 'tokenAAmount' ? 'token0' : 'token1'
+                );
               }}
             />
           )}
