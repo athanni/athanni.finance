@@ -8,7 +8,7 @@ export default function Navigation() {
   return (
     <AppBar color="transparent" position="sticky" elevation={0}>
       <Toolbar sx={{ justifyContent: 'space-between' }}>
-        <Box flex={1}>
+        <Box flex={{ xs: 'auto', md: 1 }}>
           <Logo />
         </Box>
 
@@ -26,7 +26,7 @@ export default function Navigation() {
           justifyContent="flex-end"
           alignItems="center"
           spacing={1}
-          flex={1}
+          flex={{ xs: 'auto', md: 1 }}
         >
           <ConnectedChain />
           <ConnectWallet />
