@@ -60,6 +60,7 @@ export default function TokenInput({
                     alt={tok.name}
                     width={38}
                     height={38}
+                    borderRadius="100%"
                   />
                 </ListItemAvatar>
                 <ListItemText>
