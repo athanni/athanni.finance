@@ -1,22 +1,17 @@
-import {
-  AppBar,
-  Box,
-  Button,
-  ButtonGroup,
-  Stack,
-  Toolbar,
-} from '@mui/material';
+import { Button, ButtonGroup, Stack } from '@mui/material';
 import { useWeb3React } from '@web3-react/core';
 import { THETA_TESTNET_CHAIN_ID } from 'config/constants';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import ConnectedChain from './ConnectedChain';
-import ConnectWallet from './ConnectWallet';
-import Logo from './Logo';
 
-export default function PageNavigation() {
+type PageNavigationProps = {
+  size?: 'small' | 'large';
+};
+
+export default function PageNavigation({ size }: PageNavigationProps) {
   const { pathname } = useRouter();
   const { chainId } = useWeb3React();
+  const width = size === 'small' ? 90 : 120;
 
   return (
     <Stack flex={1} alignItems="center">
@@ -25,7 +20,7 @@ export default function PageNavigation() {
           <Button
             component="a"
             color={pathname === '/' ? 'secondary' : 'inherit'}
-            sx={{ width: 120 }}
+            sx={{ width }}
             // onClick={onSwitchTheta}
           >
             Swap
@@ -35,7 +30,7 @@ export default function PageNavigation() {
           <Button
             component="a"
             color={pathname === '/pool' ? 'secondary' : 'inherit'}
-            sx={{ width: 120 }}
+            sx={{ width }}
             // onClick={onSwitchTheta}
           >
             Pool
@@ -52,7 +47,7 @@ export default function PageNavigation() {
           <Button
             component="a"
             color={pathname.startsWith('/bridge') ? 'secondary' : 'inherit'}
-            sx={{ width: 120 }}
+            sx={{ width }}
           >
             Bridge
           </Button>

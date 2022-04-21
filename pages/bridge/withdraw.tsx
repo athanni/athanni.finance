@@ -1,6 +1,7 @@
 import { Container, Stack } from '@mui/material';
 import Bridger from 'components/Bridger';
 import BridgeWithdraw from 'components/BridgeWithdraw';
+import FooterNavigation from 'components/FooterNavigation';
 import Navigation from 'components/Navigation';
 
 export default function Deposit() {
@@ -14,6 +15,7 @@ export default function Deposit() {
           </Bridger>
         </Stack>
       </Container>
+      <FooterNavigation />
     </>
   );
 }

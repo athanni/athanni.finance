@@ -1,4 +1,5 @@
-import { Container, Stack, Typography } from '@mui/material';
+import { Container, Stack } from '@mui/material';
+import FooterNavigation from 'components/FooterNavigation';
 import Navigation from 'components/Navigation';
 import Swapper from 'components/Swapper';
 
@@ -11,6 +12,7 @@ export default function Home() {
           <Swapper />
         </Stack>
       </Container>
+      <FooterNavigation />
     </>
   );
 }
