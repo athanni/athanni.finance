@@ -1,16 +1,9 @@
-import {
-  Box,
-  Input,
-  MenuItem,
-  Select,
-  Stack,
-  Typography,
-  useTheme,
-} from '@mui/material';
+import { Box, Input, Stack, Typography, useTheme } from '@mui/material';
 import { useTokenBalance } from 'api/token';
 import { Token } from 'config/supportedTokens';
 import { Controller, useFormContext, useWatch } from 'react-hook-form';
 import { decimalRegex, handleAllowedInput } from 'utils/numeric';
+import TokenInput from './TokenInput';
 
 type BridgeInputProps = {
   network: string;
@@ -68,30 +61,11 @@ export default function BridgeInput({ network, options }: BridgeInputProps) {
           name="address"
           control={control}
           render={({ field }) => (
-            <Select
-              variant="standard"
-              size="small"
-              disableUnderline
-              sx={{
-                '& .MuiSelect-select': {
-                  bgcolor: 'grey.200',
-                  px: 2,
-                  py: 1,
-                  borderRadius: 1.5,
-                },
-              }}
+            <TokenInput
+              tokens={options}
               value={field.value}
               onChange={field.onChange}
-            >
-              <MenuItem value="0x">
-                <Typography color="textSecondary">-</Typography>
-              </MenuItem>
-              {options.map((opt) => (
-                <MenuItem key={opt.address} value={opt.address}>
-                  {opt.ticker}
-                </MenuItem>
-              ))}
-            </Select>
+            />
           )}
         />
       </Stack>

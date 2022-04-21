@@ -17,7 +17,7 @@ import { useBoolean } from 'react-use';
 type TokenInputProps = {
   tokens: Token[];
   value: string;
-  onChange: (value: string) => void;
+  onChange?: (value: string) => void;
 };
 
 export default function TokenInput({
@@ -30,7 +30,12 @@ export default function TokenInput({
 
   return (
     <>
-      <Button variant="contained" color="inherit" onClick={toggleOpen}>
+      <Button
+        variant="contained"
+        color="inherit"
+        onClick={toggleOpen}
+        disabled={!onChange}
+      >
         {token?.ticker ?? 'Token'}
       </Button>
 
@@ -44,7 +49,7 @@ export default function TokenInput({
                 button
                 sx={{ px: 4 }}
                 onClick={() => {
-                  onChange(tok.address);
+                  onChange!(tok.address);
                   toggleOpen(false);
                 }}
               >
