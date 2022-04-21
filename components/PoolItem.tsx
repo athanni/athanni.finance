@@ -54,6 +54,7 @@ export default function PoolItem({ pair }: PoolItemProps) {
                 alt={`${tokenA.name}`}
                 width={48}
                 height={48}
+                borderRadius="100%"
               />
               <Box
                 component="img"
@@ -64,6 +65,7 @@ export default function PoolItem({ pair }: PoolItemProps) {
                 position="absolute"
                 top={0}
                 left={20}
+                borderRadius="100%"
               />
             </Stack>
 
