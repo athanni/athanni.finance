@@ -49,6 +49,7 @@ export default function BridgeInputReadonly({ network }: BridgeInputProps) {
         <TokenInput
           tokens={token ? [token] : []}
           value={token?.address ?? ''}
+          disabled
         />
       </Stack>
       <Typography variant="body2" color="textSecondary">
