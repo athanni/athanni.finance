@@ -78,7 +78,7 @@
   },
   {
     "address": "0x38B7bFcDb35Df80dC98Cd04c256B96cB262EA533",
-    "name": "Basic Attention Token",
+    "name": "BAT",
     "ticker": "BAT",
     "decimals": 18,
     "logoUrl": "/assets/BAT.png"
