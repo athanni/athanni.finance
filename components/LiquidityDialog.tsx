@@ -7,6 +7,7 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
+  IconButton,
   Stack,
   Typography,
 } from '@mui/material';
@@ -22,6 +23,7 @@ import { ethers } from 'ethers';
 import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Controller, FormProvider, useForm, useWatch } from 'react-hook-form';
+import { MdSwapHoriz } from 'react-icons/md';
 import { useQueryClient } from 'react-query';
 import { useBoolean } from 'react-use';
 import { calculateSlippageMin } from 'utils/slippage';
@@ -66,6 +68,7 @@ export default function LiquidityDialog() {
     setValue,
     handleSubmit,
     formState: { isSubmitting },
+    getValues,
   } = form;
 
   const token0 = useWatch({ control, name: 'token0' });
@@ -196,6 +199,14 @@ export default function LiquidityDialog() {
     [addLiquidity, approvalOfTransfer, enqueueSnackbar, queryClient, toggleOpen]
   );
 
+  const onSwapTokenInputs = useCallback(() => {
+    const values = getValues();
+    setValue('token0', values.token1);
+    setValue('token1', values.token0);
+    setValue('token0Deposit', '');
+    setValue('token1Deposit', '');
+  }, [getValues, setValue]);
+
   const { data: pair, isLoading: isPoolPairLoading } = usePoolPair(
     tokenA,
     tokenB
@@ -222,7 +233,7 @@ export default function LiquidityDialog() {
           <form onSubmit={handleSubmit(onSubmit)}>
             <FormProvider {...form}>
               <Typography fontWeight="medium">Select Pair</Typography>
-              <Stack direction="row" spacing={2} mt={2}>
+              <Stack direction="row" spacing={1} mt={2} alignItems="center">
                 <Controller
                   name="token0"
                   control={control}
@@ -249,6 +260,13 @@ export default function LiquidityDialog() {
                     />
                   )}
                 />
+
+                <IconButton
+                  sx={{ width: 56, height: 56 }}
+                  onClick={onSwapTokenInputs}
+                >
+                  <MdSwapHoriz />
+                </IconButton>
 
                 <Controller
                   name="token1"

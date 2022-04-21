@@ -45,11 +45,12 @@ export default function TokenInput({
         color="inherit"
         onClick={toggleOpen}
         disabled={disabled}
+        {...(ButtonProps ?? {})}
         sx={{
           justifyContent: 'space-between',
           pr: 1,
+          ...(ButtonProps?.sx ?? {}),
         }}
-        {...(ButtonProps ?? {})}
       >
         {!disableLogo && (
           <>
