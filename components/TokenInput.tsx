@@ -20,6 +20,7 @@ type TokenInputProps = {
   tokens: Token[];
   value: string;
   disabled?: boolean;
+  disableLogo?: boolean;
   onChange?: (value: string) => void;
   ButtonProps?: ButtonProps;
   render?: (value: Token | null) => ReactNode;
@@ -29,6 +30,7 @@ export default function TokenInput({
   tokens,
   value,
   disabled,
+  disableLogo,
   onChange,
   ButtonProps,
   render,
@@ -45,23 +47,31 @@ export default function TokenInput({
         disabled={disabled}
         sx={{
           justifyContent: 'space-between',
+          pr: 1,
         }}
         {...(ButtonProps ?? {})}
       >
-        {token ? (
-          <Box
-            component="img"
-            src={token.logoUrl}
-            alt={token.name}
-            width={38}
-            height={38}
-            borderRadius="100%"
-          />
-        ) : (
-          <Box width={38} height={38} />
+        {!disableLogo && (
+          <>
+            {token ? (
+              <Box
+                component="img"
+                src={token.logoUrl}
+                alt={token.name}
+                width={38}
+                height={38}
+                borderRadius="100%"
+              />
+            ) : (
+              <Box width={38} height={38} />
+            )}
+          </>
         )}
         <Box flex={1}>{render ? render(token) : token?.ticker ?? 'Token'}</Box>
-        <Box component={MdArrowDropDown} sx={{ width: 24, height: 24 }} />
+        <Box
+          component={MdArrowDropDown}
+          sx={{ width: 36, height: 24, ml: 0.5 }}
+        />
       </Button>
 
       <Dialog open={open} onClose={toggleOpen} fullWidth maxWidth="xs">

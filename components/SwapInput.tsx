@@ -83,6 +83,7 @@ export default function SwapInput({ isTokenA }: CurrencyInputProps) {
               tokens={tokenList}
               value={field.value}
               onChange={field.onChange}
+              disableLogo
             />
           )}
         />

@@ -65,6 +65,7 @@ export default function BridgeInput({ network, options }: BridgeInputProps) {
               tokens={options}
               value={field.value}
               onChange={field.onChange}
+              disableLogo
             />
           )}
         />
