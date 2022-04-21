@@ -9,6 +9,7 @@ import {
   Typography,
 } from '@mui/material';
 import { sendTokens } from 'api/faucet';
+import FooterNavigation from 'components/FooterNavigation';
 import Navigation from 'components/Navigation';
 import rinkebyTokens from 'config/rinkebyTokens.json';
 import { ethers } from 'ethers';
@@ -129,6 +130,7 @@ export default function Faucet() {
           </Paper>
         </Stack>
       </Container>
+      <FooterNavigation />
     </>
   );
 }

@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   ButtonProps,
   Dialog,
@@ -46,11 +47,12 @@ export default function ConnectWallet({ buttonProps }: ConnectWalletProps) {
   }, [isUnsupported]);
 
   const connectWallet = !account && !isUnsupported && 'Connect Wallet';
-  const wrongNetwork =
+  const switchNetworkText =
     isUnsupported &&
     `Switch To ${
       correctChainId === THETA_TESTNET_CHAIN_ID ? 'Theta Testnet' : 'Rinkeby'
     }`;
+  const switchNetworkShort = 'Switch';
   const address = isActive && account && shorternAddress(account);
 
   const switchNetwork = useCallback(async () => {
@@ -70,7 +72,12 @@ export default function ConnectWallet({ buttonProps }: ConnectWalletProps) {
         startIcon={isUnsupported ? <MdSwitchRight /> : null}
         onClick={onClick}
       >
-        {connectWallet || wrongNetwork || address}
+        <Box display={{ xs: 'none', md: 'block' }}>
+          {connectWallet || switchNetworkText || address}
+        </Box>
+        <Box display={{ xs: 'block', md: 'none' }}>
+          {connectWallet || switchNetworkShort || address}
+        </Box>
       </Button>
 
       {/* Show the dialog to connect wallet if its not connected. */}

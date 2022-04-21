@@ -1,6 +1,7 @@
-import { Alert, Container, Stack, Link } from '@mui/material';
+import { Alert, Container, Link, Stack } from '@mui/material';
 import BridgeDeposit from 'components/BridgeDeposit';
 import Bridger from 'components/Bridger';
+import FooterNavigation from 'components/FooterNavigation';
 import Navigation from 'components/Navigation';
 import NLink from 'next/link';
 
@@ -29,6 +30,7 @@ export default function Deposit() {
           </Alert>
         </Stack>
       </Container>
+      <FooterNavigation />
     </>
   );
 }

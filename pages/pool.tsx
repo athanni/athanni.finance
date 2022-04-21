@@ -1,4 +1,5 @@
 import { Container, Stack } from '@mui/material';
+import FooterNavigation from 'components/FooterNavigation';
 import Navigation from 'components/Navigation';
 import Pooler from 'components/Pooler';
 
@@ -11,6 +12,7 @@ export default function Pool() {
           <Pooler />
         </Stack>
       </Container>
+      <FooterNavigation />
     </>
   );
 }
