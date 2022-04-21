@@ -140,7 +140,8 @@ export function usePoolPair(tokenA?: string, tokenB?: string) {
   const { data: pairAddress } = usePairAddressForTokens(tokenA, tokenB);
 
   return useQuery<PooledPairResponse>(
-    ['pooled-pair', Boolean(provider), account, pairAddress],
+    // Depend on the tokenA and tokenB because order of the tokens matter.
+    ['pooled-pair', Boolean(provider), account, pairAddress, tokenA, tokenB],
     async () => {
       const pairContract = getUniswapV2PairContract(provider, pairAddress!)!;
       const [balance, token0, [reserveA, reserveB], totalSupply] =
