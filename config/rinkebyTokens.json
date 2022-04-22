@@ -37,7 +37,7 @@
   {
     "address": "0xA5cBD0E199d4AD1631f144ce0F21730294ED50A9",
     "name": "Wrapped Bitcoin",
-    "ticker": "BTC",
+    "ticker": "WBTC",
     "decimals": 18,
     "logoUrl": "/assets/BTC.png"
   },
