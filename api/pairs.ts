@@ -177,6 +177,18 @@ export function usePoolPair(tokenA?: string, tokenB?: string) {
 }
 
 /**
+ * Gets the pair data for all the pool pairs. Make sure that the length of [poolPairs] never changes.
+ */
+export function usePoolPairs(poolPairs: [string, string][]) {
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const queries = poolPairs.map((pair) => usePoolPair(pair[0], pair[1]));
+  return {
+    data: queries.map((it) => it.data),
+    isLoading: queries.some((it) => it.isLoading),
+  };
+}
+
+/**
  * Gets all the swappable token addresses from all the pooled pairs.
  */
 export function useSwappableTokens() {

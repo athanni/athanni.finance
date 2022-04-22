@@ -16,7 +16,6 @@ export default function SwapInfo({ path, swapDirection }: SwapInfoProps) {
   const first = path[0];
   const last = path[path.length - 1];
 
-  const impact = usePriceImpact(path);
   const [min, max] = useSlippageAmount(first, last);
 
   const swapRate = last.dividedBy(first.inMajorUnit());
@@ -24,6 +23,8 @@ export default function SwapInfo({ path, swapDirection }: SwapInfoProps) {
   const minMaxSwapRateText = minMaxSwapRate.lt(new BigNumber('0.0001'))
     ? '< 0.0001'
     : minMaxSwapRate.toString();
+
+  const impact = usePriceImpact(path);
 
   return (
     <Paper variant="outlined" sx={{ mt: 3, px: 2, py: 1, bgcolor: 'grey.100' }}>
