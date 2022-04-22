@@ -2,13 +2,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { LoadingButton } from '@mui/lab';
 import { Stack } from '@mui/material';
 import { bridgeToRinkeby, useBurnAmountInTheta } from 'api/bridge';
-import { useApprovalOfTransfer } from 'api/token';
+import { useApprovalOfTransfer, useTokenBalance } from 'api/token';
 import BigNumber from 'bignumber.js';
 import config from 'config/config';
 import { thetaTestnetTokens } from 'config/supportedTokens';
 import { ethers } from 'ethers';
 import { useSnackbar } from 'notistack';
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { rinkebyProvider } from 'utils/ethers';
 import { convertAmountToBaseUnit } from 'utils/numeric';
@@ -96,7 +96,26 @@ export default function BridgeWithdraw() {
 
   const address = useWatch({ control, name: 'address' });
   const amount = useWatch({ control, name: 'amount' });
-  const tokenSelect = address === '0x' && 'Select Token';
+
+  const amountBaseUnit = useMemo(
+    () =>
+      address && amount ? convertAmountToBaseUnit(amount, address) : undefined,
+    [address, amount]
+  );
+
+  const tokenAddress = address !== '0x' ? address : undefined;
+  const { data: tokenBalance } = useTokenBalance(tokenAddress);
+
+  const isUnderFunded = useMemo(
+    () =>
+      tokenBalance && amountBaseUnit
+        ? tokenBalance.balance.lt(ethers.BigNumber.from(amountBaseUnit))
+        : false,
+    [tokenBalance, amountBaseUnit]
+  );
+
+  const inputAmountUnderFunded = isUnderFunded && 'Token Under Funded';
+  const tokenSelect = !tokenAddress && 'Select Token';
   const inputAmount = !amount && 'Input Amount';
 
   return (
@@ -113,8 +132,13 @@ export default function BridgeWithdraw() {
             loadingPosition="start"
             // Just to shut the error.
             startIcon={<></>}
+            disabled={isUnderFunded}
           >
-            {txStatus || tokenSelect || inputAmount || 'Withdraw'}
+            {txStatus ||
+              inputAmountUnderFunded ||
+              tokenSelect ||
+              inputAmount ||
+              'Withdraw'}
           </LoadingButton>
         </ConnectWrapper>
       </Stack>
