@@ -146,6 +146,12 @@ export default function RemoveLiquidityDialog({
         amountAMin: tokenAMinAmount.balance.toString(),
         amountBMin: tokenBMinAmount.balance.toString(),
       });
+      await removeTx?.wait();
+
+      // Refetch all the liquidity pairs and balances.
+      queryClient.invalidateQueries('token-balance');
+      queryClient.invalidateQueries('all-pairs');
+      queryClient.invalidateQueries('all-pooled-pairs');
 
       enqueueSnackbar('Successfully withdrew liquidity.', {
         variant: 'success',
@@ -163,12 +169,6 @@ export default function RemoveLiquidityDialog({
           ) : null,
       });
       onClose();
-
-      removeTx?.wait().then(() => {
-        // Refetch all the liquidity pairs.
-        queryClient.invalidateQueries('all-pairs');
-        queryClient.invalidateQueries('all-pooled-pairs');
-      });
     } catch (err) {
       enqueueSnackbar('Failed to withdraw liquidity.', {
         variant: 'error',

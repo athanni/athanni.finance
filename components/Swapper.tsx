@@ -16,6 +16,7 @@ import { useSnackbar } from 'notistack';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
 import { MdSwapVert } from 'react-icons/md';
+import { useQueryClient } from 'react-query';
 import { convertAmountToBaseUnit } from 'utils/numeric';
 import { calculateSlippageMax, calculateSlippageMin } from 'utils/slippage';
 import { z } from 'zod';
@@ -125,6 +126,7 @@ export default function Swapper() {
     }
   }, [editedToken, path, setValue]);
 
+  const queryClient = useQueryClient();
   const [txStatus, setTxStatus] = useState<string | null>(null);
   const { enqueueSnackbar } = useSnackbar();
   const approvalOfTransfer = useApprovalOfTransfer();
@@ -145,6 +147,7 @@ export default function Swapper() {
 
         setTxStatus('Approving Token Transfer');
 
+        let swapTx: ethers.ContractTransaction | undefined;
         // Source tokens are exact.
         if (editedToken === 'token0') {
           const amountOutMin = calculateSlippageMin(
@@ -161,15 +164,11 @@ export default function Swapper() {
 
           setTxStatus('Swapping Tokens');
 
-          const swapTx = await swapExactTokensForTokens({
+          swapTx = await swapExactTokensForTokens({
             amountIn: first.balance.toString(),
             amountOutMin,
             path: path.map((it) => it.address),
           });
-
-          if (swapTx) {
-            explorerUrl = explorerTransactionUrl(swapTx.hash);
-          }
         } else {
           // Destination tokens are exact.
           const amountInMax = calculateSlippageMax(
@@ -186,15 +185,15 @@ export default function Swapper() {
 
           setTxStatus('Swapping Tokens');
 
-          const swapTx = await swapTokensForExactTokens({
+          swapTx = await swapTokensForExactTokens({
             amountOut: last.balance.toString(),
             amountInMax,
             path: path.map((it) => it.address),
           });
+        }
 
-          if (swapTx) {
-            explorerUrl = explorerTransactionUrl(swapTx.hash);
-          }
+        if (swapTx) {
+          explorerUrl = explorerTransactionUrl(swapTx.hash);
         }
 
         reset();
@@ -213,6 +212,10 @@ export default function Swapper() {
               </Button>
             ) : null,
         });
+
+        await swapTx?.wait();
+        queryClient.invalidateQueries('token-balance');
+        queryClient.invalidateQueries('all-pooled-pairs');
       } catch (err) {
         enqueueSnackbar('Failed to swap.', {
           variant: 'error',
@@ -226,6 +229,7 @@ export default function Swapper() {
       approvalOfTransfer,
       enqueueSnackbar,
       path,
+      queryClient,
       reset,
       swapExactTokensForTokens,
       swapTokensForExactTokens,

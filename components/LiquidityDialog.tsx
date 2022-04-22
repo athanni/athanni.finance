@@ -165,7 +165,8 @@ export default function LiquidityDialog() {
           amountBMin,
         });
         await addTx?.wait();
-        // Refetch all the liquidity pairs.
+        // Refetch all the liquidity pairs and token balances.
+        queryClient.invalidateQueries('token-balance');
         queryClient.invalidateQueries('all-pairs');
         queryClient.invalidateQueries('all-pooled-pairs');
 
