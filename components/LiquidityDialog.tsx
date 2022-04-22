@@ -163,6 +163,10 @@ export default function LiquidityDialog() {
           amountAMin,
           amountBMin,
         });
+        await addTx?.wait();
+        // Refetch all the liquidity pairs.
+        queryClient.invalidateQueries('all-pairs');
+        queryClient.invalidateQueries('all-pooled-pairs');
 
         enqueueSnackbar('Successfully added liquidity.', {
           variant: 'success',
@@ -181,12 +185,6 @@ export default function LiquidityDialog() {
         });
 
         toggleOpen(false);
-
-        addTx?.wait().then(() => {
-          // Refetch all the liquidity pairs.
-          queryClient.invalidateQueries('all-pairs');
-          queryClient.invalidateQueries('all-pooled-pairs');
-        });
       } catch (err) {
         enqueueSnackbar('Failed to add liquidity.', {
           variant: 'error',
