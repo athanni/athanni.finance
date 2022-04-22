@@ -7,7 +7,7 @@ import {
   useSwapExactTokensForTokens,
   useSwapTokensForExactTokens,
 } from 'api/router';
-import { useApprovalOfTransfer } from 'api/token';
+import { useApprovalOfTransfer, useTokenBalance } from 'api/token';
 import BigNumber from 'bignumber.js';
 import { explorerTransactionUrl } from 'config/config';
 import { DEFAULT_SPLIPPAGE_RATE } from 'config/constants';
@@ -232,6 +232,17 @@ export default function Swapper() {
     ]
   );
 
+  // Check if the wallet is underfunded for the swap.
+  const { data: tokenABalance } = useTokenBalance(token0);
+  const isUnderFunded = useMemo(
+    () =>
+      tokenABalance && tokenABaseUnit
+        ? tokenABalance.balance.lt(ethers.BigNumber.from(tokenABaseUnit))
+        : false,
+    [tokenABalance, tokenABaseUnit]
+  );
+
+  const inputAmountUnderFunded = isUnderFunded && 'Token Under Funded';
   const selectToken = (!token0 || !token1) && 'Select Token';
   const targetLarge =
     !isSwapAmountLoading &&
@@ -276,10 +287,12 @@ export default function Swapper() {
                 loading={isSubmitting}
                 disabled={
                   isSwapAmountLoading ||
-                  (!tokenAAmount && Boolean(tokenBAmount))
+                  (!tokenAAmount && Boolean(tokenBAmount)) ||
+                  isUnderFunded
                 }
               >
                 {txStatus ||
+                  inputAmountUnderFunded ||
                   selectToken ||
                   targetLarge ||
                   inputAmount ||
