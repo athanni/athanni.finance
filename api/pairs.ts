@@ -133,6 +133,44 @@ type PooledPairResponse = {
 };
 
 /**
+ * Gets the pool pair data for a token pair.
+ */
+async function getPoolPair(
+  pairAddress: string,
+  tokenA: string,
+  tokenB: string,
+  provider: any,
+  account: string
+) {
+  const pairContract = getUniswapV2PairContract(provider, pairAddress)!;
+  const [balance, token0, [reserveA, reserveB], totalSupply] =
+    await Promise.all([
+      pairContract.balanceOf(account),
+      pairContract.token0(),
+      pairContract.getReserves(),
+      pairContract.totalSupply(),
+    ]);
+
+  const token0Lowercase = token0.toLowerCase();
+
+  return {
+    address: pairAddress!,
+    currentAccountBalance: new LiquidPoolTokenBalance(balance),
+    totalSupply: new LiquidPoolTokenBalance(totalSupply),
+    tokenA: tokenA!,
+    tokenB: tokenB!,
+    reserveA: new TokenBalance(
+      tokenA!,
+      tokenA === token0Lowercase ? reserveA : reserveB
+    ),
+    reserveB: new TokenBalance(
+      tokenB!,
+      tokenB === token0Lowercase ? reserveA : reserveB
+    ),
+  };
+}
+
+/**
  * Get a pooled pair for a token pair.
  */
 export function usePoolPair(tokenA?: string, tokenB?: string) {
@@ -142,34 +180,7 @@ export function usePoolPair(tokenA?: string, tokenB?: string) {
   return useQuery<PooledPairResponse>(
     // Depend on the tokenA and tokenB because order of the tokens matter.
     ['pooled-pair', Boolean(provider), account, pairAddress, tokenA, tokenB],
-    async () => {
-      const pairContract = getUniswapV2PairContract(provider, pairAddress!)!;
-      const [balance, token0, [reserveA, reserveB], totalSupply] =
-        await Promise.all([
-          pairContract.balanceOf(account!),
-          pairContract.token0(),
-          pairContract.getReserves(),
-          pairContract.totalSupply(),
-        ]);
-
-      const token0Lowercase = token0.toLowerCase();
-
-      return {
-        address: pairAddress!,
-        currentAccountBalance: new LiquidPoolTokenBalance(balance),
-        totalSupply: new LiquidPoolTokenBalance(totalSupply),
-        tokenA: tokenA!,
-        tokenB: tokenB!,
-        reserveA: new TokenBalance(
-          tokenA!,
-          tokenA === token0Lowercase ? reserveA : reserveB
-        ),
-        reserveB: new TokenBalance(
-          tokenB!,
-          tokenB === token0Lowercase ? reserveA : reserveB
-        ),
-      };
-    },
+    async () => getPoolPair(pairAddress!, tokenA!, tokenB!, provider, account!),
     {
       enabled: Boolean(provider && account && pairAddress),
     }
@@ -177,15 +188,43 @@ export function usePoolPair(tokenA?: string, tokenB?: string) {
 }
 
 /**
- * Gets the pair data for all the pool pairs. Make sure that the length of [poolPairs] never changes.
+ * Gets the pair data for all the pool pairs.
  */
 export function usePoolPairs(poolPairs: [string, string][]) {
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  const queries = poolPairs.map((pair) => usePoolPair(pair[0], pair[1]));
-  return {
-    data: queries.map((it) => it.data),
-    isLoading: queries.some((it) => it.isLoading),
-  };
+  const { account, provider } = useWeb3React();
+  const { data: allPooledPairs } = useAllPooledPairs();
+
+  return useQuery(
+    ['pooled-pairs', Boolean(provider), account, poolPairs],
+    async () => {
+      const poolAddresses = poolPairs.map((pair) => {
+        const pooledPair = allPooledPairs?.find(
+          (it) =>
+            (it.tokenA === pair[0] && it.tokenB === pair[1]) ||
+            (it.tokenA === pair[1] && it.tokenB === pair[0])
+        );
+
+        return pooledPair?.address;
+      });
+
+      const allPooled = poolAddresses.every((it) => Boolean(it));
+      if (!allPooled) {
+        return null;
+      }
+
+      return await Promise.all(
+        poolPairs.map((pair, index) =>
+          getPoolPair(
+            poolAddresses[index]!,
+            pair[0],
+            pair[1],
+            provider,
+            account!
+          )
+        )
+      );
+    }
+  );
 }
 
 /**

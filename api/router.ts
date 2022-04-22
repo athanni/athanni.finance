@@ -260,12 +260,7 @@ export function usePriceImpact(path: TokenBalance[]) {
   // Gets the best price of the first token against the last token in the path just considering
   // the reserves.
   const bestPrice = useMemo(() => {
-    if (isPoolPairsLoading) {
-      return null;
-    }
-
-    const allExists = poolPairs.every((it) => Boolean(it));
-    if (!allExists) {
+    if (isPoolPairsLoading || !poolPairs) {
       return null;
     }
 
