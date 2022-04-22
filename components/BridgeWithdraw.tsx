@@ -10,6 +10,7 @@ import { ethers } from 'ethers';
 import { useSnackbar } from 'notistack';
 import { useCallback, useMemo, useState } from 'react';
 import { FormProvider, useForm, useWatch } from 'react-hook-form';
+import { useQueryClient } from 'react-query';
 import { rinkebyProvider } from 'utils/ethers';
 import { convertAmountToBaseUnit } from 'utils/numeric';
 import { z } from 'zod';
@@ -44,6 +45,7 @@ export default function BridgeWithdraw() {
     reset,
   } = form;
 
+  const queryClient = useQueryClient();
   const [txStatus, setTxStatus] = useState<string | null>(null);
   const { enqueueSnackbar } = useSnackbar();
   const approvalOfTransfer = useApprovalOfTransfer();
@@ -81,6 +83,8 @@ export default function BridgeWithdraw() {
           variant: 'success',
         });
         reset();
+
+        queryClient.invalidateQueries('token-balance');
       } catch (err) {
         enqueueSnackbar('Failed to bridge tokens.', {
           variant: 'error',
@@ -91,7 +95,7 @@ export default function BridgeWithdraw() {
         setTxStatus(null);
       }
     },
-    [approvalOfTransfer, burnAmountInTheta, enqueueSnackbar, reset]
+    [approvalOfTransfer, burnAmountInTheta, enqueueSnackbar, queryClient, reset]
   );
 
   const address = useWatch({ control, name: 'address' });
