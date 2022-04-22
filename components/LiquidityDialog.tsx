@@ -14,7 +14,7 @@ import {
 import { useWeb3React } from '@web3-react/core';
 import { usePairAddressForTokens, usePoolPair } from 'api/pairs';
 import { useAddLiquidity } from 'api/router';
-import { useApprovalOfTransfer } from 'api/token';
+import { useApprovalOfTransfer, useTokenBalance } from 'api/token';
 import BigNumber from 'bignumber.js';
 import { explorerTransactionUrl } from 'config/config';
 import { DEFAULT_SPLIPPAGE_RATE } from 'config/constants';
@@ -26,6 +26,7 @@ import { Controller, FormProvider, useForm, useWatch } from 'react-hook-form';
 import { MdSwapHoriz, MdSwapVert } from 'react-icons/md';
 import { useQueryClient } from 'react-query';
 import { useBoolean } from 'react-use';
+import { convertAmountToBaseUnit } from 'utils/numeric';
 import { calculateSlippageMin } from 'utils/slippage';
 import { z } from 'zod';
 import ConnectWrapper from './ConnectWrapper';
@@ -216,6 +217,38 @@ export default function LiquidityDialog() {
     [pair]
   );
 
+  const { data: tokenABalance } = useTokenBalance(tokenA);
+  const { data: tokenBBalance } = useTokenBalance(tokenB);
+  const token0DepositBaseUnit = useMemo(
+    () =>
+      tokenA && token0Deposit
+        ? convertAmountToBaseUnit(token0Deposit, tokenA)
+        : undefined,
+    [token0Deposit, tokenA]
+  );
+  const token1DepositBaseUnit = useMemo(
+    () =>
+      tokenB && token1Deposit
+        ? convertAmountToBaseUnit(token1Deposit, tokenB)
+        : undefined,
+    [token1Deposit, tokenB]
+  );
+
+  const isUnderFunded = useMemo(
+    () =>
+      tokenABalance &&
+      tokenBBalance &&
+      token0DepositBaseUnit &&
+      token1DepositBaseUnit
+        ? tokenABalance.balance.lt(
+            ethers.BigNumber.from(token0DepositBaseUnit)
+          ) ||
+          tokenBBalance.balance.lt(ethers.BigNumber.from(token1DepositBaseUnit))
+        : false,
+    [token0DepositBaseUnit, token1DepositBaseUnit, tokenABalance, tokenBBalance]
+  );
+
+  const inputAmountUnderFunded = isUnderFunded && 'Token Under Funded';
   const selectToken = (!tokenA || !tokenB) && 'Select Token';
   const inputAmount = (!token0Deposit || !token1Deposit) && 'Input Amount';
 
@@ -360,9 +393,13 @@ export default function LiquidityDialog() {
                     // Just to shut the error.
                     startIcon={<></>}
                     loading={isSubmitting}
-                    disabled={isPairAddressLoading}
+                    disabled={isPairAddressLoading || isUnderFunded}
                   >
-                    {txStatus || selectToken || inputAmount || 'Add Liquidity'}
+                    {txStatus ||
+                      inputAmountUnderFunded ||
+                      selectToken ||
+                      inputAmount ||
+                      'Add Liquidity'}
                   </LoadingButton>
                 </ConnectWrapper>
               </Box>
