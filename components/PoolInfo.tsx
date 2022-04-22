@@ -1,5 +1,5 @@
 import { Paper, Stack, Typography } from '@mui/material';
-import { usePoolPair } from 'api/pairs';
+import { usePooledPair } from 'api/pairs';
 import { resolveToken } from 'config/supportedTokens';
 
 type PoolRatioProps = {
@@ -8,7 +8,7 @@ type PoolRatioProps = {
 };
 
 export default function PoolInfo({ tokenA, tokenB }: PoolRatioProps) {
-  const { data: pair } = usePoolPair(tokenA, tokenB);
+  const { data: pair } = usePooledPair(tokenA, tokenB);
   const token0 = resolveToken(tokenA)!;
   const token1 = resolveToken(tokenB)!;
 

@@ -9,7 +9,7 @@ import {
   Stack,
   Typography,
 } from '@mui/material';
-import { usePoolPair } from 'api/pairs';
+import { usePooledPair } from 'api/pairs';
 import { useRemoveLiquidity } from 'api/router';
 import { TokenBalance, useApprovalOfTransfer } from 'api/token';
 import BigNumber from 'bignumber.js';
@@ -58,7 +58,7 @@ export default function RemoveLiquidityDialog({
     resolver: zodResolver(schema),
   });
 
-  const { data: poolPair, isLoading: isPoolPairLoading } = usePoolPair(
+  const { data: poolPair, isLoading: isPoolPairLoading } = usePooledPair(
     tokenA,
     tokenB
   );

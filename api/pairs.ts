@@ -173,7 +173,7 @@ async function getPoolPair(
 /**
  * Get a pooled pair for a token pair.
  */
-export function usePoolPair(tokenA?: string, tokenB?: string) {
+export function usePooledPair(tokenA?: string, tokenB?: string) {
   const { account, provider } = useWeb3React();
   const { data: pairAddress } = usePairAddressForTokens(tokenA, tokenB);
 
@@ -188,17 +188,17 @@ export function usePoolPair(tokenA?: string, tokenB?: string) {
 }
 
 /**
- * Gets the pair data for all the pool pairs.
+ * Gets the pair data for all the pooled pairs.
  */
-export function usePoolPairs(poolPairs: [string, string][]) {
+export function usePooledPairs(poolPairs: [string, string][]) {
   const { account, provider } = useWeb3React();
   const { data: allPooledPairs } = useAllPooledPairs();
 
   return useQuery(
-    ['pooled-pairs', Boolean(provider), account, poolPairs],
+    ['pooled-pairs', Boolean(provider), account, poolPairs, allPooledPairs],
     async () => {
       const poolAddresses = poolPairs.map((pair) => {
-        const pooledPair = allPooledPairs?.find(
+        const pooledPair = allPooledPairs!.find(
           (it) =>
             (it.tokenA === pair[0] && it.tokenB === pair[1]) ||
             (it.tokenA === pair[1] && it.tokenB === pair[0])
@@ -223,6 +223,11 @@ export function usePoolPairs(poolPairs: [string, string][]) {
           )
         )
       );
+    },
+    {
+      enabled: Boolean(
+        provider && account && poolPairs.length > 0 && allPooledPairs
+      ),
     }
   );
 }

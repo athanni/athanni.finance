@@ -12,7 +12,7 @@ import {
   Typography,
 } from '@mui/material';
 import { useWeb3React } from '@web3-react/core';
-import { usePairAddressForTokens, usePoolPair } from 'api/pairs';
+import { usePairAddressForTokens, usePooledPair } from 'api/pairs';
 import { useAddLiquidity } from 'api/router';
 import { useApprovalOfTransfer, useTokenBalance } from 'api/token';
 import BigNumber from 'bignumber.js';
@@ -206,7 +206,7 @@ export default function LiquidityDialog() {
     setValue('token1Deposit', '');
   }, [getValues, setValue]);
 
-  const { data: pair, isLoading: isPoolPairLoading } = usePoolPair(
+  const { data: pair, isLoading: isPoolPairLoading } = usePooledPair(
     tokenA,
     tokenB
   );

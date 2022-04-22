@@ -7,7 +7,7 @@ import { useQuery } from 'react-query';
 import { deadlineFromNow } from 'utils/deadline';
 import { useRouterContract } from 'utils/ethers';
 import { calculateSlippageMax, calculateSlippageMin } from 'utils/slippage';
-import { useAllPooledPairs, usePoolPairs } from './pairs';
+import { useAllPooledPairs, usePooledPairs } from './pairs';
 import { TokenBalance } from './token';
 
 type AddLiquidityArgs = {
@@ -254,20 +254,20 @@ export function usePriceImpact(path: TokenBalance[]) {
       }, [] as [string, string][]),
     [path]
   );
-  const { data: poolPairs, isLoading: isPoolPairsLoading } =
-    usePoolPairs(pairTokenAddresses);
+  const { data: pooledPairs, isLoading: isPoolPairsLoading } =
+    usePooledPairs(pairTokenAddresses);
 
   // Gets the best price of the first token against the last token in the path just considering
   // the reserves.
   const bestPrice = useMemo(() => {
-    if (isPoolPairsLoading || !poolPairs) {
+    if (isPoolPairsLoading || !pooledPairs) {
       return null;
     }
 
     // Gets the conversion of unit value of the left most token in the path against the last token
     // in the path.
     const conversions: BigNumber[] = [];
-    poolPairs.forEach((pair) => {
+    pooledPairs.forEach((pair) => {
       const p = pair!;
       // The price of the first token in the path against second token in the pair considering
       // the first token's amount.
@@ -280,7 +280,7 @@ export function usePriceImpact(path: TokenBalance[]) {
     });
 
     return conversions[conversions.length - 1].toFixed();
-  }, [isPoolPairsLoading, poolPairs]);
+  }, [isPoolPairsLoading, pooledPairs]);
 
   const first = path[0].balance.toString();
   const last = path[path.length - 1].balance.toString();
